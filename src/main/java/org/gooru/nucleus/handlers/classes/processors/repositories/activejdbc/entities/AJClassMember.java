@@ -40,12 +40,14 @@ public class AJClassMember extends Model {
 
     public static final String FETCH_FOR_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ?::uuid";
     public static final String FETCH_FOR_EMAIL_QUERY_FILTER = "class_id = ?::uuid and email = ?";
+    public static final String FETCH_FOR_MULTIPLE_EMAILS_QUERY_FILTER =
+        "class_id = ?::uuid and email = ANY(?::text[])";
     public static final String FETCH_ALL_QUERY_FILTER = "class_id = ?::uuid";
     public static final String DELETE_MEMBERSHIP_FOR_CLASS_QUERY = "delete from class_member where class_id = ?::uuid";
     public static final String FETCH_USER_MEMBERSHIP_QUERY =
         "select class_id from class_member cm, class c where cm.user_id = ?::uuid and cm.class_member_status = "
             + "'joined'::class_member_status_type and cm.class_id = c.id and c.is_deleted = false order by "
-            + "cm.created_at desc";
+            + "cm.updated_at desc";
     public static final String FETCH_MEMBERSHIP_COUNT_FOR_CLASSES =
         "select class_id, count(class_id) from class_member where "
             + "class_member_status = 'joined'::class_member_status_type and class_id = ANY"
