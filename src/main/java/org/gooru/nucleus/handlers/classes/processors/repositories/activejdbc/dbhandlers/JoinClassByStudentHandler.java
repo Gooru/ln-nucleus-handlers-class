@@ -79,9 +79,10 @@ class JoinClassByStudentHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> validateRequest() {
-        LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_VIA_CODE_FILTER, context.classCode());
+        String classCode = context.classCode().toUpperCase();
+        LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_VIA_CODE_FILTER, classCode);
         if (classes.isEmpty()) {
-            LOGGER.warn("Not able to find class with code '{}'", this.context.classCode());
+            LOGGER.warn("Not able to find class with code '{}'", classCode);
             return new ExecutionResult<>(
                 MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")),
                 ExecutionResult.ExecutionStatus.FAILED);
@@ -90,7 +91,7 @@ class JoinClassByStudentHandler implements DBHandler {
         this.classId = this.entityClass.getId().toString();
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
-            LOGGER.warn("Class with code '{}' is either archived or not of current version", context.classCode());
+            LOGGER.warn("Class with code '{}' is either archived or not of current version", classCode);
             return new ExecutionResult<>(
                 MessageResponseFactory
                     .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
