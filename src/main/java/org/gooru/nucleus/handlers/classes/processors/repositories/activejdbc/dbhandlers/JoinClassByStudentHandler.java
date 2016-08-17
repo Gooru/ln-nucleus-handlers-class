@@ -13,7 +13,9 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,13 +147,24 @@ class JoinClassByStudentHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.SUCCESSFUL);
             }
         }
-        // Now we need to save
-        boolean result = this.membership.save();
-        if (!result) {
-            LOGGER.error("Class membership with id '{}' and user '{}' failed to save", this.classId, context.userId());
-            if (this.membership.hasErrors()) {
-                return membershipErrors();
+        try {
+            // Now we need to save
+            boolean result = this.membership.save();
+            if (!result) {
+                LOGGER.error("Class membership with id '{}' and user '{}' failed to save", this.classId, context.userId());
+                if (this.membership.hasErrors()) {
+                    return membershipErrors();
+                }
             }
+        } catch (Exception e) {
+            if (e instanceof DBException && e.getCause() instanceof PSQLException && ((PSQLException) e.getCause())
+                .getSQLState().startsWith("23")) {
+                // User is already joined, during race condition, so nothing to do; just return successfully
+                return new ExecutionResult<>(
+                    MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("joined")),
+                    ExecutionResult.ExecutionStatus.SUCCESSFUL);
+            }
+            throw e;
         }
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
