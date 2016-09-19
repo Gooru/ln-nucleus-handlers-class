@@ -55,6 +55,7 @@ class JoinClassByStudentHandler implements DBHandler {
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
+        this.email = context.prefs().getString(MessageConstants.EMAIL_ID);
         // Payload should not be null
         if (context.request() == null) {
             LOGGER.warn("Payload is null");
