@@ -45,7 +45,7 @@ class ClassMemberAuthorizer implements Authorizer<AJEntityClass> {
     private boolean checkOwner(AJEntityClass model) {
         String creatorId = model.getString(AJEntityClass.CREATOR_ID);
         if (creatorId == null || creatorId.isEmpty() || !creatorId.equalsIgnoreCase(context.userId())) {
-            LOGGER.warn("User '{}' is not owner of class '{}'", context.userId(), context.classId());
+            LOGGER.warn("User '{}' is not owner of class '{}'", context.userId(), model.getId());
             return false;
         }
         return true;
@@ -59,7 +59,7 @@ class ClassMemberAuthorizer implements Authorizer<AJEntityClass> {
                 return true;
             }
         }
-        LOGGER.warn("User '{}' is not collaborator of class '{}'", context.userId(), context.classId());
+        LOGGER.warn("User '{}' is not collaborator of class '{}'", context.userId(), model.getId());
         return false;
     }
 }

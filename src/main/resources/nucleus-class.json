@@ -9,6 +9,8 @@
     "maximumPoolSize": 5
   },
   "app.configuration" : {
-    "class.end.date": "2017-06-30"
+    "class.end.date": "2017-06-30",
+    "populate.dummy.email": true,
+    "dummy.email.domain": "example.org"
   }
 }

@@ -16,6 +16,8 @@ public final class AppConfiguration implements Initializer {
     private static final String CLASS_END_DATE_KEY = "class.end.date";
     private static final JsonObject configuration = new JsonObject();
     private static final Logger LOGGER = LoggerFactory.getLogger(AppConfiguration.class);
+    private static final String POPULATE_DUMMY_EMAIL_KEY = "populate.dummy.email";
+    private static final String DUMMY_EMAIL_DOMAIN_KEY = "dummy.email.domain";
 
     public static AppConfiguration getInstance() {
         return Holder.INSTANCE;
@@ -45,6 +47,14 @@ public final class AppConfiguration implements Initializer {
 
     public String getClassEndDate() {
         return configuration.getJsonObject(KEY).getString(CLASS_END_DATE_KEY);
+    }
+    
+    public boolean getPopulateDummyEmail() {
+        return configuration.getJsonObject(KEY).getBoolean(POPULATE_DUMMY_EMAIL_KEY);
+    }
+
+    public String getDummyEmailDomain() {
+        return configuration.getJsonObject(KEY).getString(DUMMY_EMAIL_DOMAIN_KEY);
     }
 
     private static final class Holder {

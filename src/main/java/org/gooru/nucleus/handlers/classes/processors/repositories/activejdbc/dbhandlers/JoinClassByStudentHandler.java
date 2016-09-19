@@ -10,6 +10,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dba
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
+import org.gooru.nucleus.handlers.classes.processors.repositories.generators.GeneratorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
@@ -52,13 +53,6 @@ class JoinClassByStudentHandler implements DBHandler {
             LOGGER.warn("Anonymous user attempting to join class");
             return new ExecutionResult<>(
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
-                ExecutionResult.ExecutionStatus.FAILED);
-        }
-        this.email = context.prefs().getString(MessageConstants.EMAIL_ID);
-        if (email == null || email.isEmpty() || !email.contains("@")) {
-            LOGGER.error("Incorrect authroization, email not available");
-            return new ExecutionResult<>(
-                MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("email.not.available")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // Payload should not be null
@@ -106,10 +100,14 @@ class JoinClassByStudentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // Now get the membership record for that user
-        LazyList<AJClassMember> members =
-            AJClassMember.where(AJClassMember.FETCH_FOR_EMAIL_QUERY_FILTER, this.classId, this.email);
-        if (!members.isEmpty()) {
-            this.membership = members.get(0);
+        if (this.email != null && !this.email.isEmpty()) {
+            LazyList<AJClassMember> members =
+                AJClassMember.where(AJClassMember.FETCH_FOR_EMAIL_QUERY_FILTER, this.classId, this.email);
+            if (!members.isEmpty()) {
+                this.membership = members.get(0);
+            } else {
+                this.membership = null;
+            }
         } else {
             this.membership = null;
         }
@@ -126,7 +124,7 @@ class JoinClassByStudentHandler implements DBHandler {
             // Make an entry into the members tables in case of open class
             this.membership = new AJClassMember();
             this.membership.setClassId(this.classId);
-            this.membership.setString(AJClassMember.EMAIL, this.email);
+            this.membership.setString(AJClassMember.EMAIL, getUserEmailAddress());
             this.membership.setUserId(this.context.userId());
             this.membership.setRosterId(this.context.request().getString(AJClassMember.ROSTER_ID));
             this.membership.setCreatorSystem(this.context.request().getString(AJClassMember.CREATOR_SYSTEM));
@@ -192,5 +190,13 @@ class JoinClassByStudentHandler implements DBHandler {
         ExecutionResult<MessageResponse> result =
             AuthorizerBuilder.buildClassMembersAuthorizer(context).authorize(this.entityClass);
         return result.continueProcessing();
+    }
+    
+    private String getUserEmailAddress() {
+        String userEmail = (this.email != null && !this.email.isEmpty()) ? this.email : null; 
+        if (userEmail == null) {
+            userEmail = GeneratorBuilder.buildDummyEmailGenerator(this.context.userId()).generate();
+        }
+        return userEmail;
     }
 }
