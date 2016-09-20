@@ -168,9 +168,6 @@ class MessageProcessor implements Processor {
         if (!ProcessorContextHelper.validateContextForCode(context)) {
             return MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class"));
         }
-        if (!ProcessorContextHelper.validatePrefsForEmail(context)) {
-            return MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("email.not.available"));
-        }
         return RepoBuilder.buildClassRepo(context).joinClassByStudent();
     }
 
