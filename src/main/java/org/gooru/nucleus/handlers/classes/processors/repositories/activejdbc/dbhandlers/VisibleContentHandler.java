@@ -40,8 +40,8 @@ class VisibleContentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // The user should not be anonymous
-        if (context.userId() == null || context.userId().isEmpty() || context.userId()
-            .equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
+        if (context.userId() == null || context.userId().isEmpty()
+            || context.userId().equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
             LOGGER.warn("Anonymous user attempting to get visibility for course");
             return new ExecutionResult<>(
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
@@ -63,15 +63,16 @@ class VisibleContentHandler implements DBHandler {
         // Class should be of current version and Class should not be archived
         if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
             LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(MessageResponseFactory
-                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+            return new ExecutionResult<>(
+                MessageResponseFactory
+                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // Class should be associated with course
         courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
         if (courseId == null) {
-            LOGGER
-                .error("Class '{}' is not assigned to course, hence cannot get content visibility", context.classId());
+            LOGGER.error("Class '{}' is not assigned to course, hence cannot get content visibility",
+                context.classId());
             return new ExecutionResult<>(
                 MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.without.course")),
                 ExecutionResult.ExecutionStatus.FAILED);
@@ -81,22 +82,15 @@ class VisibleContentHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
-        // First check what is content visibility type setting for this class. If all is visible, no need to send any
-        // specific id. just tell that everything is visible. If only collections are visible, then fetch and send
-        // assessments which are explicitly marked as visible. If everything is hidden, then fetch everything from
-        // course and send it back.
+        // First check what is content visibility type setting for this class.
+        // If it is not exists then default to visible_collections
         String contentVisibilitySetting = this.entityClass.getContentVisibility();
+        LOGGER.debug("content visibility : '{}'", contentVisibilitySetting);
         JsonObject response = new JsonObject();
-        if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
-            response.put(AJEntityClass.CONTENT_VISIBILITY, AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL);
-        } else if (contentVisibilitySetting
-            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
-            response.put(AJEntityClass.CONTENT_VISIBILITY, AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION);
-            VisibleContentHelper.populateVisibleAssessments(this.context.classId(), this.courseId, response);
-        } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE)) {
-            response.put(AJEntityClass.CONTENT_VISIBILITY, AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE);
-            VisibleContentHelper.populateVisibleItems(this.context.classId(), this.courseId, response);
-        }
+        response.put(AJEntityClass.CONTENT_VISIBILITY, contentVisibilitySetting);
+        VisibleContentHelper.populateVisibleItems(this.context.classId(), this.courseId, contentVisibilitySetting,
+            response);
+
         return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(response),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }

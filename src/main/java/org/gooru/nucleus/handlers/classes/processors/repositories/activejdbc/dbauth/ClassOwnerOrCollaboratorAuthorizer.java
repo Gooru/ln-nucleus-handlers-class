@@ -29,7 +29,7 @@ class ClassOwnerOrCollaboratorAuthorizer implements Authorizer<AJEntityClass> {
         String courseId = model.getString(AJEntityClass.COURSE_ID);
         if (courseId != null && !courseId.isEmpty()) {
             LOGGER.warn("Authorization request for class '{}' which is having a course '{}'", context.classId(),
-                context.courseId());
+                courseId);
         }
         if (checkOwner(model) || checkCollaborator(model)) {
             return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);

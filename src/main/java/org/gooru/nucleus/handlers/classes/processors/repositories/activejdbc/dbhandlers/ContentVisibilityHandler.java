@@ -1,5 +1,10 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -83,6 +88,7 @@ public class ContentVisibilityHandler implements DBHandler {
                 MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
+        
         this.entityClass = classes.get(0);
         // Class should be of current version and Class should not be archived
         if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
@@ -91,16 +97,13 @@ public class ContentVisibilityHandler implements DBHandler {
                 .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        ExecutionResult<MessageResponse> result =
-            ContentVisibilityHelper.validatePayloadWithClassSetting(this.context.request(), this.entityClass);
-        if (result.hasFailed()) {
-            return result;
-        }
+        
         // Check authorization
-        result = AuthorizerBuilder.buildContentVisibilityAuthorizer(this.context).authorize(entityClass);
+        ExecutionResult<MessageResponse> result = AuthorizerBuilder.buildContentVisibilityAuthorizer(this.context).authorize(entityClass);
         if (result.hasFailed()) {
             return result;
         }
+        
         // Class should be associated with course
         courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
         if (courseId == null) {
@@ -110,22 +113,42 @@ public class ContentVisibilityHandler implements DBHandler {
                 MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.without.course")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
+        
         // Now validate the payload with DB
         return ContentVisibilityHelper.validatePayloadWithDB(context.request(), courseId, this.context.classId());
     }
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
-        JsonArray input = getInputToMarkVisible();
+        Map<String, String> collectionVisibilityMap = getInputToMark();
+        List<String> ids = new ArrayList<>(collectionVisibilityMap.keySet());
         // Note that here we are making collection table updates, this does not qualify as collection update
         // So we should not mark modifier id or modified date as the user may not even have access to these collections
         // From their perspective they are doing class operations
 
         try {
-            int count =
-                Base.exec(AJEntityCollection.VISIBILITY_DML, new JsonArray().add(this.context.classId()).toString(),
-                    this.courseId, Utils.convertListToPostgresArrayStringRepresentation(input.getList()));
-            LOGGER.debug("Marked {} items visible", count);
+            LazyList<AJEntityCollection> collections = AJEntityCollection.findBySQL(AJEntityCollection.FETCH_COLLECTIONS_CLASS_VISIBILITY_BY_ID, courseId,
+                Utils.convertListToPostgresArrayStringRepresentation(ids));
+            PreparedStatement ps = Base.startBatch(AJEntityCollection.VISIBILITY_DML);
+            collections.forEach(collection -> {
+                String id = collection.getString(AJEntityCollection.ID);
+                String strClassVisibility = collection.getString(AJEntityCollection.CLASS_VISIBILITY);
+                JsonObject classVisibility = strClassVisibility != null && !strClassVisibility.isEmpty()
+                    ? new JsonObject(strClassVisibility) : new JsonObject();
+                if(classVisibility.containsKey(context.classId())) {
+                    String currentVisibility = classVisibility.getString(context.classId());
+                    String newVisibility = collectionVisibilityMap.get(id).toString();
+                    if (!currentVisibility.equalsIgnoreCase(newVisibility)) {
+                        classVisibility.put(context.classId(), newVisibility);
+                        Base.addBatch(ps, classVisibility.toString(), id, courseId);
+                    }
+                } else {
+                    classVisibility.put(context.classId(), collectionVisibilityMap.get(id).toString());
+                    Base.addBatch(ps, classVisibility.toString(), id, courseId);
+                }
+            });
+            
+            Base.executeBatch(ps);
             return new ExecutionResult<>(MessageResponseFactory
                 .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                     EventBuilderFactory.getContentVisibleEventBuilder(context.classId(), context.request())),
@@ -134,7 +157,6 @@ public class ContentVisibilityHandler implements DBHandler {
             LOGGER.error("Unable to mark content visible for class {}", this.context.classId(), e);
             throw e;
         }
-
     }
 
     @Override
@@ -142,7 +164,7 @@ public class ContentVisibilityHandler implements DBHandler {
         return false;
     }
 
-    private JsonArray getInputToMarkVisible() {
+    private Map<String, String> getInputToMark() {
         JsonArray input = new JsonArray();
         JsonArray contentsCollection = this.context.request().getJsonArray(AJEntityClass.CV_COLLECTIONS);
         JsonArray contentsAssessment = this.context.request().getJsonArray((AJEntityClass.CV_ASSESSMENTS));
@@ -152,7 +174,13 @@ public class ContentVisibilityHandler implements DBHandler {
         if (contentsCollection != null && !contentsCollection.isEmpty()) {
             input.addAll(contentsCollection);
         }
-        return input;
+        
+        Map<String, String> collectionVisibilityMap = new HashMap<>();
+        input.forEach(item -> {
+            JsonObject itemJson = (JsonObject) item;
+            collectionVisibilityMap.put(itemJson.getString(AJEntityCollection.ID), itemJson.getString(AJEntityCollection.JSON_KEY_VISIBLE));
+        });
+        return collectionVisibilityMap;
     }
 
     private static class DefaultPayloadValidator implements PayloadValidator {

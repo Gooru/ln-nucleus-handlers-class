@@ -135,9 +135,9 @@ public class AJEntityClass extends Model {
         validatorMap.put(INVITEES,
             (value) -> FieldValidator.validateDeepJsonArrayIfPresent(value, FieldValidator::validateEmail));
         validatorMap
-            .put(CV_ASSESSMENTS, (value) -> FieldValidator.validateDeepJsonArray(value, FieldValidator::validateUuid));
+            .put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
         validatorMap
-            .put(CV_COLLECTIONS, (value) -> FieldValidator.validateDeepJsonArray(value, FieldValidator::validateUuid));
+            .put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -216,15 +216,15 @@ public class AJEntityClass extends Model {
         // Treat null and default as visible all
         String contentVisibilitySetting = this.getString(CONTENT_VISIBILITY);
         if (contentVisibilitySetting == null || contentVisibilitySetting
-            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
-            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
-        } else if (contentVisibilitySetting
             .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
+        } else if (contentVisibilitySetting
+            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
+            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
         } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE;
         } else {
-            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
+            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
         }
     }
 
