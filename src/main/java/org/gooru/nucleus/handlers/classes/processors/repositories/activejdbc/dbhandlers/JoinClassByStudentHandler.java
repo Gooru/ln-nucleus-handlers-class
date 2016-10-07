@@ -10,6 +10,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dba
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
+import org.gooru.nucleus.handlers.classes.processors.repositories.generators.GeneratorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
@@ -55,12 +56,6 @@ class JoinClassByStudentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         this.email = context.prefs().getString(MessageConstants.EMAIL_ID);
-        if (email == null || email.isEmpty() || !email.contains("@")) {
-            LOGGER.error("Incorrect authroization, email not available");
-            return new ExecutionResult<>(
-                MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("email.not.available")),
-                ExecutionResult.ExecutionStatus.FAILED);
-        }
         // Payload should not be null
         if (context.request() == null) {
             LOGGER.warn("Payload is null");
@@ -81,9 +76,10 @@ class JoinClassByStudentHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> validateRequest() {
-        LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_VIA_CODE_FILTER, context.classCode());
+        String classCode = context.classCode().toUpperCase();
+        LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_VIA_CODE_FILTER, classCode);
         if (classes.isEmpty()) {
-            LOGGER.warn("Not able to find class with code '{}'", this.context.classCode());
+            LOGGER.warn("Not able to find class with code '{}'", classCode);
             return new ExecutionResult<>(
                 MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")),
                 ExecutionResult.ExecutionStatus.FAILED);
@@ -92,7 +88,7 @@ class JoinClassByStudentHandler implements DBHandler {
         this.classId = this.entityClass.getId().toString();
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
-            LOGGER.warn("Class with code '{}' is either archived or not of current version", context.classCode());
+            LOGGER.warn("Class with code '{}' is either archived or not of current version", classCode);
             return new ExecutionResult<>(
                 MessageResponseFactory
                     .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
@@ -105,10 +101,14 @@ class JoinClassByStudentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // Now get the membership record for that user
-        LazyList<AJClassMember> members =
-            AJClassMember.where(AJClassMember.FETCH_FOR_EMAIL_QUERY_FILTER, this.classId, this.email);
-        if (!members.isEmpty()) {
-            this.membership = members.get(0);
+        if (this.email != null && !this.email.isEmpty()) {
+            LazyList<AJClassMember> members =
+                AJClassMember.where(AJClassMember.FETCH_FOR_EMAIL_QUERY_FILTER, this.classId, this.email);
+            if (!members.isEmpty()) {
+                this.membership = members.get(0);
+            } else {
+                this.membership = null;
+            }
         } else {
             this.membership = null;
         }
@@ -125,7 +125,7 @@ class JoinClassByStudentHandler implements DBHandler {
             // Make an entry into the members tables in case of open class
             this.membership = new AJClassMember();
             this.membership.setClassId(this.classId);
-            this.membership.setString(AJClassMember.EMAIL, this.email);
+            this.membership.setString(AJClassMember.EMAIL, getUserEmailAddress());
             this.membership.setUserId(this.context.userId());
             this.membership.setRosterId(this.context.request().getString(AJClassMember.ROSTER_ID));
             this.membership.setCreatorSystem(this.context.request().getString(AJClassMember.CREATOR_SYSTEM));
@@ -191,5 +191,13 @@ class JoinClassByStudentHandler implements DBHandler {
         ExecutionResult<MessageResponse> result =
             AuthorizerBuilder.buildClassMembersAuthorizer(context).authorize(this.entityClass);
         return result.continueProcessing();
+    }
+    
+    private String getUserEmailAddress() {
+        String userEmail = (this.email != null && !this.email.isEmpty()) ? this.email : null; 
+        if (userEmail == null) {
+            userEmail = GeneratorBuilder.buildDummyEmailGenerator(this.context.userId()).generate();
+        }
+        return userEmail;
     }
 }

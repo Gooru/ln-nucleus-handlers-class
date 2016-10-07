@@ -87,11 +87,6 @@ class AJClassRepo implements ClassRepo {
     }
 
     @Override
-    public MessageResponse getVisibleContentStats() {
-        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildGetVisibleContentStatsHandler(context));
-    }
-
-    @Override
     public MessageResponse getVisibleContent() {
         return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildGetVisibleContentHandler(context));
     }

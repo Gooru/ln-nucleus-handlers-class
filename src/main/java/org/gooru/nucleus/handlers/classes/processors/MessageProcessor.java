@@ -78,9 +78,6 @@ class MessageProcessor implements Processor {
             case MessageConstants.MSG_OP_CLASS_GET_CONTENT_VISIBILITY:
                 result = getVisibleContent();
                 break;
-            case MessageConstants.MSG_OP_CLASS_GET_CONTENT_VISIBILITY_STATS:
-                result = getVisibleContentStats();
-                break;
             case MessageConstants.MSG_OP_CLASS_REMOVE_STUDENT:
                 result = removeStudentFromClass();
                 break;
@@ -97,14 +94,6 @@ class MessageProcessor implements Processor {
             LOGGER.error("Unhandled exception in processing", e);
             return MessageResponseFactory.createInternalErrorResponse(RESOURCE_BUNDLE.getString("unexpected.error"));
         }
-    }
-
-    private MessageResponse getVisibleContentStats() {
-        ProcessorContext context = createContext();
-        if (!ProcessorContextHelper.validateContext(context)) {
-            return MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class"));
-        }
-        return RepoBuilder.buildClassRepo(context).getVisibleContentStats();
     }
 
     private MessageResponse getVisibleContent() {
@@ -167,9 +156,6 @@ class MessageProcessor implements Processor {
         ProcessorContext context = createContext();
         if (!ProcessorContextHelper.validateContextForCode(context)) {
             return MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class"));
-        }
-        if (!ProcessorContextHelper.validatePrefsForEmail(context)) {
-            return MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("email.not.available"));
         }
         return RepoBuilder.buildClassRepo(context).joinClassByStudent();
     }

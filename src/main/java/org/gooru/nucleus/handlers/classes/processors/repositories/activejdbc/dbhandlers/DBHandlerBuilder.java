@@ -67,10 +67,6 @@ public final class DBHandlerBuilder {
         return new RemoveStudentHandler(context);
     }
 
-    public static DBHandler buildGetVisibleContentStatsHandler(ProcessorContext context) {
-        return new VisibleContentStatsHandler(context);
-    }
-
     public static DBHandler buildGetVisibleContentHandler(ProcessorContext context) {
         return new VisibleContentHandler(context);
     }
