@@ -72,10 +72,16 @@ public final class ContentVisibilityHelper {
         JsonArray assessments, String courseId, String classId) {
         JsonArray input = new JsonArray();
         if (collections != null && !collections.isEmpty()) {
-            input.addAll(collections);
+            collections.forEach(collection -> {
+                JsonObject tempCollection = (JsonObject) collection;
+                input.add(tempCollection.getString(AJEntityCollection.ID));
+            });
         }
         if (assessments != null && !assessments.isEmpty()) {
-            input.addAll(assessments);
+            assessments.forEach(assessment -> {
+                JsonObject tempAssessment = (JsonObject) assessment;
+                input.add(tempAssessment.getString(AJEntityCollection.ID));
+            });
         }
         if (!input.isEmpty()) {
             try {
@@ -84,7 +90,7 @@ public final class ContentVisibilityHelper {
                 long expectedCount = input.size();
                 long count =
                     Base.count(AJEntityCollection.TABLE_COLLECTION, AJEntityCollection.COLLECTIONS_QUERY_FILTER,
-                        courseId, Utils.convertListToPostgresArrayStringRepresentation(input.getList()), classId);
+                        courseId, Utils.convertListToPostgresArrayStringRepresentation(input.getList()));
 
                 if (expectedCount == count) {
                     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);

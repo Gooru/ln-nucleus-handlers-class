@@ -19,6 +19,7 @@ public class AJEntityCollection extends Model {
     public static final String COURSE = "course";
     public static final String UNITS = "units";
     public static final String LESSONS = "lessons";
+    public static final String CLASS_VISIBILITY = "class_visibility";
 
     // Instead of stating equals assessment we are saying not equals collection because we need to include both
     // assessment and external assessment here
@@ -27,23 +28,30 @@ public class AJEntityCollection extends Model {
             + "is_deleted = false and class_visibility ?? ? group by course_id, unit_id, lesson_id, id";
     // Select both id and type and then in CPU separate them in buckets instead of going to db multiple times
     public static final String FETCH_VISIBLE_ITEMS_QUERY =
-        "select id, course_id, unit_id, lesson_id, format from collection where course_id = ?::uuid and"
-            + " is_deleted = false and class_visibility ?? ? group by course_id, unit_id, lesson_id, format, id";
+        "select id, course_id, unit_id, lesson_id, format, class_visibility from collection where course_id = ?::uuid and"
+            + " is_deleted = false";
 
     public static final String FETCH_STATISTICS_QUERY =
         "select course_id, unit_id, lesson_id, format, count(id) from collection where course_id = ?::uuid and "
             + "is_deleted = false and class_visibility ?? ? group by course_id, unit_id, lesson_id, format";
     public static final String COLLECTIONS_QUERY_FILTER =
-        "course_id = ?::uuid and id = ANY(?::uuid[]) and is_deleted = false and (not class_visibility ?? ? or "
-            + "class_visibility is null)";
+        "course_id = ?::uuid and id = ANY(?::uuid[]) and is_deleted = false";
+    public static final String FETCH_COLLECTIONS_CLASS_VISIBILITY_BY_ID =
+        "SELECT id, class_visibility FROM collection WHERE course_id = ?::uuid AND id = ANY(?::uuid[]) AND is_deleted = false";
+    public static final String FETCH_COLLECTIONS_CLASS_VISIBILITY_ALL =
+        "SELECT id, class_visibility, format FROM collection WHERE course_id = ?::uuid AND is_deleted = false";
     public static final String TABLE_COLLECTION = "collection";
 
     public static final String FORMAT_TYPE = "format";
     public static final String FORMAT_TYPE_COLLECTION = "collection";
     public static final String FORMAT_TYPE_ASSESSMENT = "assessment";
     public static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
-    public static final String VISIBILITY_DML = "update collection set class_visibility = class_visibility || "
-        + "?::jsonb where course_id = ?::uuid and is_deleted = false and id = ANY(?::uuid[])";
+    public static final String VISIBILITY_DML =
+        "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
+    
+    public static final String JSON_KEY_VISIBLE = "visible";
+    public static final String VISIBLE_ON = "on";
+    public static final String VISIBLE_OFF = "off";
 
     // The model needs to be hydrated with format, else it may fail
     public boolean isAssessment() {
