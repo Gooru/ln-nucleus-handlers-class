@@ -21,7 +21,7 @@ class MessageProcessor implements Processor {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final Message<Object> message;
     private String userId;
-    private JsonObject prefs;
+    private JsonObject session;
     private JsonObject request;
 
     public MessageProcessor(Message<Object> message) {
@@ -55,7 +55,7 @@ class MessageProcessor implements Processor {
         String courseId = headers.get(MessageConstants.COURSE_ID);
         String studentId = message.headers().get(MessageConstants.USER_ID);
         String studentEmail = message.headers().get(MessageConstants.EMAIL);
-        return new ProcessorContext.ProcessorContextBuilder(userId, prefs, request, classId, classCode, headers)
+        return new ProcessorContext.ProcessorContextBuilder(userId, session, request, classId, classCode, headers)
             .setCourseId(courseId).setStudentId(studentId).setStudentEmail(studentEmail).build();
     }
 
@@ -74,13 +74,13 @@ class MessageProcessor implements Processor {
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("invalid.user")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        prefs = ((JsonObject) message.body()).getJsonObject(MessageConstants.MSG_KEY_PREFS);
+        session = ((JsonObject) message.body()).getJsonObject(MessageConstants.MSG_KEY_SESSION);
         request = ((JsonObject) message.body()).getJsonObject(MessageConstants.MSG_HTTP_BODY);
 
-        if (prefs == null || prefs.isEmpty()) {
-            LOGGER.error("Invalid preferences obtained, probably not authorized properly");
+        if (session == null || session.isEmpty()) {
+            LOGGER.error("Invalid session obtained, probably not authorized properly");
             return new ExecutionResult<>(
-                MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("invalid.preferences")),
+                MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("invalid.session")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
 
