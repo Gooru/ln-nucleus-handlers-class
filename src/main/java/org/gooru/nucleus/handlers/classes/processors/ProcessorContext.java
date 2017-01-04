@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
 public final class ProcessorContext {
 
     private final String userId;
-    private final JsonObject prefs;
+    private final JsonObject session;
     private final JsonObject request;
     private final String classId;
     private final String courseId;
@@ -18,14 +18,14 @@ public final class ProcessorContext {
     private final String studentEmail;
     private final MultiMap requestHeaders;
 
-    private ProcessorContext(String userId, JsonObject prefs, JsonObject request, String classId, String courseId,
+    private ProcessorContext(String userId, JsonObject session, JsonObject request, String classId, String courseId,
         String classCode, String studentId, String studentEmail, MultiMap headers) {
-        if (prefs == null || userId == null || prefs.isEmpty() || headers == null || headers.isEmpty()) {
+        if (session == null || userId == null || session.isEmpty() || headers == null || headers.isEmpty()) {
             throw new IllegalStateException("Processor Context creation failed because of invalid values");
         }
         this.courseId = courseId;
         this.userId = userId;
-        this.prefs = prefs.copy();
+        this.session = session.copy();
         this.request = request != null ? request.copy() : null;
         this.classId = classId;
         this.classCode = classCode;
@@ -38,8 +38,8 @@ public final class ProcessorContext {
         return this.userId;
     }
 
-    public JsonObject prefs() {
-        return this.prefs.copy();
+    public JsonObject session() {
+        return this.session.copy();
     }
 
     public JsonObject request() {
@@ -72,7 +72,7 @@ public final class ProcessorContext {
 
     public static class ProcessorContextBuilder {
         private final String userId;
-        private final JsonObject prefs;
+        private final JsonObject session;
         private final JsonObject request;
         private final String classId;
         private final MultiMap requestHeaders;
@@ -82,13 +82,13 @@ public final class ProcessorContext {
         private final String classCode;
         private boolean built = false;
 
-        ProcessorContextBuilder(String userId, JsonObject prefs, JsonObject request, String classId, String classCode,
+        ProcessorContextBuilder(String userId, JsonObject session, JsonObject request, String classId, String classCode,
             MultiMap headers) {
-            if (prefs == null || userId == null || prefs.isEmpty() || headers == null || headers.isEmpty()) {
+            if (session == null || userId == null || session.isEmpty() || headers == null || headers.isEmpty()) {
                 throw new IllegalStateException("Processor Context creation failed because of invalid values");
             }
             this.userId = userId;
-            this.prefs = prefs.copy();
+            this.session = session.copy();
             this.request = request != null ? request.copy() : null;
             this.classId = classId;
             this.classCode = classCode;
@@ -115,7 +115,7 @@ public final class ProcessorContext {
                 throw new IllegalStateException("Tried to build again");
             } else {
                 this.built = true;
-                return new ProcessorContext(userId, prefs, request, classId, courseId, classCode, studentId,
+                return new ProcessorContext(userId, session, request, classId, courseId, classCode, studentId,
                     studentEmail, requestHeaders);
             }
         }

@@ -26,7 +26,7 @@ public final class ProcessorContextHelper {
     }
 
     public static boolean validatePrefsForEmail(ProcessorContext context) {
-        String email = context.prefs().getString(MessageConstants.EMAIL_ID);
+        String email = context.session().getString(MessageConstants.EMAIL_ID);
         if (email == null || email.isEmpty() || !email.contains("@")) {
             LOGGER.error("Incorrect authroization, email not available");
             return false;
