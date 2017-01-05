@@ -44,6 +44,8 @@ public class AJEntityClass extends Model {
     public static final String ROSTER_ID = "roster_id";
     public static final int CURRENT_VERSION = 3;
     public static final String INVITEES = "invitees";
+    public static final String TENANT = "tenant";
+    public static final String TENANT_ROOT = "tenant_root";
 
     // Dummy field names for Content Visibility
     // TODO this needs to change when going through the setting of content visibility in new model
@@ -110,6 +112,8 @@ public class AJEntityClass extends Model {
         converterMap.put(CLASS_SHARING,
             (fieldValue -> FieldConverter.convertFieldToNamedType(fieldValue, CLASS_SHARING_TYPE_NAME)));
         converterMap.put(COLLABORATOR, (FieldConverter::convertFieldToJson));
+        converterMap.put(TENANT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+        converterMap.put(TENANT_ROOT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         return Collections.unmodifiableMap(converterMap);
     }
 
@@ -138,6 +142,8 @@ public class AJEntityClass extends Model {
             .put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
         validatorMap
             .put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+        validatorMap.put(TENANT, (FieldValidator::validateUuid));
+        validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -204,12 +210,7 @@ public class AJEntityClass extends Model {
     }
 
     public void setContentVisibility(JsonObject visibility) {
-        FieldConverter fc = converterRegistry.get(CONTENT_VISIBILITY);
-        if (fc != null) {
-            this.set(CONTENT_VISIBILITY, fc.convertField(visibility.toString()));
-        } else {
-            this.set(CONTENT_VISIBILITY, visibility.toString());
-        }
+        setFieldUsingConverter(CONTENT_VISIBILITY, visibility);
     }
 
     public String getContentVisibility() {
@@ -229,39 +230,19 @@ public class AJEntityClass extends Model {
     }
 
     public void setModifierId(String modifier) {
-        FieldConverter fc = converterRegistry.get(MODIFIER_ID);
-        if (fc != null) {
-            this.set(MODIFIER_ID, fc.convertField(modifier));
-        } else {
-            this.set(MODIFIER_ID, modifier);
-        }
+        setFieldUsingConverter(MODIFIER_ID, modifier);
     }
 
-    public void setCreatorId(String modifier) {
-        FieldConverter fc = converterRegistry.get(CREATOR_ID);
-        if (fc != null) {
-            this.set(CREATOR_ID, fc.convertField(modifier));
-        } else {
-            this.set(CREATOR_ID, modifier);
-        }
+    public void setCreatorId(String creator) {
+        setFieldUsingConverter(CREATOR_ID, creator);
     }
 
     public void setCourseId(String courseId) {
-        FieldConverter fc = converterRegistry.get(COURSE_ID);
-        if (fc != null) {
-            this.set(COURSE_ID, fc.convertField(courseId));
-        } else {
-            this.set(COURSE_ID, courseId);
-        }
+        setFieldUsingConverter(COURSE_ID, courseId);
     }
 
     public void setIdWithConverter(String id) {
-        FieldConverter fc = converterRegistry.get(ID);
-        if (fc != null) {
-            this.set(ID, fc.convertField(id));
-        } else {
-            this.set(ID, id);
-        }
+        setFieldUsingConverter(ID, id);
     }
 
     public boolean isCurrentVersion() {
@@ -290,10 +271,27 @@ public class AJEntityClass extends Model {
         setEndDate(defaultEndDate);
     }
 
+    public void setTenant(String tenant) {
+        setFieldUsingConverter(TENANT, tenant);
+    }
+
+    public void setTenantRoot(String tenantRoot) {
+        setFieldUsingConverter(TENANT_ROOT, tenantRoot);
+    }
+
     private void setEndDate(String classEndDate) {
         FieldConverter fc = converterRegistry.get(END_DATE);
         if (fc != null) {
             this.set(END_DATE, fc.convertField(classEndDate));
+        }
+    }
+
+    private void setFieldUsingConverter(String fieldName, Object fieldValue) {
+        FieldConverter fc = converterRegistry.get(fieldName);
+        if (fc != null) {
+            this.set(fieldName, fc.convertField(fieldValue));
+        } else {
+            this.set(fieldName, fieldValue);
         }
     }
 
