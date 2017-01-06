@@ -17,6 +17,7 @@ public final class ProcessorContext {
     private final String studentId;
     private final String studentEmail;
     private final MultiMap requestHeaders;
+    private final TenantContext tenantContext;
 
     private ProcessorContext(String userId, JsonObject session, JsonObject request, String classId, String courseId,
         String classCode, String studentId, String studentEmail, MultiMap headers) {
@@ -32,6 +33,7 @@ public final class ProcessorContext {
         this.studentEmail = studentEmail;
         this.studentId = studentId;
         this.requestHeaders = headers;
+        this.tenantContext = new TenantContext(session);
     }
 
     public String userId() {
@@ -69,6 +71,15 @@ public final class ProcessorContext {
     public MultiMap requestHeaders() {
         return this.requestHeaders;
     }
+
+    public String tenant() {
+        return this.tenantContext.tenant();
+    }
+
+    public String tenantRoot() {
+        return this.tenantContext.tenantRoot();
+    }
+
 
     public static class ProcessorContextBuilder {
         private final String userId;
@@ -118,6 +129,35 @@ public final class ProcessorContext {
                 return new ProcessorContext(userId, session, request, classId, courseId, classCode, studentId,
                     studentEmail, requestHeaders);
             }
+        }
+    }
+
+    private static class TenantContext {
+        private static final String TENANT = "tenant";
+        private static final String TENANT_ID = "tenant_id";
+        private static final String TENANT_ROOT = "tenant_root";
+
+        private final String tenantId;
+        private final String tenantRoot;
+
+        TenantContext(JsonObject session) {
+            JsonObject tenantJson = session.getJsonObject(TENANT);
+            if (tenantJson == null || tenantJson.isEmpty()) {
+                throw new IllegalStateException("Tenant Context invalid");
+            }
+            this.tenantId = tenantJson.getString(TENANT_ID);
+            if (tenantId == null || tenantId.isEmpty()) {
+                throw new IllegalStateException("Tenant Context with invalid tenant");
+            }
+            this.tenantRoot = tenantJson.getString(TENANT_ROOT);
+        }
+
+        public String tenant() {
+            return this.tenantId;
+        }
+
+        public String tenantRoot() {
+            return this.tenantRoot;
         }
     }
 

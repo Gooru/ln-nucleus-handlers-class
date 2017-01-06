@@ -108,6 +108,11 @@ class CreateClassHandler implements DBHandler {
         this.entityClass.setModifierId(this.context.userId());
         this.entityClass.setCreatorId(this.context.userId());
         this.entityClass.setVersion();
+        this.entityClass.setTenant(context.tenant());
+        String tenantRoot = context.tenantRoot();
+        if (tenantRoot != null && !tenantRoot.isEmpty()) {
+            this.entityClass.setTenantRoot(tenantRoot);
+        }
         // Now we hydrate model from payload
         new DefaultAJEntityClassBuilder()
             .build(this.entityClass, this.context.request(), AJEntityClass.getConverterRegistry());
@@ -136,10 +141,8 @@ class CreateClassHandler implements DBHandler {
             Long count = AJEntityClass.count(AJEntityClass.CODE_UNIQUENESS_QUERY, resultCode);
             return count == 0;
         } catch (DBException e) {
-            // Since this is read only query, there may not be an impact on the
-            // connection state (like in integrity constraints violations). So
-            // we
-            // continue to retry and eat up exception after logging
+            // Since this is read only query, there may not be an impact on the connection state (like in integrity
+            // constraints violations). So we continue to retry and eat up exception after logging
             LOGGER.error("Error checking unique code for user '{user}' and code '{}'", context.userId(), resultCode, e);
         }
         return false;
