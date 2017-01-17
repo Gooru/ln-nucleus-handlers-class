@@ -24,10 +24,7 @@ if (useLocalBuild) {
 defaultTasks 'shadowJar'
 
 if (!JavaVersion.current().java8Compatible) {
-    throw new IllegalStateException('''Nucleus:
-                                      |  This needs Java 8,
-                                      |  You are using something else,
-                                      |  Refresh. Try again.'''.stripMargin())
+    throw new IllegalStateException('''Nucleus: |  This needs Java 8, You are using something else.'''.stripMargin())
 }
 
 // Define a version registry so that we can avoid hard coding of the version numbers
@@ -67,6 +64,9 @@ dependencies {
 
     // Test dependencies
     testCompile "junit:junit:${junitVersion}"
+
+    // Other projects
+    compile project(':nucleus-libs-tenant')
 }
 
 shadowJar {

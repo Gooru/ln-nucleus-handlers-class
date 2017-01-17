@@ -138,10 +138,8 @@ public class AJEntityClass extends Model {
         validatorMap.put(ROSTER_ID, (value) -> FieldValidator.validateStringIfPresent(value, 512));
         validatorMap.put(INVITEES,
             (value) -> FieldValidator.validateDeepJsonArrayIfPresent(value, FieldValidator::validateEmail));
-        validatorMap
-            .put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
-        validatorMap
-            .put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+        validatorMap.put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+        validatorMap.put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
         validatorMap.put(TENANT, (FieldValidator::validateUuid));
         validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
         return Collections.unmodifiableMap(validatorMap);
@@ -219,8 +217,7 @@ public class AJEntityClass extends Model {
         if (contentVisibilitySetting == null || contentVisibilitySetting
             .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
-        } else if (contentVisibilitySetting
-            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
+        } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
         } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE;
@@ -277,6 +274,14 @@ public class AJEntityClass extends Model {
 
     public void setTenantRoot(String tenantRoot) {
         setFieldUsingConverter(TENANT_ROOT, tenantRoot);
+    }
+
+    public String getTenant() {
+        return this.getString(TENANT);
+    }
+
+    public String getTenantRoot() {
+        return this.getString(TENANT_ROOT);
     }
 
     private void setEndDate(String classEndDate) {
