@@ -25,7 +25,7 @@ class OpenClassOrInvitedStudentAuthorizer implements Authorizer<AJEntityClass> {
     @Override
     public ExecutionResult<MessageResponse> authorize(AJEntityClass model) {
         if (checkClassTypeOpen(model) || checkStudentInvited(model)) {
-            return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+            return AuthorizerBuilder.buildTenantJoinAuthorizer(context).authorize(model);
         }
         return new ExecutionResult<>(
             MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),

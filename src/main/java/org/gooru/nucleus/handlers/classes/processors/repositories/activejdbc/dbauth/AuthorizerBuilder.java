@@ -28,17 +28,12 @@ public final class AuthorizerBuilder {
     }
 
     public static Authorizer<AJEntityClass> buildFetchClassesForUserAuthorizer(ProcessorContext context) {
-        // As long as session token is valid and user is not anonymous, which is
-        // the
-        // case as we are, we should be fine
+        // As long as session token is valid and user is not anonymous, which is the case as we are, we should be fine
         return model -> new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
     }
 
     public static Authorizer<AJEntityClass> buildFetchClassAuthorizer(ProcessorContext context) {
-        // As long as session token is valid and user is not anonymous, which is
-        // the
-        // case as we are, we should be fine
-        return model -> new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+        return new TenantReadAuthorizer(context);
     }
 
     public static Authorizer<AJEntityClass> buildFetchClassMembersAuthorizer(ProcessorContext context) {
@@ -96,5 +91,9 @@ public final class AuthorizerBuilder {
         // FIXME: No idea as to how to authorize as this API is expensive and may be potentially heavy on DB
         // and currently it is just pass through
         return model -> new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+    }
+
+    public static Authorizer<AJEntityClass> buildTenantJoinAuthorizer(ProcessorContext context) {
+        return new TenantJoinAuthorizer(context);
     }
 }
