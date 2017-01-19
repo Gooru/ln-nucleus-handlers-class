@@ -8,7 +8,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Uti
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJUserDemographic;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUsers;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -162,12 +162,12 @@ class FetchClassesForUserHandler implements DBHandler {
 
     private ExecutionResult<MessageResponse> populateTeacherDetails(JsonObject result) {
         try {
-            LazyList<AJUserDemographic> demographics =
-                AJUserDemographic.findBySQL(AJUserDemographic.FETCH_TEACHER_DETAILS_QUERY,
+            LazyList<AJEntityUsers> demographics =
+                AJEntityUsers.findBySQL(AJEntityUsers.FETCH_TEACHER_DETAILS_QUERY,
                     Utils.convertListToPostgresArrayStringRepresentation(memberClassIdArray.getList()));
             // update that in the response
             JsonArray teacherDetails = new JsonArray(JsonFormatterBuilder
-                .buildSimpleJsonFormatter(false, AJUserDemographic.GET_SUMMARY_QUERY_FIELD_LIST).toJson(demographics));
+                .buildSimpleJsonFormatter(false, AJEntityUsers.GET_SUMMARY_QUERY_FIELD_LIST).toJson(demographics));
             result.put(RESPONSE_BUCKET_TEACHER_DETAILS, teacherDetails);
             return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(result),
                 ExecutionResult.ExecutionStatus.SUCCESSFUL);
