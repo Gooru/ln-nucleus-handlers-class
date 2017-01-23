@@ -5,6 +5,8 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 
+import io.vertx.core.json.JsonArray;
+
 /**
  * Created by ashish on 29/1/16.
  */
@@ -95,5 +97,10 @@ public final class AuthorizerBuilder {
 
     public static Authorizer<AJEntityClass> buildTenantJoinAuthorizer(ProcessorContext context) {
         return new TenantJoinAuthorizer(context);
+    }
+
+    public static Authorizer<AJEntityClass> buildTenantCollaboratorAuthorizer(ProcessorContext context,
+        JsonArray collaborators) {
+        return new TenantCollaboratorAuthorizer(context, collaborators);
     }
 }
