@@ -35,6 +35,7 @@ public final class MessageConstants {
     public static final String MSG_OP_CLASS_GET_CONTENT_VISIBILITY = "class.content.visibility.get";
     public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
     public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
+    public static final String MSG_OP_CLASS_CONTENT_CREATE = "class.content.create";
 
     // Containers for different responses
     public static final String RESP_CONTAINER_MBUS = "mb.container";

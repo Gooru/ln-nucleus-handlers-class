@@ -103,4 +103,8 @@ public final class AuthorizerBuilder {
         JsonArray collaborators) {
         return new TenantCollaboratorAuthorizer(context, collaborators);
     }
+    
+    public static Authorizer<AJEntityClass> buildContentMapClassAuthorizer(ProcessorContext context) {
+        return new ClassOwnerOrCollaboratorAuthorizer(context);
+    }
 }

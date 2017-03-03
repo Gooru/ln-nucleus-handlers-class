@@ -18,6 +18,7 @@ public final class EventBuilderFactory {
     private static final String EVT_CLASS_COLLABORATOR_UPDATE = "event.class.collaborator.join";
     private static final String EVT_CLASS_COURSE_ASSIGNED = "event.class.course.assigned";
     private static final String EVT_CLASS_CONTENT_VISIBLE = "event.class.content.visible";
+    private static final String EVT_CLASS_CONTENT_CREATE = "event.class.content.create";
     private static final String EVENT_NAME = "event.name";
     private static final String EVENT_BODY = "event.body";
     private static final String CLASS_ID = "id";
@@ -25,7 +26,9 @@ public final class EventBuilderFactory {
     private static final String COURSE_ID = "courseId";
     private static final String INVITEES = "invitees";
     private static final String EMAIL = "email";
-
+    private static final String CONTENT_ID = "content_id";
+    private static final String CONTENT_TYPE = "content_type";
+    
     private EventBuilderFactory() {
         throw new AssertionError();
     }
@@ -79,6 +82,11 @@ public final class EventBuilderFactory {
     public static EventBuilder getContentVisibleEventBuilder(String classId, JsonObject visibleContents) {
         return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_CONTENT_VISIBLE).put(EVENT_BODY,
             visibleContents.put(CLASS_ID, classId));
+    }
+
+    public static EventBuilder getCreateClassContentEventBuilder(String classId, String contentId, String contentType) {
+        return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_CONTENT_CREATE).put(EVENT_BODY,
+            new JsonObject().put(CLASS_ID, classId).put(CONTENT_ID, contentId).put(CONTENT_TYPE, contentType));
     }
 
 }

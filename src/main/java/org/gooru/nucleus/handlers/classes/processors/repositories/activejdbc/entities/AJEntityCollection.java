@@ -21,12 +21,14 @@ public class AJEntityCollection extends Model {
     public static final String LESSONS = "lessons";
     public static final String CLASS_VISIBILITY = "class_visibility";
 
-    // Instead of stating equals assessment we are saying not equals collection because we need to include both
+    // Instead of stating equals assessment we are saying not equals collection
+    // because we need to include both
     // assessment and external assessment here
     public static final String FETCH_VISIBLE_ASSESSMENTS_QUERY =
         "select id, course_id, unit_id, lesson_id from collection where course_id = ?::uuid and format != 'collection'::content_container_type and "
             + "is_deleted = false and class_visibility ?? ? group by course_id, unit_id, lesson_id, id";
-    // Select both id and type and then in CPU separate them in buckets instead of going to db multiple times
+    // Select both id and type and then in CPU separate them in buckets instead
+    // of going to db multiple times
     public static final String FETCH_VISIBLE_ITEMS_QUERY =
         "select id, course_id, unit_id, lesson_id, format, class_visibility from collection where course_id = ?::uuid and"
             + " is_deleted = false";
@@ -48,7 +50,13 @@ public class AJEntityCollection extends Model {
     public static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
     public static final String VISIBILITY_DML =
         "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
-    
+    public static final String SELECT_CUL_COLLECTION_TO_VALIDATE =
+        "SELECT id FROM collection where id = ?::uuid AND is_deleted = false AND lesson_id = ?::uuid AND unit_id = ?::uuid AND course_id = ?::uuid AND format = ?::content_container_type";
+
+    public static final String SELECT_COLLECTION_TO_AUTHORIZE =
+        "SELECT id  FROM collection where id = ?::uuid AND is_deleted = false AND"
+            + " (owner_id = ?::uuid  OR collaborator ?? ?)";
+
     public static final String JSON_KEY_VISIBLE = "visible";
     public static final String VISIBLE_ON = "on";
     public static final String VISIBLE_OFF = "off";

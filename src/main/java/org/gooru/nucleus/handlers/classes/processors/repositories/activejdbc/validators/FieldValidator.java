@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.va
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +46,13 @@ public interface FieldValidator {
             }
         } catch (DateTimeParseException e) {
             return false;
+        }
+        return true;
+    }
+
+    static boolean validateDateWithFormatIfPresent(Object o, DateTimeFormatter formatter, boolean allowedInPast) {
+        if (o != null) {
+            return validateDateWithFormat(o, formatter, allowedInPast);
         }
         return true;
     }
@@ -113,6 +121,10 @@ public interface FieldValidator {
 
     static boolean validateUuidIfPresent(String o) {
         return o == null || validateUuid(o);
+    }
+    
+    static boolean validateValueExists(String o, Set<String> acceptedFields) {
+        return !(o == null) || !acceptedFields.contains(0);
     }
 
     boolean validateField(Object value);
