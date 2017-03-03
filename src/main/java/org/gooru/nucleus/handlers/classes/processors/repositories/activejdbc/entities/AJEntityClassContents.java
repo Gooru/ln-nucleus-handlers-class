@@ -50,8 +50,9 @@ public class AJEntityClassContents extends Model {
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
 
-    public static final String SELECT_CLASS_CONTENTS_TO_VALIDATE = "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid";
-    
+    public static final String SELECT_CLASS_CONTENTS_TO_VALIDATE =
+        "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid";
+
     public static final String SELECT_CLASS_CONTENT_MAX_SEQUENCEID =
         "SELECT max(sequence) FROM class_contents WHERE class_id = ?::uuid";
 
@@ -68,6 +69,9 @@ public class AJEntityClassContents extends Model {
         converterMap.put(CTX_LESSON_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CTX_COLLECTION_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CONTENT_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+        converterMap.put(DUE_DATE,
+            (fieldValue -> FieldConverter.convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+
         return Collections.unmodifiableMap(converterMap);
     }
 
