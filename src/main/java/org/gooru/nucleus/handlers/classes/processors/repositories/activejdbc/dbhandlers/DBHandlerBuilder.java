@@ -70,8 +70,12 @@ public final class DBHandlerBuilder {
     public static DBHandler buildGetVisibleContentHandler(ProcessorContext context) {
         return new VisibleContentHandler(context);
     }
-    
+
     public static DBHandler buildCreateClassContentHandler(ProcessorContext context) {
         return new CreateClassContentHandler(context);
+    }
+
+    public static DBHandler buildFetchClassContentHandler(ProcessorContext context) {
+        return new FetchClassContentHandler(context);
     }
 }

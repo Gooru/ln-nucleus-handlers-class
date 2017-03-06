@@ -118,10 +118,18 @@ public enum CommandProcessorBuilder {
         public Processor build(ProcessorContext context) {
             return new ClassInviteRemoveProcessor(context);
         }
-    }, CLASS_CONTENT_CREATE(MessageConstants.MSG_OP_CLASS_CONTENT_CREATE) {
+    },
+    CLASS_CONTENT_CREATE(MessageConstants.MSG_OP_CLASS_CONTENT_CREATE) {
         @Override
         public Processor build(ProcessorContext context) {
             return new ClassContentCreateProcessor(context);
+        }
+    },
+
+    CLASS_CONTENT_FETCH(MessageConstants.MSG_OP_CLASS_CONTENT_FETCH) {
+        @Override
+        public Processor build(ProcessorContext context) {
+            return new ClassContentFetchProcessor(context);
         }
     };
 

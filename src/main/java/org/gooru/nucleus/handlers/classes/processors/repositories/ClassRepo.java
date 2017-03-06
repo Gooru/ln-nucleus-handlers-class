@@ -38,4 +38,6 @@ public interface ClassRepo {
     MessageResponse getVisibleContent();
     
     MessageResponse createClassContent();
+    
+    MessageResponse fetchClassContent();
 }

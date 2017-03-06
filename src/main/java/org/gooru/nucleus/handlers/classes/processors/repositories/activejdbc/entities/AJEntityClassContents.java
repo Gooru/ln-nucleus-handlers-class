@@ -1,10 +1,10 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -47,6 +47,8 @@ public class AJEntityClassContents extends Model {
         CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, SEQUENCE, DUE_DATE, CREATED_AT, UPDATED_AT));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
+    public static final List<String> RESPONSE_FIELDS =
+        Arrays.asList(CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, DUE_DATE);
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
 
@@ -55,6 +57,12 @@ public class AJEntityClassContents extends Model {
 
     public static final String SELECT_CLASS_CONTENT_MAX_SEQUENCEID =
         "SELECT max(sequence) FROM class_contents WHERE class_id = ?::uuid";
+
+    public static final String SELECT_CLASS_CONTENTS =
+        "select ctx_course_id, ctx_unit_id, ctx_lesson_id, ctx_collection_id, content_id, content_type, due_date from class_contents where class_id = ?::uuid and due_date is not null order by created_at desc";
+
+    public static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
+        "select ctx_course_id, ctx_unit_id, ctx_lesson_id, ctx_collection_id, content_id, content_type, due_date from class_contents where class_id = ?::uuid and content_type = ? order by created_at desc";
 
     static {
         validatorRegistry = initializeValidators();
@@ -69,9 +77,6 @@ public class AJEntityClassContents extends Model {
         converterMap.put(CTX_LESSON_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CTX_COLLECTION_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CONTENT_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
-        converterMap.put(DUE_DATE,
-            (fieldValue -> FieldConverter.convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
-
         return Collections.unmodifiableMap(converterMap);
     }
 
@@ -83,8 +88,6 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_UNIT_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CTX_LESSON_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
-        validatorMap.put(DUE_DATE,
-            (value -> FieldValidator.validateDateWithFormatIfPresent(value, DateTimeFormatter.ISO_LOCAL_DATE, false)));
         validatorMap.put(CONTENT_TYPE,
             (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
         return Collections.unmodifiableMap(validatorMap);

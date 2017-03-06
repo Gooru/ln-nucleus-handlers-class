@@ -51,11 +51,11 @@ public class AJEntityCollection extends Model {
     public static final String VISIBILITY_DML =
         "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
     public static final String SELECT_CUL_COLLECTION_TO_VALIDATE =
-        "SELECT id FROM collection where id = ?::uuid AND is_deleted = false AND lesson_id = ?::uuid AND unit_id = ?::uuid AND course_id = ?::uuid AND format = ?::content_container_type";
+        "SELECT id FROM collection where id = ?::uuid AND is_deleted = false AND lesson_id = ?::uuid AND unit_id = ?::uuid AND course_id = ?::uuid AND format = ?::content_container_type AND subformat not in ('pre-test', 'post-test', 'benchmark')";
 
     public static final String SELECT_COLLECTION_TO_AUTHORIZE =
-        "SELECT id  FROM collection where id = ?::uuid AND is_deleted = false AND"
-            + " (owner_id = ?::uuid  OR collaborator ?? ?)";
+        "SELECT id  FROM collection where id = ?::uuid AND is_deleted = false AND subformat not in ('pre-test', 'post-test', 'benchmark') AND"
+            + " (publish_status = 'published'::publish_status_type OR owner_id = ?::uuid  OR collaborator ?? ?)";
 
     public static final String JSON_KEY_VISIBLE = "visible";
     public static final String VISIBLE_ON = "on";
