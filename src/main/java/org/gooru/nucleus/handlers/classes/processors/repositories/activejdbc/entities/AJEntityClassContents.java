@@ -44,7 +44,7 @@ public class AJEntityClassContents extends Model {
     public static final String QUESTION = "question";
 
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(CLASS_ID, CTX_COURSE_ID, CTX_UNIT_ID,
-        CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, SEQUENCE, DUE_DATE, CREATED_AT, UPDATED_AT));
+        CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, SEQUENCE, CREATED_AT, UPDATED_AT));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     public static final List<String> RESPONSE_FIELDS =
