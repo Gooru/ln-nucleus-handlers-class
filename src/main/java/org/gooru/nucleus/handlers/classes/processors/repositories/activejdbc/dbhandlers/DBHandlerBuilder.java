@@ -78,4 +78,8 @@ public final class DBHandlerBuilder {
     public static DBHandler buildFetchClassContentHandler(ProcessorContext context) {
         return new FetchClassContentHandler(context);
     }
+    
+    public static DBHandler buildAssignClassContentHandler(ProcessorContext context) {
+        return new AssignClassContentHandler(context);
+    }
 }

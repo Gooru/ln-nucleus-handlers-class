@@ -191,7 +191,7 @@ class CreateClassContentHandler implements DBHandler {
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
         classContents = new AJEntityClassContents();
-        new DefaultAJEntityClassBuilder().build(this.classContents, context.request(),
+        new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
             AJEntityClassContents.getConverterRegistry());
         classContents.set(AJEntityClassContents.SEQUENCE, getSequenceId());
         classContents.setClassId(context.classId());
@@ -301,7 +301,7 @@ class CreateClassContentHandler implements DBHandler {
     private static class DefaultPayloadValidator implements PayloadValidator {
     }
 
-    private static class DefaultAJEntityClassBuilder implements EntityBuilder<AJEntityClassContents> {
+    private static class DefaultAJEntityClassContentsBuilder implements EntityBuilder<AJEntityClassContents> {
     }
 
 }

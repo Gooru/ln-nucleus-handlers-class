@@ -131,6 +131,12 @@ public enum CommandProcessorBuilder {
         public Processor build(ProcessorContext context) {
             return new ClassContentFetchProcessor(context);
         }
+    },
+    CLASS_CONTENT_ASSIGN(MessageConstants.MSG_OP_CLASS_CONTENT_ASSIGN) {
+        @Override
+        public Processor build(ProcessorContext context) {
+            return new ClassContentAssignProcessor(context);
+        }
     };
 
     private String name;

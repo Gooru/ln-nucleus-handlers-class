@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,14 +38,17 @@ public class AJEntityClassContents extends Model {
     public static final String CONTENT_ID = "content_id";
     public static final String CONTENT_TYPE = "content_type";
     public static final String SEQUENCE = "sequence";
-    private static final String DUE_DATE = "due_date";
+    public static final String DUE_DATE = "due_date";
     public static final String ASSESSMENT = "assessment";
     public static final String COLLECTION = "collection";
     public static final String RESOURCE = "resource";
     public static final String QUESTION = "question";
+    public static final String ID_CONTENT = "contentId";
 
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(CLASS_ID, CTX_COURSE_ID, CTX_UNIT_ID,
         CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, SEQUENCE, CREATED_AT, UPDATED_AT));
+    public static final Set<String> ASSIGN_FIELDS = new HashSet<>(Arrays.asList(DUE_DATE, UPDATED_AT));
+    public static final Set<String> MANDATORY_ASSIGN_FIELDS = new HashSet<>(Arrays.asList(DUE_DATE));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     public static final List<String> RESPONSE_FIELDS =
@@ -64,6 +68,8 @@ public class AJEntityClassContents extends Model {
     public static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
         "select ctx_course_id, ctx_unit_id, ctx_lesson_id, ctx_collection_id, content_id, content_type, due_date from class_contents where class_id = ?::uuid and content_type = ? order by created_at desc";
 
+    public static final String FETCH_CLASS_CONTENT = "class_id = ?::uuid AND content_id = ?::uuid";
+
     static {
         validatorRegistry = initializeValidators();
         converterRegistry = initializeConverters();
@@ -77,6 +83,8 @@ public class AJEntityClassContents extends Model {
         converterMap.put(CTX_LESSON_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CTX_COLLECTION_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CONTENT_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+        converterMap.put(DUE_DATE,
+            (fieldValue -> FieldConverter.convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
         return Collections.unmodifiableMap(converterMap);
     }
 
@@ -90,6 +98,8 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CONTENT_TYPE,
             (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
+        validatorMap.put(DUE_DATE,
+            (value -> FieldValidator.validateDateWithFormatIfPresent(value, DateTimeFormatter.ISO_LOCAL_DATE, false)));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -103,6 +113,20 @@ public class AJEntityClassContents extends Model {
             @Override
             public Set<String> mandatoryFields() {
                 return Collections.unmodifiableSet(MANDATORY_FIELDS);
+            }
+        };
+    }
+
+    public static FieldSelector assignFieldSelector() {
+        return new FieldSelector() {
+            @Override
+            public Set<String> allowedFields() {
+                return Collections.unmodifiableSet(ASSIGN_FIELDS);
+            }
+
+            @Override
+            public Set<String> mandatoryFields() {
+                return Collections.unmodifiableSet(MANDATORY_ASSIGN_FIELDS);
             }
         };
     }
@@ -121,21 +145,21 @@ public class AJEntityClassContents extends Model {
     }
 
     public static ValidatorRegistry getValidatorRegistry() {
-        return new ClassValidationRegistry();
+        return new ClassContentsValidationRegistry();
     }
 
     public static ConverterRegistry getConverterRegistry() {
-        return new ClassConverterRegistry();
+        return new ClassContentsConverterRegistry();
     }
 
-    private static class ClassValidationRegistry implements ValidatorRegistry {
+    private static class ClassContentsValidationRegistry implements ValidatorRegistry {
         @Override
         public FieldValidator lookupValidator(String fieldName) {
             return validatorRegistry.get(fieldName);
         }
     }
 
-    private static class ClassConverterRegistry implements ConverterRegistry {
+    private static class ClassContentsConverterRegistry implements ConverterRegistry {
         @Override
         public FieldConverter lookupConverter(String fieldName) {
             return converterRegistry.get(fieldName);

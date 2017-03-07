@@ -36,8 +36,10 @@ public interface ClassRepo {
     MessageResponse removeStudentFromClass();
 
     MessageResponse getVisibleContent();
-    
+
     MessageResponse createClassContent();
-    
+
     MessageResponse fetchClassContent();
+
+    MessageResponse assignClassContent();
 }
