@@ -1,18 +1,25 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +32,7 @@ class FetchClassContentHandler implements DBHandler {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private JsonArray contentTypes;
+    private String contentType;
     private boolean isStudent;
 
     FetchClassContentHandler(ProcessorContext context) {
@@ -69,6 +77,8 @@ class FetchClassContentHandler implements DBHandler {
                 LOGGER.warn("Content Type should be pass for grouping the class contents by type", context.classId());
                 return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
                     RESOURCE_BUNDLE.getString("missing.content.type")), ExecutionResult.ExecutionStatus.FAILED);
+            } else {
+                contentType = contentTypes.getString(0);
             }
         } else {
             isStudent = checkStudent(entityClass);
@@ -91,14 +101,73 @@ class FetchClassContentHandler implements DBHandler {
                 AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS, context.classId());
         } else {
             classContents = AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_GRP_BY_TYPE,
-                context.classId(), contentTypes.getString(0));
-
+                context.classId(), contentType);
         }
+
         JsonArray results = new JsonArray(JsonFormatterBuilder
             .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS).toJson(classContents));
+        JsonArray resultSet = new JsonArray();
+        if (results != null && results.size() > 0) {
+            final List<String> contentIds = new ArrayList<>();
+            final List<String> collectionIds = new ArrayList<>();
+            results.forEach(content -> {
+                JsonObject classContent = (JsonObject) content;
+                if (checkContentTypeIsCollection(classContent.getString(AJEntityClassContents.CONTENT_TYPE))) {
+                    collectionIds.add(classContent.getString(AJEntityClassContents.CONTENT_ID));
+                } else if (checkContentTypeIsContent(classContent.getString(AJEntityClassContents.CONTENT_TYPE))) {
+                    contentIds.add(classContent.getString(AJEntityClassContents.CONTENT_ID));
+                }
+
+            });
+            JsonObject classContentOtherData = new JsonObject();
+            if (contentIds.size() > 0) {
+                String contentArrayString = DbHelperUtil.toPostgresArrayString(contentIds);
+                LazyList<AJEntityContent> contents =
+                    AJEntityContent.findBySQL(AJEntityContent.SELECT_CONTENTS, contentArrayString);
+                contents.forEach(content -> {
+                    JsonObject data = new JsonObject();
+                    data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+                    classContentOtherData.put(content.getString(MessageConstants.ID), data);
+                });
+            }
+
+            if (collectionIds.size() > 0) {
+                String collectionArrayString = DbHelperUtil.toPostgresArrayString(collectionIds);
+                LazyList<AJEntityCollection> collections =
+                    AJEntityCollection.findBySQL(AJEntityCollection.SELECT_COLLECTION, collectionArrayString);
+                collections.forEach(content -> {
+                    JsonObject data = new JsonObject();
+                    data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+                    classContentOtherData.put(content.getString(MessageConstants.ID), data);
+                });
+                List<Map> collectionContentCount =
+                    Base.findAll(AJEntityContent.SELECT_CONTENT_COUNT_BY_COLLECTION, collectionArrayString);
+                collectionContentCount.stream().forEach(data -> {
+                    final String key = ((String) data.get(AJEntityContent.CONTENT_FORMAT))
+                        .equalsIgnoreCase(AJEntityContent.QUESTION_FORMAT) ? AJEntityContent.QUESTION_COUNT
+                            : AJEntityContent.RESOURCE_COUNT;
+                    classContentOtherData.getJsonObject(data.get(AJEntityContent.COLLECTION_ID).toString()).put(key,
+                        data.get(AJEntityContent.CONTENT_COUNT));
+                });
+                List<Map> oeQuestionCountFromDB =
+                    Base.findAll(AJEntityContent.SELECT_OE_QUESTION_COUNT, collectionArrayString);
+                oeQuestionCountFromDB.stream().forEach(data -> {
+                    classContentOtherData.getJsonObject((String) data.get(AJEntityContent.COLLECTION_ID).toString())
+                        .put(AJEntityContent.OE_QUESTION_COUNT, data.get(AJEntityContent.OE_QUESTION_COUNT));
+                });
+            }
+            results.forEach(result -> {
+                JsonObject data = ((JsonObject) result);
+                if (classContentOtherData.containsKey(data.getString(AJEntityClassContents.CONTENT_ID))) {
+                    data.mergeIn(classContentOtherData.getJsonObject(data.getString(AJEntityClassContents.CONTENT_ID)));
+                }
+                resultSet.add(data);
+            });
+
+        }
 
         return new ExecutionResult<>(
-            MessageResponseFactory.createOkayResponse(new JsonObject().put(MessageConstants.CLASS_CONTENTS, results)),
+            MessageResponseFactory.createOkayResponse(new JsonObject().put(MessageConstants.CLASS_CONTENTS, resultSet)),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
 
@@ -127,5 +196,15 @@ class FetchClassContentHandler implements DBHandler {
         LazyList<AJClassMember> members = AJClassMember.where(AJClassMember.FETCH_FOR_USER_QUERY_FILTER,
             this.context.classId(), this.context.userId());
         return !members.isEmpty();
+    }
+
+    private boolean checkContentTypeIsCollection(String contentType) {
+        return (contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT)
+            || contentType.equalsIgnoreCase(AJEntityClassContents.COLLECTION));
+    }
+
+    private boolean checkContentTypeIsContent(String contentType) {
+        return (contentType.equalsIgnoreCase(AJEntityClassContents.RESOURCE)
+            || contentType.equalsIgnoreCase(AJEntityClassContents.QUESTION));
     }
 }

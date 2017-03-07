@@ -51,6 +51,8 @@ public final class MessageConstants {
     public static final String USER_ID = "userId";
     public static final String EMAIL = "email";
     public static final String CLASS_CONTENTS = "class_contents"; 
+    public static final String TITLE = "title";
+    public static final String ID = "id";
 
     private MessageConstants() {
         throw new AssertionError();

@@ -43,7 +43,6 @@ public class AJEntityCollection extends Model {
     public static final String FETCH_COLLECTIONS_CLASS_VISIBILITY_ALL =
         "SELECT id, class_visibility, format FROM collection WHERE course_id = ?::uuid AND is_deleted = false";
     public static final String TABLE_COLLECTION = "collection";
-
     public static final String FORMAT_TYPE = "format";
     public static final String FORMAT_TYPE_COLLECTION = "collection";
     public static final String FORMAT_TYPE_ASSESSMENT = "assessment";
@@ -56,7 +55,8 @@ public class AJEntityCollection extends Model {
     public static final String SELECT_COLLECTION_TO_AUTHORIZE =
         "SELECT id  FROM collection where id = ?::uuid AND is_deleted = false AND subformat not in ('pre-test', 'post-test', 'benchmark') AND"
             + " (publish_status = 'published'::publish_status_type OR owner_id = ?::uuid  OR collaborator ?? ?)";
-
+    public static final String SELECT_COLLECTION = "SELECT id, title from collection where id = ANY(?::uuid[])";
+    
     public static final String JSON_KEY_VISIBLE = "visible";
     public static final String VISIBLE_ON = "on";
     public static final String VISIBLE_OFF = "off";
