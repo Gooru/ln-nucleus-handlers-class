@@ -24,7 +24,7 @@ public interface PayloadValidator {
             }
         });
         Set<String> mandatory = selector.mandatoryFields();
-        if (mandatory != null && mandatory.isEmpty()) {
+        if (mandatory != null && !mandatory.isEmpty()) {
             mandatory.forEach(s -> {
                 if (input.getValue(s) == null) {
                     result.put(s, "Missing field");

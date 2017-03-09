@@ -50,7 +50,7 @@ public class AJEntityClassContents extends Model {
     public static final Set<String> ASSIGN_FIELDS = new HashSet<>(Arrays.asList(DUE_DATE, UPDATED_AT));
     public static final Set<String> MANDATORY_ASSIGN_FIELDS = new HashSet<>(Arrays.asList(DUE_DATE));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
-    private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
+    private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
     public static final List<String> RESPONSE_FIELDS =
         Arrays.asList(CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, DUE_DATE);
     private static final Map<String, FieldValidator> validatorRegistry;

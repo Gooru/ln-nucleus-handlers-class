@@ -124,7 +124,7 @@ public interface FieldValidator {
     }
     
     static boolean validateValueExists(String o, Set<String> acceptedFields) {
-        return !(o == null) || !acceptedFields.contains(0);
+        return o != null && acceptedFields.contains(o);
     }
 
     boolean validateField(Object value);
