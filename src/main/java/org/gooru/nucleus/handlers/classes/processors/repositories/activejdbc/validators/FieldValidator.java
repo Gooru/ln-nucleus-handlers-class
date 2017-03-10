@@ -36,7 +36,7 @@ public interface FieldValidator {
     }
 
     static boolean validateDateWithFormat(Object o, DateTimeFormatter formatter, boolean allowedInPast,
-        boolean allowToday) {
+        boolean allowCurrentDate) {
         if (o == null) {
             return false;
         }
@@ -44,7 +44,7 @@ public interface FieldValidator {
             LocalDate date = LocalDate.parse(o.toString(), formatter);
             if (!allowedInPast) {
                 boolean isValid = date.isAfter(LocalDate.now());
-                if (!isValid && allowToday) {
+                if (!isValid && allowCurrentDate) {
                     isValid = date.isEqual(LocalDate.now());
                 }
                 return isValid;
@@ -56,9 +56,9 @@ public interface FieldValidator {
     }
 
     static boolean validateDateWithFormatIfPresent(Object o, DateTimeFormatter formatter, boolean allowedInPast,
-        boolean allowToday) {
+        boolean allowCurrentDate) {
         if (o != null) {
-            return validateDateWithFormat(o, formatter, allowedInPast, allowToday);
+            return validateDateWithFormat(o, formatter, allowedInPast, allowCurrentDate);
         }
         return true;
     }
