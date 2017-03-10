@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,21 +39,23 @@ public class AJEntityClassContents extends Model {
     public static final String CONTENT_ID = "content_id";
     public static final String CONTENT_TYPE = "content_type";
     public static final String SEQUENCE = "sequence";
-    public static final String DUE_DATE = "due_date";
+    public static final String ACTIVATION_DATE = "activation_date";
     public static final String ASSESSMENT = "assessment";
     public static final String COLLECTION = "collection";
     public static final String RESOURCE = "resource";
     public static final String QUESTION = "question";
     public static final String ID_CONTENT = "contentId";
+    private static final String SORT_DESC = " desc";
 
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(CLASS_ID, CTX_COURSE_ID, CTX_UNIT_ID,
         CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, SEQUENCE, CREATED_AT, UPDATED_AT));
-    public static final Set<String> ASSIGN_FIELDS = new HashSet<>(Arrays.asList(DUE_DATE, UPDATED_AT));
-    public static final Set<String> MANDATORY_ASSIGN_FIELDS = new HashSet<>(Arrays.asList(DUE_DATE));
+    public static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
+    public static final Set<String> MANDATORY_ASSIGN_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
-    private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
-    public static final List<String> RESPONSE_FIELDS =
-        Arrays.asList(CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, DUE_DATE);
+    private static final Set<String> ACCEPT_CONTENT_TYPES =
+        new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
+    public static final List<String> RESPONSE_FIELDS = Arrays.asList(CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID,
+        CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, ACTIVATION_DATE);
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
 
@@ -62,11 +65,9 @@ public class AJEntityClassContents extends Model {
     public static final String SELECT_CLASS_CONTENT_MAX_SEQUENCEID =
         "SELECT max(sequence) FROM class_contents WHERE class_id = ?::uuid";
 
-    public static final String SELECT_CLASS_CONTENTS =
-        "select ctx_course_id, ctx_unit_id, ctx_lesson_id, ctx_collection_id, content_id, content_type, due_date from class_contents where class_id = ?::uuid and due_date is not null order by created_at desc";
+    public static final String SELECT_CLASS_CONTENTS = "class_id = ?::uuid";
 
-    public static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
-        "select ctx_course_id, ctx_unit_id, ctx_lesson_id, ctx_collection_id, content_id, content_type, due_date from class_contents where class_id = ?::uuid and content_type = ? order by created_at desc";
+    public static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE = "class_id = ?::uuid and content_type = ?";
 
     public static final String FETCH_CLASS_CONTENT = "class_id = ?::uuid AND content_id = ?::uuid";
 
@@ -83,7 +84,7 @@ public class AJEntityClassContents extends Model {
         converterMap.put(CTX_LESSON_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CTX_COLLECTION_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(CONTENT_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
-        converterMap.put(DUE_DATE,
+        converterMap.put(ACTIVATION_DATE,
             (fieldValue -> FieldConverter.convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
         return Collections.unmodifiableMap(converterMap);
     }
@@ -98,8 +99,8 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CONTENT_TYPE,
             (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
-        validatorMap.put(DUE_DATE,
-            (value -> FieldValidator.validateDateWithFormatIfPresent(value, DateTimeFormatter.ISO_LOCAL_DATE, false)));
+        validatorMap.put(ACTIVATION_DATE,
+            (value -> FieldValidator.validateDateWithFormatIfPresent(value, DateTimeFormatter.ISO_LOCAL_DATE, false, false)));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -117,16 +118,11 @@ public class AJEntityClassContents extends Model {
         };
     }
 
-    public static FieldSelector assignFieldSelector() {
+    public static FieldSelector updateFieldSelector() {
         return new FieldSelector() {
             @Override
             public Set<String> allowedFields() {
-                return Collections.unmodifiableSet(ASSIGN_FIELDS);
-            }
-
-            @Override
-            public Set<String> mandatoryFields() {
-                return Collections.unmodifiableSet(MANDATORY_ASSIGN_FIELDS);
+                return Collections.unmodifiableSet(UPDATEABLE_FIELDS);
             }
         };
     }
@@ -142,6 +138,20 @@ public class AJEntityClassContents extends Model {
 
             }
         }
+    }
+
+    public void setDefaultActivationDateIfNotPresent() {
+        if (this.getDate(ACTIVATION_DATE) == null) {
+            this.set(ACTIVATION_DATE,
+                FieldConverter.convertFieldToDateWithFormat(LocalDate.now(), DateTimeFormatter.ISO_LOCAL_DATE));
+        }
+    }
+
+    public static String getSequenceFieldNameWithSortOrder(boolean isStudent) {
+        if (isStudent) {
+            return ACTIVATION_DATE + SORT_DESC;
+        }
+        return SEQUENCE + SORT_DESC;
     }
 
     public static ValidatorRegistry getValidatorRegistry() {

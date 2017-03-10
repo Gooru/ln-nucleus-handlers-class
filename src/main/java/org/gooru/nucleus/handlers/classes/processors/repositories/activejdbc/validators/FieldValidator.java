@@ -35,14 +35,19 @@ public interface FieldValidator {
         return true;
     }
 
-    static boolean validateDateWithFormat(Object o, DateTimeFormatter formatter, boolean allowedInPast) {
+    static boolean validateDateWithFormat(Object o, DateTimeFormatter formatter, boolean allowedInPast,
+        boolean allowToday) {
         if (o == null) {
             return false;
         }
         try {
             LocalDate date = LocalDate.parse(o.toString(), formatter);
             if (!allowedInPast) {
-                return date.isAfter(LocalDate.now());
+                boolean isValid = date.isAfter(LocalDate.now());
+                if (!isValid && allowToday) {
+                    isValid = date.isEqual(LocalDate.now());
+                }
+                return isValid;
             }
         } catch (DateTimeParseException e) {
             return false;
@@ -50,9 +55,10 @@ public interface FieldValidator {
         return true;
     }
 
-    static boolean validateDateWithFormatIfPresent(Object o, DateTimeFormatter formatter, boolean allowedInPast) {
+    static boolean validateDateWithFormatIfPresent(Object o, DateTimeFormatter formatter, boolean allowedInPast,
+        boolean allowToday) {
         if (o != null) {
-            return validateDateWithFormat(o, formatter, allowedInPast);
+            return validateDateWithFormat(o, formatter, allowedInPast, allowToday);
         }
         return true;
     }
@@ -122,7 +128,7 @@ public interface FieldValidator {
     static boolean validateUuidIfPresent(String o) {
         return o == null || validateUuid(o);
     }
-    
+
     static boolean validateValueExists(String o, Set<String> acceptedFields) {
         return o != null && acceptedFields.contains(o);
     }

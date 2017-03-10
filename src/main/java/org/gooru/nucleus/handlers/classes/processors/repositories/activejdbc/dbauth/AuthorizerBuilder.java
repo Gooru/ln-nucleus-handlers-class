@@ -30,7 +30,8 @@ public final class AuthorizerBuilder {
     }
 
     public static Authorizer<AJEntityClass> buildFetchClassesForUserAuthorizer(ProcessorContext context) {
-        // As long as session token is valid and user is not anonymous, which is the case as we are, we should be fine
+        // As long as session token is valid and user is not anonymous, which is
+        // the case as we are, we should be fine
         return model -> new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
     }
 
@@ -90,7 +91,8 @@ public final class AuthorizerBuilder {
     }
 
     public static Authorizer<AJEntityClass> buildVisibleContentStatsAuthorizer(ProcessorContext context) {
-        // FIXME: No idea as to how to authorize as this API is expensive and may be potentially heavy on DB
+        // FIXME: No idea as to how to authorize as this API is expensive and
+        // may be potentially heavy on DB
         // and currently it is just pass through
         return model -> new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
     }
@@ -103,8 +105,9 @@ public final class AuthorizerBuilder {
         JsonArray collaborators) {
         return new TenantCollaboratorAuthorizer(context, collaborators);
     }
-    
-    public static Authorizer<AJEntityClass> buildContentMapClassAuthorizer(ProcessorContext context) {
+
+    public static Authorizer<AJEntityClass> buildClassContentAuthorizer(ProcessorContext context) {
         return new ClassOwnerOrCollaboratorAuthorizer(context);
     }
+
 }

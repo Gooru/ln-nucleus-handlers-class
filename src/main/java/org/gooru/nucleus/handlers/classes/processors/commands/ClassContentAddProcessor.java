@@ -5,8 +5,8 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.RepoBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 
 
-class ClassContentAssignProcessor extends AbstractCommandProcessor {
-    public ClassContentAssignProcessor(ProcessorContext context) {
+class ClassContentAddProcessor extends AbstractCommandProcessor {
+    public ClassContentAddProcessor(ProcessorContext context) {
         super(context);
     }
 
@@ -17,6 +17,6 @@ class ClassContentAssignProcessor extends AbstractCommandProcessor {
 
     @Override
     protected MessageResponse processCommand() {
-        return RepoBuilder.buildClassRepo(context).assignClassContent();
+        return RepoBuilder.buildClassRepo(context).addContentInClass();
     }
 }

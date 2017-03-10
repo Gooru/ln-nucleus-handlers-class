@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 
-class CreateClassContentHandler implements DBHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateClassContentHandler.class);
+class AddContentInClassHandler implements DBHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddContentInClassHandler.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private AJEntityClassContents classContents;
@@ -39,7 +39,7 @@ class CreateClassContentHandler implements DBHandler {
     private String contentType;
     private String contentId;
 
-    CreateClassContentHandler(ProcessorContext context) {
+    AddContentInClassHandler(ProcessorContext context) {
         this.context = context;
     }
 
@@ -92,7 +92,7 @@ class CreateClassContentHandler implements DBHandler {
         }
 
         ExecutionResult<MessageResponse> classAuthorize =
-            AuthorizerBuilder.buildContentMapClassAuthorizer(this.context).authorize(entityClass);
+            AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
         if (classAuthorize.continueProcessing()) {
             if (ctxCourseId != null) {
                 LazyList<AJEntityCourse> ajEntityCourse = AJEntityCourse.findBySQL(
@@ -100,9 +100,8 @@ class CreateClassContentHandler implements DBHandler {
                 if (ajEntityCourse.isEmpty()) {
                     LOGGER
                         .warn("user is not owner or collaborator of context course to create class contents. aborting");
-                    return new ExecutionResult<>(
-                        MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
-                        ExecutionStatus.FAILED);
+                    return new ExecutionResult<>(MessageResponseFactory.createForbiddenResponse(
+                        RESOURCE_BUNDLE.getString("course.not.found.or.not.available")), ExecutionStatus.FAILED);
                 }
                 LazyList<AJEntityUnit> ajEntityUnit =
                     AJEntityUnit.findBySQL(AJEntityUnit.SELECT_UNIT_TO_VALIDATE, ctxUnitId, ctxCourseId);

@@ -119,23 +119,23 @@ public enum CommandProcessorBuilder {
             return new ClassInviteRemoveProcessor(context);
         }
     },
-    CLASS_CONTENT_CREATE(MessageConstants.MSG_OP_CLASS_CONTENT_CREATE) {
+    CLASS_CONTENT_ADD(MessageConstants.MSG_OP_CLASS_CONTENT_ADD) {
         @Override
         public Processor build(ProcessorContext context) {
-            return new ClassContentCreateProcessor(context);
+            return new ClassContentAddProcessor(context);
         }
     },
 
-    CLASS_CONTENT_FETCH(MessageConstants.MSG_OP_CLASS_CONTENT_FETCH) {
+    CLASS_CONTENT_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_LIST) {
         @Override
         public Processor build(ProcessorContext context) {
-            return new ClassContentFetchProcessor(context);
+            return new ClassContentListProcessor(context);
         }
     },
-    CLASS_CONTENT_ASSIGN(MessageConstants.MSG_OP_CLASS_CONTENT_ASSIGN) {
+    CLASS_CONTENT_ENABLE(MessageConstants.MSG_OP_CLASS_CONTENT_ENABLE) {
         @Override
         public Processor build(ProcessorContext context) {
-            return new ClassContentAssignProcessor(context);
+            return new ClassContentEnableProcessor(context);
         }
     };
 

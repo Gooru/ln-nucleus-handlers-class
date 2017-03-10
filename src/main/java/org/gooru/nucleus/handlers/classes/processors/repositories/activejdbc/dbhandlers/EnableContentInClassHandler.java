@@ -21,14 +21,14 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 
-class AssignClassContentHandler implements DBHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssignClassContentHandler.class);
+class EnableContentInClassHandler implements DBHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnableContentInClassHandler.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private AJEntityClassContents classContents;
     private String contentId;
 
-    AssignClassContentHandler(ProcessorContext context) {
+    EnableContentInClassHandler(ProcessorContext context) {
         this.context = context;
     }
 
@@ -37,8 +37,7 @@ class AssignClassContentHandler implements DBHandler {
         try {
             validateUser();
             validateClassId();
-            validateAndInitializeClassId();
-            validateContextRequest();
+            validateAndInitializeContentId();
             validateContextRequestFields();
         } catch (MessageResponseWrapperException mrwe) {
             return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionResult.ExecutionStatus.FAILED);
@@ -75,7 +74,7 @@ class AssignClassContentHandler implements DBHandler {
                     .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        return AuthorizerBuilder.buildContentMapClassAuthorizer(this.context).authorize(entityClass);
+        return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
 
     }
 
@@ -83,6 +82,7 @@ class AssignClassContentHandler implements DBHandler {
     public ExecutionResult<MessageResponse> executeRequest() {
         new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
             AJEntityClassContents.getConverterRegistry());
+        this.classContents.setDefaultActivationDateIfNotPresent();
         boolean result = this.classContents.save();
         if (!result) {
             if (classContents.hasErrors()) {
@@ -111,14 +111,6 @@ class AssignClassContentHandler implements DBHandler {
         }
     }
 
-    private void validateContextRequest() {
-        if (context.request() == null || context.request().isEmpty()) {
-            LOGGER.warn("Empty payload supplied to create content map for class");
-            throw new MessageResponseWrapperException(
-                MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("empty.payload")));
-        }
-    }
-
     private void validateClassId() {
         if (context.classId() == null || context.classId().isEmpty()) {
             throw new MessageResponseWrapperException(
@@ -126,7 +118,7 @@ class AssignClassContentHandler implements DBHandler {
         }
     }
 
-    private void validateAndInitializeClassId() {
+    private void validateAndInitializeContentId() {
         contentId = context.requestHeaders().get(AJEntityClassContents.ID_CONTENT);
         if (contentId == null || contentId.isEmpty()) {
             throw new MessageResponseWrapperException(
@@ -136,7 +128,7 @@ class AssignClassContentHandler implements DBHandler {
 
     private void validateContextRequestFields() {
         JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
-            AJEntityClassContents.assignFieldSelector(), AJEntityClassContents.getValidatorRegistry());
+            AJEntityClassContents.updateFieldSelector(), AJEntityClassContents.getValidatorRegistry());
         if (errors != null && !errors.isEmpty()) {
             LOGGER.warn("Validation errors for request");
             throw new MessageResponseWrapperException(MessageResponseFactory.createValidationErrorResponse(errors));
