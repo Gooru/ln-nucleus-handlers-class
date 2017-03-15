@@ -1,5 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -27,6 +29,7 @@ class EnableContentInClassHandler implements DBHandler {
     private final ProcessorContext context;
     private AJEntityClassContents classContents;
     private String contentId;
+    private String activationDate;
 
     EnableContentInClassHandler(ProcessorContext context) {
         this.context = context;
@@ -39,6 +42,7 @@ class EnableContentInClassHandler implements DBHandler {
             validateClassId();
             validateAndInitializeContentId();
             validateContextRequestFields();
+            activationDate = context.request().getString(AJEntityClassContents.ACTIVATION_DATE);
         } catch (MessageResponseWrapperException mrwe) {
             return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionResult.ExecutionStatus.FAILED);
         }
@@ -49,7 +53,7 @@ class EnableContentInClassHandler implements DBHandler {
     @Override
     public ExecutionResult<MessageResponse> validateRequest() {
         LazyList<AJEntityClassContents> classContents =
-            AJEntityClassContents.where(AJEntityClassContents.FETCH_CLASS_CONTENT, context.classId(), contentId);
+            AJEntityClassContents.where(AJEntityClassContents.FETCH_CLASS_CONTENT, contentId, context.classId());
         if (classContents.isEmpty()) {
             LOGGER.warn("content {} not add to this class  {}", contentId, context.classId());
             return new ExecutionResult<>(
@@ -57,6 +61,29 @@ class EnableContentInClassHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         this.classContents = classContents.get(0);
+        if (this.classContents.getActivationDate() != null) {
+            LOGGER.warn("content {} already activated to this class {}", contentId, context.classId());
+            return new ExecutionResult<>(
+                MessageResponseFactory
+                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("already.class.content.activated")),
+                ExecutionResult.ExecutionStatus.FAILED);
+        }
+
+        if (activationDate == null) {
+            activationDate = LocalDate.now().toString();
+        }
+
+        LazyList<AJEntityClassContents> ajClassContents =
+            AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE,
+                context.classId(), this.classContents.getContentId(), activationDate);
+        if (!ajClassContents.isEmpty()) {
+            LOGGER.warn("For this calss {} same content {} already activated for this date {}", context.classId(),
+                this.classContents.getContentId(), activationDate);
+            return new ExecutionResult<>(
+                MessageResponseFactory
+                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("same.content.already.activated")),
+                ExecutionResult.ExecutionStatus.FAILED);
+        }
 
         LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_QUERY_FILTER, context.classId());
         if (classes.isEmpty()) {
@@ -93,7 +120,7 @@ class EnableContentInClassHandler implements DBHandler {
         }
         return new ExecutionResult<>(
             MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
-                EventBuilderFactory.getClassContentAssignEventBuilder(this.context.classId(), contentId)),
+                EventBuilderFactory.getClassContentEnableEventBuilder(classContents.getId(), this.context.classId())),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
 
@@ -119,10 +146,16 @@ class EnableContentInClassHandler implements DBHandler {
     }
 
     private void validateAndInitializeContentId() {
-        contentId = context.requestHeaders().get(AJEntityClassContents.ID_CONTENT);
-        if (contentId == null || contentId.isEmpty()) {
-            throw new MessageResponseWrapperException(
-                MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.content.id")));
+        try {
+            contentId = context.requestHeaders().get(AJEntityClassContents.ID_CONTENT);
+            new BigInteger(contentId);
+            if (contentId == null) {
+                throw new MessageResponseWrapperException(
+                    MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.content.id")));
+            }
+        } catch (Exception e) {
+            throw new MessageResponseWrapperException(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.content.id")));
         }
     }
 

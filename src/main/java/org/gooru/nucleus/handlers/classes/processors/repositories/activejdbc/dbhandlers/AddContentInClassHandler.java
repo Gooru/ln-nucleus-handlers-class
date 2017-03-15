@@ -20,7 +20,6 @@ import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,14 +65,6 @@ class AddContentInClassHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> validateRequest() {
-        LazyList<AJEntityClassContents> classContents = AJEntityClassContents
-            .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(), contentId);
-        if (!classContents.isEmpty()) {
-            LOGGER.warn("class {} already added with this content {}", context.classId(), contentId);
-            return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("class.add.with.content")), ExecutionResult.ExecutionStatus.FAILED);
-        }
-
         LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_QUERY_FILTER, context.classId());
         if (classes.isEmpty()) {
             LOGGER.warn("Not able to find class '{}'", this.context.classId());
@@ -192,7 +183,6 @@ class AddContentInClassHandler implements DBHandler {
         classContents = new AJEntityClassContents();
         new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
             AJEntityClassContents.getConverterRegistry());
-        classContents.set(AJEntityClassContents.SEQUENCE, getSequenceId());
         classContents.setClassId(context.classId());
         boolean result = this.classContents.save();
         if (!result) {
@@ -203,8 +193,10 @@ class AddContentInClassHandler implements DBHandler {
             }
         }
         return new ExecutionResult<>(
-            MessageResponseFactory.createCreatedResponse(context.classId(),
-                EventBuilderFactory.getCreateClassContentEventBuilder(context.classId(), contentId, contentType)),
+            MessageResponseFactory
+                .createCreatedResponse(classContents.getString(AJEntityClassContents.ID),
+                    EventBuilderFactory.getCreateClassContentEventBuilder(
+                        classContents.getString(AJEntityClassContents.ID), context.classId(), contentId, contentType)),
             ExecutionStatus.SUCCESSFUL);
     }
 
@@ -279,16 +271,6 @@ class AddContentInClassHandler implements DBHandler {
             LOGGER.warn("Validation errors for request");
             throw new MessageResponseWrapperException(MessageResponseFactory.createValidationErrorResponse(errors));
         }
-    }
-
-    private int getSequenceId() {
-        Object maxSequenceId =
-            Base.firstCell(AJEntityClassContents.SELECT_CLASS_CONTENT_MAX_SEQUENCEID, context.classId());
-        int sequenceId = 1;
-        if (maxSequenceId != null) {
-            sequenceId = Integer.valueOf(maxSequenceId.toString()) + 1;
-        }
-        return sequenceId;
     }
 
     private JsonObject getModelErrors() {

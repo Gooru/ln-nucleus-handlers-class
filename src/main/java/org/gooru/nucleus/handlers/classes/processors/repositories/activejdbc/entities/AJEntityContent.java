@@ -22,7 +22,7 @@ public class AJEntityContent extends Model {
     public static final String SELECT_CONTENT_TO_VALIDATE =
         "select id FROM content WHERE id = ?::uuid  AND content_format = ?::content_format_type AND is_deleted = false";
 
-    public static final String SELECT_CONTENTS = "select id, title from content where id = ANY(?::uuid[])";
+    public static final String SELECT_CONTENTS = "select id, title, thumbnail from content where id = ANY(?::uuid[])";
 
     public static final String SELECT_CONTENT_COUNT_BY_COLLECTION =
         "SELECT count(id) as content_count, content_format, collection_id FROM content WHERE"

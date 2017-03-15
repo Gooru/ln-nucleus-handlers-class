@@ -90,14 +90,15 @@ class ListClassContentHandler implements DBHandler {
     public ExecutionResult<MessageResponse> executeRequest() {
         LazyList<AJEntityClassContents> classContents = null;
         if (contentType == null) {
-            classContents = AJEntityClassContents.where(AJEntityClassContents.SELECT_CLASS_CONTENTS, context.classId())
-                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder(isStudent))
-                .limit(DbHelperUtil.getLimitFromContext(context)).offset(DbHelperUtil.getOffsetFromContext(context));
+            classContents = AJEntityClassContents
+                .where(AJEntityClassContents.getClassContent(isStudent), context.classId(),
+                    DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
+                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder());
         } else {
             classContents = AJEntityClassContents
-                .where(AJEntityClassContents.SELECT_CLASS_CONTENTS_GRP_BY_TYPE, context.classId(), contentType)
-                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder(isStudent))
-                .limit(DbHelperUtil.getLimitFromContext(context)).offset(DbHelperUtil.getOffsetFromContext(context));
+                .where(AJEntityClassContents.getClassContentWithGrouping(isStudent), context.classId(), contentType,
+                    DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
+                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder());
         }
 
         JsonArray results = new JsonArray(JsonFormatterBuilder
@@ -123,6 +124,7 @@ class ListClassContentHandler implements DBHandler {
                 contents.forEach(content -> {
                     JsonObject data = new JsonObject();
                     data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+                    data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
                     classContentOtherData.put(content.getString(MessageConstants.ID), data);
                 });
             }
@@ -134,6 +136,7 @@ class ListClassContentHandler implements DBHandler {
                 collections.forEach(content -> {
                     JsonObject data = new JsonObject();
                     data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+                    data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
                     classContentOtherData.put(content.getString(MessageConstants.ID), data);
                 });
                 List<Map> collectionContentCount =

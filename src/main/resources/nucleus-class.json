@@ -13,6 +13,7 @@
     "populate.dummy.email": true,
     "dummy.email.domain": "example.org",
     "limit.default": 20,
-    "limit.max": 50
+    "limit.max": 50,
+    "date.range.interval": 2
   }
 }
