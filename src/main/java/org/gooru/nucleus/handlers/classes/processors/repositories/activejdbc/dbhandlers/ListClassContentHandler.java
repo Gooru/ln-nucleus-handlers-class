@@ -27,15 +27,14 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-class FetchClassContentHandler implements DBHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FetchClassContentHandler.class);
+class ListClassContentHandler implements DBHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListClassContentHandler.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
-    private JsonArray contentTypes;
     private String contentType;
     private boolean isStudent;
 
-    FetchClassContentHandler(ProcessorContext context) {
+    ListClassContentHandler(ProcessorContext context) {
         this.context = context;
     }
 
@@ -43,7 +42,7 @@ class FetchClassContentHandler implements DBHandler {
     public ExecutionResult<MessageResponse> checkSanity() {
         try {
             validateUser();
-            contentTypes = context.request().getJsonArray(AJEntityClassContents.CONTENT_TYPE);
+            contentType = DbHelperUtil.readRequestParam(AJEntityClassContents.CONTENT_TYPE, context);
             validateClassId();
         } catch (MessageResponseWrapperException mrwe) {
             return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionResult.ExecutionStatus.FAILED);
@@ -71,37 +70,35 @@ class FetchClassContentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         ExecutionResult<MessageResponse> classAuthorize =
-            AuthorizerBuilder.buildContentMapClassAuthorizer(this.context).authorize(entityClass);
-        if (classAuthorize.continueProcessing()) {
-            if (contentTypes == null || contentTypes.getString(0) == null || contentTypes.getString(0).isEmpty()) {
-                LOGGER.warn("Content Type should be pass for grouping the class contents by type", context.classId());
-                return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-                    RESOURCE_BUNDLE.getString("missing.content.type")), ExecutionResult.ExecutionStatus.FAILED);
-            } else {
-                contentType = contentTypes.getString(0);
-            }
-        } else {
+            AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
+
+        if (!classAuthorize.continueProcessing()) {
             isStudent = checkStudent(entityClass);
             if (!isStudent) {
                 return new ExecutionResult<>(
                     MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
                     ExecutionResult.ExecutionStatus.FAILED);
             }
+        } else {
+            return classAuthorize;
         }
-
-        return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+        return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
 
     }
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
         LazyList<AJEntityClassContents> classContents = null;
-        if (isStudent) {
-            classContents =
-                AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS, context.classId());
+        if (contentType == null) {
+            classContents = AJEntityClassContents
+                .where(AJEntityClassContents.getClassContent(isStudent), context.classId(),
+                    DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
+                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder());
         } else {
-            classContents = AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_GRP_BY_TYPE,
-                context.classId(), contentType);
+            classContents = AJEntityClassContents
+                .where(AJEntityClassContents.getClassContentWithGrouping(isStudent), context.classId(), contentType,
+                    DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
+                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder());
         }
 
         JsonArray results = new JsonArray(JsonFormatterBuilder
@@ -127,6 +124,7 @@ class FetchClassContentHandler implements DBHandler {
                 contents.forEach(content -> {
                     JsonObject data = new JsonObject();
                     data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+                    data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
                     classContentOtherData.put(content.getString(MessageConstants.ID), data);
                 });
             }
@@ -138,6 +136,7 @@ class FetchClassContentHandler implements DBHandler {
                 collections.forEach(content -> {
                     JsonObject data = new JsonObject();
                     data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+                    data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
                     classContentOtherData.put(content.getString(MessageConstants.ID), data);
                 });
                 List<Map> collectionContentCount =

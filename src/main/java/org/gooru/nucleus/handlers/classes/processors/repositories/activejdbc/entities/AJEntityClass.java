@@ -130,7 +130,7 @@ public class AJEntityClass extends Model {
         validatorMap.put(COVER_IMAGE, (value) -> FieldValidator.validateStringIfPresent(value, 2000));
         validatorMap.put(MIN_SCORE, (FieldValidator::validateInteger));
         validatorMap.put(END_DATE,
-            (value -> FieldValidator.validateDateWithFormat(value, DateTimeFormatter.ISO_LOCAL_DATE, false)));
+            (value -> FieldValidator.validateDateWithFormat(value, DateTimeFormatter.ISO_LOCAL_DATE, false, false)));
         validatorMap.put(COURSE_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(COLLABORATOR,
             (value) -> FieldValidator.validateDeepJsonArrayIfPresent(value, FieldValidator::validateUuid));

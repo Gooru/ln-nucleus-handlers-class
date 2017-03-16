@@ -37,9 +37,9 @@ public interface ClassRepo {
 
     MessageResponse getVisibleContent();
 
-    MessageResponse createClassContent();
+    MessageResponse addContentInClass();
 
-    MessageResponse fetchClassContent();
+    MessageResponse listClassContent();
 
-    MessageResponse assignClassContent();
+    MessageResponse enableContentInClass();
 }

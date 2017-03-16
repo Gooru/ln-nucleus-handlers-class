@@ -20,15 +20,14 @@ import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 
-class CreateClassContentHandler implements DBHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateClassContentHandler.class);
+class AddContentInClassHandler implements DBHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddContentInClassHandler.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private AJEntityClassContents classContents;
@@ -39,7 +38,7 @@ class CreateClassContentHandler implements DBHandler {
     private String contentType;
     private String contentId;
 
-    CreateClassContentHandler(ProcessorContext context) {
+    AddContentInClassHandler(ProcessorContext context) {
         this.context = context;
     }
 
@@ -66,14 +65,6 @@ class CreateClassContentHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> validateRequest() {
-        LazyList<AJEntityClassContents> classContents = AJEntityClassContents
-            .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(), contentId);
-        if (!classContents.isEmpty()) {
-            LOGGER.warn("class {} already added with this content {}", context.classId(), contentId);
-            return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("class.add.with.content")), ExecutionResult.ExecutionStatus.FAILED);
-        }
-
         LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_QUERY_FILTER, context.classId());
         if (classes.isEmpty()) {
             LOGGER.warn("Not able to find class '{}'", this.context.classId());
@@ -92,7 +83,7 @@ class CreateClassContentHandler implements DBHandler {
         }
 
         ExecutionResult<MessageResponse> classAuthorize =
-            AuthorizerBuilder.buildContentMapClassAuthorizer(this.context).authorize(entityClass);
+            AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
         if (classAuthorize.continueProcessing()) {
             if (ctxCourseId != null) {
                 LazyList<AJEntityCourse> ajEntityCourse = AJEntityCourse.findBySQL(
@@ -100,9 +91,8 @@ class CreateClassContentHandler implements DBHandler {
                 if (ajEntityCourse.isEmpty()) {
                     LOGGER
                         .warn("user is not owner or collaborator of context course to create class contents. aborting");
-                    return new ExecutionResult<>(
-                        MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
-                        ExecutionStatus.FAILED);
+                    return new ExecutionResult<>(MessageResponseFactory.createForbiddenResponse(
+                        RESOURCE_BUNDLE.getString("course.not.found.or.not.available")), ExecutionStatus.FAILED);
                 }
                 LazyList<AJEntityUnit> ajEntityUnit =
                     AJEntityUnit.findBySQL(AJEntityUnit.SELECT_UNIT_TO_VALIDATE, ctxUnitId, ctxCourseId);
@@ -193,7 +183,6 @@ class CreateClassContentHandler implements DBHandler {
         classContents = new AJEntityClassContents();
         new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
             AJEntityClassContents.getConverterRegistry());
-        classContents.set(AJEntityClassContents.SEQUENCE, getSequenceId());
         classContents.setClassId(context.classId());
         boolean result = this.classContents.save();
         if (!result) {
@@ -204,8 +193,10 @@ class CreateClassContentHandler implements DBHandler {
             }
         }
         return new ExecutionResult<>(
-            MessageResponseFactory.createCreatedResponse(context.classId(),
-                EventBuilderFactory.getCreateClassContentEventBuilder(context.classId(), contentId, contentType)),
+            MessageResponseFactory
+                .createCreatedResponse(classContents.getString(AJEntityClassContents.ID),
+                    EventBuilderFactory.getCreateClassContentEventBuilder(
+                        classContents.getString(AJEntityClassContents.ID), context.classId(), contentId, contentType)),
             ExecutionStatus.SUCCESSFUL);
     }
 
@@ -280,16 +271,6 @@ class CreateClassContentHandler implements DBHandler {
             LOGGER.warn("Validation errors for request");
             throw new MessageResponseWrapperException(MessageResponseFactory.createValidationErrorResponse(errors));
         }
-    }
-
-    private int getSequenceId() {
-        Object maxSequenceId =
-            Base.firstCell(AJEntityClassContents.SELECT_CLASS_CONTENT_MAX_SEQUENCEID, context.classId());
-        int sequenceId = 1;
-        if (maxSequenceId != null) {
-            sequenceId = Integer.valueOf(maxSequenceId.toString()) + 1;
-        }
-        return sequenceId;
     }
 
     private JsonObject getModelErrors() {

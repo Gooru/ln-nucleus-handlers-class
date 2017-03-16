@@ -71,15 +71,15 @@ public final class DBHandlerBuilder {
         return new VisibleContentHandler(context);
     }
 
-    public static DBHandler buildCreateClassContentHandler(ProcessorContext context) {
-        return new CreateClassContentHandler(context);
+    public static DBHandler buildAddContentInClassHandler(ProcessorContext context) {
+        return new AddContentInClassHandler(context);
     }
 
-    public static DBHandler buildFetchClassContentHandler(ProcessorContext context) {
-        return new FetchClassContentHandler(context);
+    public static DBHandler buildListClassContentHandler(ProcessorContext context) {
+        return new ListClassContentHandler(context);
     }
     
-    public static DBHandler buildAssignClassContentHandler(ProcessorContext context) {
-        return new AssignClassContentHandler(context);
+    public static DBHandler buildEnableContentInClassHandler(ProcessorContext context) {
+        return new EnableContentInClassHandler(context);
     }
 }
