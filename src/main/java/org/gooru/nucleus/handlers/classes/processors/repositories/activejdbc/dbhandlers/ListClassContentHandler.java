@@ -71,19 +71,18 @@ class ListClassContentHandler implements DBHandler {
         }
         ExecutionResult<MessageResponse> classAuthorize =
             AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
-
         if (!classAuthorize.continueProcessing()) {
             isStudent = checkStudent(entityClass);
             if (!isStudent) {
                 return new ExecutionResult<>(
                     MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
                     ExecutionResult.ExecutionStatus.FAILED);
+            } else {
+                return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }
         } else {
             return classAuthorize;
         }
-        return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
-
     }
 
     @Override
