@@ -16,7 +16,7 @@ import io.vertx.core.json.JsonArray;
 @Table("users")
 public class AJEntityUser extends Model {
     public static final String GET_SUMMARY_QUERY =
-        "select id, first_name, last_name, thumbnail, roster_global_userid from users where id = ANY(?::uuid[])";
+        "select id, first_name, last_name, thumbnail, roster_global_userid, email from users where id = ANY(?::uuid[])";
     public static final String FETCH_TEACHER_DETAILS_QUERY =
         "select id, first_name, last_name, thumbnail from users where id = ANY(select creator_id from "
             + "class where id = ANY(?::uuid[]))";
@@ -26,8 +26,9 @@ public class AJEntityUser extends Model {
     private static final String LAST_NAME = "last_name";
     private static final String THUMBNAIL = "thumbnail";
     private static final String ROSTER_GLOBAL_USERID = "roster_global_userid";
+    private static final String EMAIL = "email";
     public static final List<String> GET_SUMMARY_QUERY_FIELD_LIST =
-        Arrays.asList(ID, FIRST_NAME, LAST_NAME, THUMBNAIL, ROSTER_GLOBAL_USERID);
+        Arrays.asList(ID, FIRST_NAME, LAST_NAME, THUMBNAIL, ROSTER_GLOBAL_USERID, EMAIL);
 
     private static final String TENANT = "tenant_id";
     private static final String TENANT_ROOT = "tenant_root";
