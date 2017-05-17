@@ -105,4 +105,9 @@ class AJClassRepo implements ClassRepo {
     public MessageResponse enableContentInClass()  {
         return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildEnableContentInClassHandler(context));
     }
+
+    @Override
+    public MessageResponse archiveClass() {
+        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildArchiveClassHandler(context));
+    }
 }
