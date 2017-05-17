@@ -23,6 +23,10 @@ public final class AuthorizerBuilder {
     public static Authorizer<AJEntityClass> buildDeleteAuthorizer(ProcessorContext context) {
         return new ClassOwnerAuthorizer(context);
     }
+    
+    public static Authorizer<AJEntityClass> buildArchiveAuthorizer(ProcessorContext context) {
+        return new ClassOwnerAuthorizer(context);
+    }
 
     public static Authorizer<AJEntityClass> buildFetchClassesForCourseAuthorizer(ProcessorContext context) {
         // Course owner should be calling this API

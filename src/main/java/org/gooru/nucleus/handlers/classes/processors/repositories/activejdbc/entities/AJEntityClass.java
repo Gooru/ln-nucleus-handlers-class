@@ -72,6 +72,9 @@ public class AJEntityClass extends Model {
     public static final String DELETE_QUERY =
         "select id, creator_id, end_date, course_id, gooru_version, is_archived from class where id = ?::uuid and "
             + "is_deleted = false";
+    public static final String ARCHIVE_QUERY =
+        "select id, creator_id, end_date, course_id, gooru_version, is_archived from class where id = ?::uuid and "
+            + "is_deleted = false";
     public static final String CODE_UNIQUENESS_QUERY = "code = ?";
 
     public static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
@@ -249,6 +252,10 @@ public class AJEntityClass extends Model {
     public boolean isArchived() {
         return getBoolean(IS_ARCHIVED);
     }
+    
+    public void setIsArchived(boolean isArchived) {
+        this.setBoolean(IS_ARCHIVED, isArchived);
+    }
 
     public void setVersion() {
         this.set(GOORU_VERSION, CURRENT_VERSION);
@@ -284,7 +291,7 @@ public class AJEntityClass extends Model {
         return this.getString(TENANT_ROOT);
     }
 
-    private void setEndDate(String classEndDate) {
+    public void setEndDate(String classEndDate) {
         FieldConverter fc = converterRegistry.get(END_DATE);
         if (fc != null) {
             this.set(END_DATE, fc.convertField(classEndDate));
