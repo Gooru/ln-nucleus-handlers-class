@@ -150,13 +150,33 @@ public class AJEntityClassContents extends Model {
                 FieldConverter.convertFieldToDateWithFormat(LocalDate.now(), DateTimeFormatter.ISO_LOCAL_DATE));
         }
     }
-    
+
     public Date getActivationDate() {
         return this.getDate(ACTIVATION_DATE);
     }
-    
-    public String getContentId() { 
+
+    public String getContentId() {
         return this.getString(AJEntityClassContents.CONTENT_ID);
+    }
+    
+    public String getContentType() {
+        return this.getString(AJEntityClassContents.CONTENT_TYPE);
+    }
+    
+    public String getCtxCourseId() {
+        return this.getString(AJEntityClassContents.CTX_COURSE_ID);
+    }
+    
+    public String getCtxUnitId() {
+        return this.getString(AJEntityClassContents.CTX_UNIT_ID);
+    }
+    
+    public String getCtxLessonId() {
+        return this.getString(AJEntityClassContents.CTX_LESSON_ID);
+    }
+    
+    public String getCtxCollectionId() {
+        return this.getString(AJEntityClassContents.CTX_COLLECTION_ID);
     }
 
     public static String getClassContent(boolean isStudent) {
@@ -198,5 +218,4 @@ public class AJEntityClassContents extends Model {
             return converterRegistry.get(fieldName);
         }
     }
-
 }
