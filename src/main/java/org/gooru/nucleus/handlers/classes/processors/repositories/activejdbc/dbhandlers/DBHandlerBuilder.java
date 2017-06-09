@@ -82,4 +82,8 @@ public final class DBHandlerBuilder {
     public static DBHandler buildEnableContentInClassHandler(ProcessorContext context) {
         return new EnableContentInClassHandler(context);
     }
+    
+    public static DBHandler buildDeleteClassContentHandler(ProcessorContext context) {
+        return new DeleteClassContentHandler(context);
+    }
 }

@@ -137,6 +137,11 @@ public enum CommandProcessorBuilder {
         public Processor build(ProcessorContext context) {
             return new ClassContentEnableProcessor(context);
         }
+    }, CLASS_CONTENT_DELETE(MessageConstants.MSG_OP_CLASS_CONTENT_DELETE) {
+        @Override
+        public Processor build(ProcessorContext context) {
+            return new ClassContentDeleteProcessor(context);
+        }
     };
 
     private String name;
