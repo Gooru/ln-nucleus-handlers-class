@@ -43,5 +43,8 @@ public interface ClassRepo {
 
     MessageResponse enableContentInClass();
     
+    MessageResponse archiveClass();
+
     MessageResponse deleteContentFromClass();
+
 }

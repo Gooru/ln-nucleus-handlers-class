@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
+import org.gooru.nucleus.handlers.classes.processors.events.EventBuilder;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
@@ -78,6 +79,10 @@ class DeleteClassContentHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
+        EventBuilder deleteEventBuilder =
+            EventBuilderFactory.getDeleteClassContentEventBuilder(classContents.getId(), this.context.classId(),
+                classContents.getContentId(), classContents.getContentType(), classContents.getCtxCourseId(),
+                classContents.getCtxUnitId(), classContents.getCtxLessonId(), classContents.getCtxCollectionId());
         boolean result = this.classContents.delete();
         if (!result) {
             if (classContents.hasErrors()) {
@@ -87,10 +92,7 @@ class DeleteClassContentHandler implements DBHandler {
             }
         }
         return new ExecutionResult<>(
-            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("deleted"),
-                EventBuilderFactory.getDeleteClassContentEventBuilder(classContents.getId(), this.context.classId(),
-                    classContents.getContentId(), classContents.getContentType(), classContents.getCtxCourseId(),
-                    classContents.getCtxUnitId(), classContents.getCtxLessonId(), classContents.getCtxCollectionId())),
+            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("deleted"), deleteEventBuilder),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
 

@@ -38,6 +38,7 @@ public final class MessageConstants {
     public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
     public static final String MSG_OP_CLASS_CONTENT_LIST = "class.content.list";
     public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
+    public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
     public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
 
     // Containers for different responses

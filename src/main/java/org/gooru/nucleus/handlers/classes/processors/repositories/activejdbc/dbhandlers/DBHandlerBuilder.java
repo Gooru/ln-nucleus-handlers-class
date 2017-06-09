@@ -78,11 +78,15 @@ public final class DBHandlerBuilder {
     public static DBHandler buildListClassContentHandler(ProcessorContext context) {
         return new ListClassContentHandler(context);
     }
-    
+
     public static DBHandler buildEnableContentInClassHandler(ProcessorContext context) {
         return new EnableContentInClassHandler(context);
     }
-    
+
+    public static DBHandler buildArchiveClassHandler(ProcessorContext context) {
+        return new ArchiveClassHandler(context);
+    }
+
     public static DBHandler buildDeleteClassContentHandler(ProcessorContext context) {
         return new DeleteClassContentHandler(context);
     }
