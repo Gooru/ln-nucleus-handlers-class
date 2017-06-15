@@ -73,9 +73,18 @@ class EnableContentInClassHandler implements DBHandler {
             activationDate = LocalDate.now().toString();
         }
 
+        if (!activationDate.equals(this.classContents.getCreatedDate())) {
+            LOGGER.warn("Activation date {} should be same as class content creation date {}", activationDate,
+                this.classContents.getCreatedDate());
+            return new ExecutionResult<>(
+                MessageResponseFactory.createInvalidRequestResponse(
+                    RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")),
+                ExecutionResult.ExecutionStatus.FAILED);
+        }
+
         LazyList<AJEntityClassContents> ajClassContents =
-            AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE,
-                context.classId(), this.classContents.getContentId(), activationDate);
+            AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(),
+                this.classContents.getContentId(), activationDate);
         if (!ajClassContents.isEmpty()) {
             LOGGER.warn("For this calss {} same content {} already activated for this date {}", context.classId(),
                 this.classContents.getContentId(), activationDate);
@@ -179,5 +188,4 @@ class EnableContentInClassHandler implements DBHandler {
 
     private static class DefaultAJEntityClassContentsBuilder implements EntityBuilder<AJEntityClassContents> {
     }
-
 }

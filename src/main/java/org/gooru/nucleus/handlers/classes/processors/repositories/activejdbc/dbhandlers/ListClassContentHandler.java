@@ -92,12 +92,12 @@ class ListClassContentHandler implements DBHandler {
             classContents = AJEntityClassContents
                 .where(AJEntityClassContents.getClassContent(isStudent), context.classId(),
                     DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
-                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder());
+                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder(isStudent));
         } else {
             classContents = AJEntityClassContents
                 .where(AJEntityClassContents.getClassContentWithGrouping(isStudent), context.classId(), contentType,
                     DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
-                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder());
+                .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder(isStudent));
         }
 
         JsonArray results = new JsonArray(JsonFormatterBuilder

@@ -158,23 +158,23 @@ public class AJEntityClassContents extends Model {
     public String getContentId() {
         return this.getString(AJEntityClassContents.CONTENT_ID);
     }
-    
+
     public String getContentType() {
         return this.getString(AJEntityClassContents.CONTENT_TYPE);
     }
-    
+
     public String getCtxCourseId() {
         return this.getString(AJEntityClassContents.CTX_COURSE_ID);
     }
-    
+
     public String getCtxUnitId() {
         return this.getString(AJEntityClassContents.CTX_UNIT_ID);
     }
-    
+
     public String getCtxLessonId() {
         return this.getString(AJEntityClassContents.CTX_LESSON_ID);
     }
-    
+
     public String getCtxCollectionId() {
         return this.getString(AJEntityClassContents.CTX_COLLECTION_ID);
     }
@@ -193,8 +193,16 @@ public class AJEntityClassContents extends Model {
         return SELECT_CLASS_CONTENTS_GRP_BY_TYPE;
     }
 
-    public static String getSequenceFieldNameWithSortOrder() {
-        return ACTIVATION_DATE + SORT_DESC;
+    public static String getSequenceFieldNameWithSortOrder(boolean isStudent) {
+        if (isStudent) {
+            return ACTIVATION_DATE + SORT_DESC;
+        } else {
+            return CREATED_AT + SORT_DESC;
+        }
+    }
+
+    public String getCreatedDate() {
+        return this.getDate(CREATED_AT).toString();
     }
 
     public static ValidatorRegistry getValidatorRegistry() {
@@ -218,4 +226,5 @@ public class AJEntityClassContents extends Model {
             return converterRegistry.get(fieldName);
         }
     }
+    
 }
