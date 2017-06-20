@@ -110,6 +110,7 @@ class EnableContentInClassHandler implements DBHandler {
     public ExecutionResult<MessageResponse> executeRequest() {
         new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
             AJEntityClassContents.getConverterRegistry());
+        this.classContents.setDefaultActivationDateIfNotPresent();
         boolean result = this.classContents.save();
         if (!result) {
             if (classContents.hasErrors()) {
@@ -171,14 +172,14 @@ class EnableContentInClassHandler implements DBHandler {
     private void validateActivationDate() {
         try {
             if (activationDate != null) {
-                activationDate = LocalDate.parse(this.activationDate).toString();
+                activationDate = LocalDate.parse(activationDate).toString();
             } else {
                 // setting default value of today's date, if activation date is
                 // not set.
                 activationDate = LocalDate.now().toString();
             }
         } catch (DateTimeParseException e) {
-            LOGGER.warn("Invalid activation date format {}", this.activationDate);
+            LOGGER.warn("Invalid activation date format {}", activationDate);
             throw new MessageResponseWrapperException(MessageResponseFactory
                 .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.activation.date.format")));
         }

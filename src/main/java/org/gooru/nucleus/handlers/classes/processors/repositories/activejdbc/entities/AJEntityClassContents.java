@@ -1,6 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -137,6 +138,13 @@ public class AJEntityClassContents extends Model {
                 this.errors().put(CLASS_ID, RESOURCE_BUNDLE.getString("invalid.class.for.content.create"));
 
             }
+        }
+    }
+
+    public void setDefaultActivationDateIfNotPresent() {
+        if (this.getDate(ACTIVATION_DATE) == null) {
+            this.set(ACTIVATION_DATE,
+                FieldConverter.convertFieldToDateWithFormat(LocalDate.now(), DateTimeFormatter.ISO_LOCAL_DATE));
         }
     }
 
