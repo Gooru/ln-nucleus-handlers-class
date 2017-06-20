@@ -2,6 +2,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -68,20 +69,11 @@ class EnableContentInClassHandler implements DBHandler {
                     .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("already.class.content.activated")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-
-        if (activationDate == null) {
-            activationDate = LocalDate.now().toString();
+        try {
+            validateActivationDate();
+        } catch (MessageResponseWrapperException mrwe) {
+            return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionResult.ExecutionStatus.FAILED);
         }
-
-        if (!activationDate.equals(this.classContents.getCreatedDate())) {
-            LOGGER.warn("Activation date {} should be same as class content creation date {}", activationDate,
-                this.classContents.getCreatedDate());
-            return new ExecutionResult<>(
-                MessageResponseFactory.createInvalidRequestResponse(
-                    RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")),
-                ExecutionResult.ExecutionStatus.FAILED);
-        }
-
         LazyList<AJEntityClassContents> ajClassContents =
             AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(),
                 this.classContents.getContentId(), activationDate);
@@ -118,7 +110,6 @@ class EnableContentInClassHandler implements DBHandler {
     public ExecutionResult<MessageResponse> executeRequest() {
         new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
             AJEntityClassContents.getConverterRegistry());
-        this.classContents.setDefaultActivationDateIfNotPresent();
         boolean result = this.classContents.save();
         if (!result) {
             if (classContents.hasErrors()) {
@@ -174,6 +165,31 @@ class EnableContentInClassHandler implements DBHandler {
         if (errors != null && !errors.isEmpty()) {
             LOGGER.warn("Validation errors for request");
             throw new MessageResponseWrapperException(MessageResponseFactory.createValidationErrorResponse(errors));
+        }
+    }
+
+    private void validateActivationDate() {
+        try {
+            if (activationDate != null) {
+                activationDate = LocalDate.parse(this.activationDate).toString();
+            } else {
+                // setting default value of today's date, if activation date is
+                // not set.
+                activationDate = LocalDate.now().toString();
+            }
+        } catch (DateTimeParseException e) {
+            LOGGER.warn("Invalid activation date format {}", this.activationDate);
+            throw new MessageResponseWrapperException(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.activation.date.format")));
+        }
+        // toString() method will extract the date only (yyyy-mm-dd)
+        final String createdDate = this.classContents.getCreatedDate().toString();
+        if (!activationDate.equals(createdDate)) {
+            LOGGER.warn("Activation date {} should be same as class" + " content creation date {}", activationDate,
+                createdDate);
+            throw new MessageResponseWrapperException(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")));
+
         }
     }
 

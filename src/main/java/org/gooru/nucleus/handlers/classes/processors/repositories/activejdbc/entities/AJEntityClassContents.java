@@ -1,7 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +48,6 @@ public class AJEntityClassContents extends Model {
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(ID, CLASS_ID, CTX_COURSE_ID,
         CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT));
     public static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
-    public static final Set<String> MANDATORY_ASSIGN_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     private static final Set<String> ACCEPT_CONTENT_TYPES =
         new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
@@ -103,8 +101,6 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CONTENT_TYPE,
             (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
-        validatorMap.put(ACTIVATION_DATE, (value -> FieldValidator.validateDateWithFormatIfPresent(value,
-            DateTimeFormatter.ISO_LOCAL_DATE, false, true)));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -141,13 +137,6 @@ public class AJEntityClassContents extends Model {
                 this.errors().put(CLASS_ID, RESOURCE_BUNDLE.getString("invalid.class.for.content.create"));
 
             }
-        }
-    }
-
-    public void setDefaultActivationDateIfNotPresent() {
-        if (this.getDate(ACTIVATION_DATE) == null) {
-            this.set(ACTIVATION_DATE,
-                FieldConverter.convertFieldToDateWithFormat(LocalDate.now(), DateTimeFormatter.ISO_LOCAL_DATE));
         }
     }
 
@@ -201,8 +190,8 @@ public class AJEntityClassContents extends Model {
         }
     }
 
-    public String getCreatedDate() {
-        return this.getDate(CREATED_AT).toString();
+    public Date getCreatedDate() {
+        return this.getDate(CREATED_AT);
     }
 
     public static ValidatorRegistry getValidatorRegistry() {
@@ -226,5 +215,4 @@ public class AJEntityClassContents extends Model {
             return converterRegistry.get(fieldName);
         }
     }
-
 }
