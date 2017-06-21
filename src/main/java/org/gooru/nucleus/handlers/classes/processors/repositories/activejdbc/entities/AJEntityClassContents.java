@@ -49,7 +49,6 @@ public class AJEntityClassContents extends Model {
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(ID, CLASS_ID, CTX_COURSE_ID,
         CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT));
     public static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
-    public static final Set<String> MANDATORY_ASSIGN_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     private static final Set<String> ACCEPT_CONTENT_TYPES =
         new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
@@ -103,8 +102,6 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CONTENT_TYPE,
             (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
-        validatorMap.put(ACTIVATION_DATE, (value -> FieldValidator.validateDateWithFormatIfPresent(value,
-            DateTimeFormatter.ISO_LOCAL_DATE, false, true)));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -156,27 +153,27 @@ public class AJEntityClassContents extends Model {
     }
 
     public String getContentId() {
-        return this.getString(AJEntityClassContents.CONTENT_ID);
+        return this.getString(CONTENT_ID);
     }
-    
+
     public String getContentType() {
-        return this.getString(AJEntityClassContents.CONTENT_TYPE);
+        return this.getString(CONTENT_TYPE);
     }
-    
+
     public String getCtxCourseId() {
-        return this.getString(AJEntityClassContents.CTX_COURSE_ID);
+        return this.getString(CTX_COURSE_ID);
     }
-    
+
     public String getCtxUnitId() {
-        return this.getString(AJEntityClassContents.CTX_UNIT_ID);
+        return this.getString(CTX_UNIT_ID);
     }
-    
+
     public String getCtxLessonId() {
-        return this.getString(AJEntityClassContents.CTX_LESSON_ID);
+        return this.getString(CTX_LESSON_ID);
     }
-    
+
     public String getCtxCollectionId() {
-        return this.getString(AJEntityClassContents.CTX_COLLECTION_ID);
+        return this.getString(CTX_COLLECTION_ID);
     }
 
     public static String getClassContent(boolean isStudent) {
@@ -193,8 +190,16 @@ public class AJEntityClassContents extends Model {
         return SELECT_CLASS_CONTENTS_GRP_BY_TYPE;
     }
 
-    public static String getSequenceFieldNameWithSortOrder() {
-        return ACTIVATION_DATE + SORT_DESC;
+    public static String getSequenceFieldNameWithSortOrder(boolean isStudent) {
+        if (isStudent) {
+            return ACTIVATION_DATE + SORT_DESC;
+        } else {
+            return CREATED_AT + SORT_DESC;
+        }
+    }
+
+    public Date getCreatedDate() {
+        return this.getDate(CREATED_AT);
     }
 
     public static ValidatorRegistry getValidatorRegistry() {
