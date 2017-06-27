@@ -53,7 +53,7 @@ public class AJEntityClassContents extends Model {
     private static final Set<String> ACCEPT_CONTENT_TYPES =
         new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
     public static final List<String> RESPONSE_FIELDS = Arrays.asList(ID, CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID,
-        CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, ACTIVATION_DATE);
+        CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, ACTIVATION_DATE, CREATED_AT);
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
 
@@ -61,13 +61,13 @@ public class AJEntityClassContents extends Model {
         "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid AND activation_date = ?::date";
 
     private static final String SELECT_CLASS_CONTENTS =
-        "class_id = ?::uuid AND (activation_date is null OR activation_date BETWEEN ?::date AND ?::date)";
+        "class_id = ?::uuid AND (DATE(created_at) BETWEEN ?::date AND ?::date)";
 
     private static final String SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED =
         "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date";
 
     private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
-        "class_id = ?::uuid AND content_type = ? AND (activation_date is null OR activation_date BETWEEN ?::date AND ?::date)";
+        "class_id = ?::uuid AND content_type = ? AND (DATE(created_at) BETWEEN ?::date AND ?::date)";
 
     private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
         "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date";
