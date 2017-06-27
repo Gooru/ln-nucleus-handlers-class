@@ -43,8 +43,9 @@ public class AJEntityClassContents extends Model {
     public static final String RESOURCE = "resource";
     public static final String QUESTION = "question";
     public static final String ID_CONTENT = "contentId";
-    private static final String SORT_DESC = " desc NULLS FIRST";
+    private static final String SORT_DESC = " desc";
     public static final String ID = "id";
+    private static final String COMMA_SEPARATOR = ",";
 
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(ID, CLASS_ID, CTX_COURSE_ID,
         CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT));
@@ -192,9 +193,9 @@ public class AJEntityClassContents extends Model {
 
     public static String getSequenceFieldNameWithSortOrder(boolean isStudent) {
         if (isStudent) {
-            return ACTIVATION_DATE + SORT_DESC;
+            return ACTIVATION_DATE + SORT_DESC + COMMA_SEPARATOR + ID + SORT_DESC;
         } else {
-            return CREATED_AT + SORT_DESC;
+            return CREATED_AT + SORT_DESC + COMMA_SEPARATOR + ID + SORT_DESC;
         }
     }
 
