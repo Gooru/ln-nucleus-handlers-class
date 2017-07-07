@@ -61,14 +61,6 @@ class ListClassContentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         AJEntityClass entityClass = classes.get(0);
-        // Class should be of current version and Class should not be archived
-        if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
-            LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
-                ExecutionResult.ExecutionStatus.FAILED);
-        }
         ExecutionResult<MessageResponse> classAuthorize =
             AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
         if (!classAuthorize.continueProcessing()) {
