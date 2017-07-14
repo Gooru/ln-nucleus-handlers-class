@@ -60,6 +60,11 @@ public final class MessageResponseFactory {
             .setHeader(HttpConstants.HEADER_LOCATION, location).setEventData(eventBuilder.build()).build();
     }
 
+    public static MessageResponse createCreatedResponse(String location) {
+        return new MessageResponse.Builder().successful().setStatusCreated()
+            .setHeader(HttpConstants.HEADER_LOCATION, location).build();
+    }
+
     public static MessageResponse createNoContentResponse(String message) {
         return new MessageResponse.Builder().successful().setStatusNoOutput()
             .setResponseBody(new JsonObject().put(MessageConstants.MSG_MESSAGE, message)).build();

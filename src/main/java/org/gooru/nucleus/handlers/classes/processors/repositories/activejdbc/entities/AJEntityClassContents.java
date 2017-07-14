@@ -3,14 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.en
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.ConverterRegistry;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -47,19 +40,25 @@ public class AJEntityClassContents extends Model {
     public static final String ID = "id";
     private static final String COMMA_SEPARATOR = ",";
 
-    public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays.asList(ID, CLASS_ID, CTX_COURSE_ID,
-        CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT));
+    public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
+        .asList(ID, CLASS_ID, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE,
+            CREATED_AT, UPDATED_AT));
     public static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
     private static final Set<String> ACCEPT_CONTENT_TYPES =
         new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
-    public static final List<String> RESPONSE_FIELDS = Arrays.asList(ID, CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID,
-        CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, ACTIVATION_DATE, CREATED_AT);
+    public static final List<String> RESPONSE_FIELDS = Arrays
+        .asList(ID, CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID,
+            ACTIVATION_DATE, CREATED_AT);
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
 
     public static final String SELECT_CLASS_CONTENTS_TO_VALIDATE =
-        "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid AND activation_date = ?::date";
+        "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid AND "
+            + "activation_date = ?::date";
+
+    public static final String SELECT_DUPLICATED_ADDED_CONTENT =
+        "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and created_at::DATE = ?::DATE";
 
     private static final String SELECT_CLASS_CONTENTS =
         "class_id = ?::uuid AND (DATE(created_at) BETWEEN ?::date AND ?::date)";
@@ -101,8 +100,8 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_UNIT_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CTX_LESSON_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
-        validatorMap.put(CONTENT_TYPE,
-            (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
+        validatorMap
+            .put(CONTENT_TYPE, (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
         return Collections.unmodifiableMap(validatorMap);
     }
 
