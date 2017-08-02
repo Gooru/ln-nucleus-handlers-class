@@ -1,6 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
-import java.sql.Date;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -136,8 +135,7 @@ class AddContentInClassHandler implements DBHandler {
                 if (ajEntityCollection.isEmpty()) {
                     LOGGER.warn(
                         "user is not owner or collaborator of content type collection to create class contents. "
-                            + "aborting",
-                        contentId);
+                            + "aborting", contentId);
                     return new ExecutionResult<>(MessageResponseFactory
                         .createNotFoundResponse(RESOURCE_BUNDLE.getString("collection.not.found")),
                         ExecutionStatus.FAILED);
@@ -183,6 +181,11 @@ class AddContentInClassHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
+        classContents = new AJEntityClassContents();
+        new DefaultAJEntityClassContentsBuilder()
+            .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
+        classContents.setClassId(context.classId());
+
         AJEntityClassContents content = findAlreadyAddedContentForToday();
         if (content != null) {
             LOGGER.debug("Pretending to add content, id: {}, type: {}", contentId, contentType);
@@ -206,16 +209,11 @@ class AddContentInClassHandler implements DBHandler {
 
     private AJEntityClassContents findAlreadyAddedContentForToday() {
         return AJEntityClassContents
-            .findFirst(AJEntityClassContents.SELECT_DUPLICATED_ADDED_CONTENT, context.classId(), contentId,
-                contentType, new Date(new java
-                .util.Date().getTime()));
+            .findFirst(AJEntityClassContents.SELECT_DUPLICATED_ADDED_CONTENT, context.classId(), contentId, contentType,
+                classContents.getDcaAddedDate());
     }
 
     private ExecutionResult<MessageResponse> reallyAddContentToClass() {
-        classContents = new AJEntityClassContents();
-        new DefaultAJEntityClassContentsBuilder()
-            .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
-        classContents.setClassId(context.classId());
         boolean result = this.classContents.save();
         if (!result) {
             if (classContents.hasErrors()) {

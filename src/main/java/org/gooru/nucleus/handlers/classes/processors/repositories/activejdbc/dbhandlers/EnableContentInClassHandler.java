@@ -64,9 +64,8 @@ class EnableContentInClassHandler implements DBHandler {
         this.classContents = classContents.get(0);
         if (this.classContents.getActivationDate() != null) {
             LOGGER.warn("content {} already activated to this class {}", contentId, context.classId());
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("already.class.content.activated")),
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("already.class.content.activated")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         try {
@@ -74,15 +73,14 @@ class EnableContentInClassHandler implements DBHandler {
         } catch (MessageResponseWrapperException mrwe) {
             return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionResult.ExecutionStatus.FAILED);
         }
-        LazyList<AJEntityClassContents> ajClassContents =
-            AJEntityClassContents.findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(),
+        LazyList<AJEntityClassContents> ajClassContents = AJEntityClassContents
+            .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(),
                 this.classContents.getContentId(), activationDate);
         if (!ajClassContents.isEmpty()) {
             LOGGER.warn("For this calss {} same content {} already activated for this date {}", context.classId(),
                 this.classContents.getContentId(), activationDate);
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("same.content.already.activated")),
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("same.content.already.activated")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
 
@@ -97,9 +95,8 @@ class EnableContentInClassHandler implements DBHandler {
         // Class should be of current version and Class should not be archived
         if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
             LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
@@ -108,8 +105,8 @@ class EnableContentInClassHandler implements DBHandler {
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
-        new DefaultAJEntityClassContentsBuilder().build(this.classContents, context.request(),
-            AJEntityClassContents.getConverterRegistry());
+        new DefaultAJEntityClassContentsBuilder()
+            .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
         this.classContents.setDefaultActivationDateIfNotPresent();
         boolean result = this.classContents.save();
         if (!result) {
@@ -119,8 +116,8 @@ class EnableContentInClassHandler implements DBHandler {
                     ExecutionStatus.FAILED);
             }
         }
-        return new ExecutionResult<>(
-            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
+        return new ExecutionResult<>(MessageResponseFactory
+            .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getClassContentEnableEventBuilder(classContents.getId(), this.context.classId())),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
@@ -131,8 +128,8 @@ class EnableContentInClassHandler implements DBHandler {
     }
 
     private void validateUser() {
-        if ((context.userId() == null) || context.userId().isEmpty()
-            || MessageConstants.MSG_USER_ANONYMOUS.equalsIgnoreCase(context.userId())) {
+        if ((context.userId() == null) || context.userId().isEmpty() || MessageConstants.MSG_USER_ANONYMOUS
+            .equalsIgnoreCase(context.userId())) {
             LOGGER.warn("Invalid user");
             throw new MessageResponseWrapperException(
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")));
@@ -161,8 +158,9 @@ class EnableContentInClassHandler implements DBHandler {
     }
 
     private void validateContextRequestFields() {
-        JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
-            AJEntityClassContents.updateFieldSelector(), AJEntityClassContents.getValidatorRegistry());
+        JsonObject errors = new DefaultPayloadValidator()
+            .validatePayload(context.request(), AJEntityClassContents.updateFieldSelector(),
+                AJEntityClassContents.getValidatorRegistry());
         if (errors != null && !errors.isEmpty()) {
             LOGGER.warn("Validation errors for request");
             throw new MessageResponseWrapperException(MessageResponseFactory.createValidationErrorResponse(errors));
@@ -184,10 +182,10 @@ class EnableContentInClassHandler implements DBHandler {
                 .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.activation.date.format")));
         }
         // toString() method will extract the date only (yyyy-mm-dd)
-        final String createdDate = this.classContents.getCreatedDate().toString();
-        if (!activationDate.equals(createdDate)) {
-            LOGGER.warn("Activation date {} should be same as class" + " content creation date {}", activationDate,
-                createdDate);
+        final String dcaAddedDate = this.classContents.getDcaAddedDate().toString();
+        if (!activationDate.equals(dcaAddedDate)) {
+            LOGGER.warn("Activation date {} should be same as class content creation date {}", activationDate,
+                dcaAddedDate);
             throw new MessageResponseWrapperException(MessageResponseFactory
                 .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")));
 
