@@ -31,6 +31,7 @@ public class AJEntityClassContents extends Model {
     public static final String CONTENT_ID = "content_id";
     public static final String CONTENT_TYPE = "content_type";
     public static final String ACTIVATION_DATE = "activation_date";
+    public static final String DCA_ADDED_DATE = "dca_added_date";
     public static final String ASSESSMENT = "assessment";
     public static final String COLLECTION = "collection";
     public static final String RESOURCE = "resource";
@@ -42,14 +43,15 @@ public class AJEntityClassContents extends Model {
 
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
         .asList(ID, CLASS_ID, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID, CONTENT_ID, CONTENT_TYPE,
-            CREATED_AT, UPDATED_AT));
+            CREATED_AT, UPDATED_AT, DCA_ADDED_DATE));
     public static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
-    private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE));
+    private static final Set<String> MANDATORY_FIELDS =
+        new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, DCA_ADDED_DATE));
     private static final Set<String> ACCEPT_CONTENT_TYPES =
         new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
     public static final List<String> RESPONSE_FIELDS = Arrays
         .asList(ID, CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID,
-            ACTIVATION_DATE, CREATED_AT);
+            DCA_ADDED_DATE, ACTIVATION_DATE, CREATED_AT);
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
 
@@ -58,16 +60,16 @@ public class AJEntityClassContents extends Model {
             + "activation_date = ?::date";
 
     public static final String SELECT_DUPLICATED_ADDED_CONTENT =
-        "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and created_at::DATE = ?::DATE";
+        "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE = ?::DATE";
 
     private static final String SELECT_CLASS_CONTENTS =
-        "class_id = ?::uuid AND (DATE(created_at) BETWEEN ?::date AND ?::date)";
+        "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date)";
 
     private static final String SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED =
         "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date";
 
     private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
-        "class_id = ?::uuid AND content_type = ? AND (DATE(created_at) BETWEEN ?::date AND ?::date)";
+        "class_id = ?::uuid AND content_type = ? AND dca_added_date BETWEEN ?::date AND ?::date)";
 
     private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
         "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date";
@@ -89,6 +91,8 @@ public class AJEntityClassContents extends Model {
         converterMap.put(CONTENT_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         converterMap.put(ACTIVATION_DATE,
             (fieldValue -> FieldConverter.convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+        converterMap.put(DCA_ADDED_DATE,
+            (fieldValue -> FieldConverter.convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
         return Collections.unmodifiableMap(converterMap);
     }
 
@@ -102,6 +106,8 @@ public class AJEntityClassContents extends Model {
         validatorMap.put(CTX_COLLECTION_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap
             .put(CONTENT_TYPE, (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
+        validatorMap.put(DCA_ADDED_DATE, (value -> FieldValidator
+            .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1, 1)));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -194,12 +200,16 @@ public class AJEntityClassContents extends Model {
         if (isStudent) {
             return ACTIVATION_DATE + SORT_DESC + COMMA_SEPARATOR + ID + SORT_DESC;
         } else {
-            return CREATED_AT + SORT_DESC + COMMA_SEPARATOR + ID + SORT_DESC;
+            return DCA_ADDED_DATE + SORT_DESC + COMMA_SEPARATOR + CREATED_AT + SORT_DESC;
         }
     }
 
     public Date getCreatedDate() {
         return this.getDate(CREATED_AT);
+    }
+
+    public Date getDcaAddedDate() {
+        return this.getDate(DCA_ADDED_DATE);
     }
 
     public static ValidatorRegistry getValidatorRegistry() {
