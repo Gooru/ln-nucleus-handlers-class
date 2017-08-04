@@ -63,13 +63,13 @@ public class AJEntityClassContents extends Model {
         "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE = ?::DATE";
 
     private static final String SELECT_CLASS_CONTENTS =
-        "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date)";
+        "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date";
 
     private static final String SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED =
         "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date";
 
     private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
-        "class_id = ?::uuid AND content_type = ? AND dca_added_date BETWEEN ?::date AND ?::date)";
+        "class_id = ?::uuid AND content_type = ? AND dca_added_date BETWEEN ?::date AND ?::date";
 
     private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
         "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date";
