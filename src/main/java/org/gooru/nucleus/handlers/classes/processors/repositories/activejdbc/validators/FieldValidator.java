@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.va
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,17 +35,48 @@ public interface FieldValidator {
         return true;
     }
 
-    static boolean validateDateWithFormat(Object o, DateTimeFormatter formatter, boolean allowedInPast) {
+    static boolean validateDateWithFormat(Object o, DateTimeFormatter formatter, boolean allowedInPast,
+        boolean allowCurrentDate) {
         if (o == null) {
             return false;
         }
         try {
             LocalDate date = LocalDate.parse(o.toString(), formatter);
             if (!allowedInPast) {
-                return date.isAfter(LocalDate.now());
+                boolean isValid = date.isAfter(LocalDate.now());
+                if (!isValid && allowCurrentDate) {
+                    isValid = date.isEqual(LocalDate.now());
+                }
+                return isValid;
             }
         } catch (DateTimeParseException e) {
             return false;
+        }
+        return true;
+    }
+
+    static boolean validateDateWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter, long daysInPast,
+        long daysInFuture) {
+        if (o == null) {
+            return false;
+        }
+        try {
+            LocalDate date = LocalDate.parse(o.toString(), formatter);
+            LocalDate today = LocalDate.now();
+
+            if (today.minusDays(daysInPast).isAfter(date) || today.plusDays(daysInFuture).isBefore(date)) {
+                return false;
+            }
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    static boolean validateDateWithFormatIfPresent(Object o, DateTimeFormatter formatter, boolean allowedInPast,
+        boolean allowCurrentDate) {
+        if (o != null) {
+            return validateDateWithFormat(o, formatter, allowedInPast, allowCurrentDate);
         }
         return true;
     }
@@ -113,6 +145,10 @@ public interface FieldValidator {
 
     static boolean validateUuidIfPresent(String o) {
         return o == null || validateUuid(o);
+    }
+
+    static boolean validateValueExists(String o, Set<String> acceptedFields) {
+        return o != null && acceptedFields.contains(o);
     }
 
     boolean validateField(Object value);

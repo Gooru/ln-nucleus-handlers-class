@@ -34,6 +34,7 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
     private static final String COLLABORATORS_ADDED = "collaborators.added";
     private final ProcessorContext context;
     private AJEntityClass entityClass;
+    private JsonObject diffCollaborators;
 
     UpdateCollaboratorForClassHandler(ProcessorContext context) {
         this.context = context;
@@ -49,8 +50,8 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // The user should not be anonymous
-        if (context.userId() == null || context.userId().isEmpty()
-            || context.userId().equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
+        if (context.userId() == null || context.userId().isEmpty() || context.userId()
+            .equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
             LOGGER.warn("Anonymous user attempting to add collaborator to class");
             return new ExecutionResult<>(
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
@@ -64,8 +65,9 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // Our validators should certify this
-        JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
-            AJEntityClass.updateCollaboratorFieldSelector(), AJEntityClass.getValidatorRegistry());
+        JsonObject errors = new DefaultPayloadValidator()
+            .validatePayload(context.request(), AJEntityClass.updateCollaboratorFieldSelector(),
+                AJEntityClass.getValidatorRegistry());
         if (errors != null && !errors.isEmpty()) {
             LOGGER.warn("Validation errors for request");
             return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
@@ -88,9 +90,8 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
             LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // Validate if incoming list of collaborators is not the creator or student of class
@@ -99,16 +100,16 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("existing.member")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        return AuthorizerBuilder.buildUpdateCollaboratorAuthorizer(this.context).authorize(this.entityClass);
+        diffCollaborators = calculateDiffOfCollaborators();
+        return doAuthorization();
     }
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
-        JsonObject diffCollaborators = calculateDiffOfCollaborators();
         this.entityClass.setModifierId(context.userId());
         // Now auto populate is done, we need to setup the converter machinery
-        new DefaultAJEntityClassEntityBuilder().build(this.entityClass, context.request(),
-            AJEntityClass.getConverterRegistry());
+        new DefaultAJEntityClassEntityBuilder()
+            .build(this.entityClass, context.request(), AJEntityClass.getConverterRegistry());
 
         boolean result = this.entityClass.save();
         if (!result) {
@@ -121,8 +122,8 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-        return new ExecutionResult<>(
-            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
+        return new ExecutionResult<>(MessageResponseFactory
+            .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCollaboratorUpdatedEventBuilder(context.classId(), diffCollaborators)),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
@@ -132,13 +133,24 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
         return false;
     }
 
+    private ExecutionResult<MessageResponse> doAuthorization() {
+        ExecutionResult<MessageResponse> result =
+            AuthorizerBuilder.buildUpdateCollaboratorAuthorizer(this.context).authorize(this.entityClass);
+        if (result.hasFailed()) {
+            return result;
+        }
+        return AuthorizerBuilder
+            .buildTenantCollaboratorAuthorizer(this.context, diffCollaborators.getJsonArray(COLLABORATORS_ADDED))
+            .authorize(this.entityClass);
+    }
+
     private JsonObject calculateDiffOfCollaborators() {
         JsonObject result = new JsonObject();
         // Find current collaborators
         String currentCollaboratorsAsString = this.entityClass.getString(AJEntityClass.COLLABORATOR);
         JsonArray currentCollaborators;
-        currentCollaborators = currentCollaboratorsAsString != null && !currentCollaboratorsAsString.isEmpty()
-            ? new JsonArray(currentCollaboratorsAsString) : new JsonArray();
+        currentCollaborators = currentCollaboratorsAsString != null && !currentCollaboratorsAsString.isEmpty() ?
+            new JsonArray(currentCollaboratorsAsString) : new JsonArray();
         JsonArray newCollaborators = this.context.request().getJsonArray(AJEntityClass.COLLABORATOR);
         if (currentCollaborators.isEmpty() && !newCollaborators.isEmpty()) {
             // Adding all
@@ -163,9 +175,9 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
             result.put(COLLABORATORS_REMOVED, toBeDeleted);
         } else {
             // WHAT ????
-            LOGGER.warn(
-                "Updating collaborator with empty payload when current collaborator is empty for assessment '{}'",
-                this.context.classId());
+            LOGGER
+                .warn("Updating collaborator with empty payload when current collaborator is empty for assessment '{}'",
+                    this.context.classId());
             result.put(COLLABORATORS_ADDED, new JsonArray());
             result.put(COLLABORATORS_REMOVED, new JsonArray());
         }
@@ -179,8 +191,7 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
             return true;
         }
         List<?> rawCollaborator = newCollaborators.getList();
-        List<String> collaborators =
-            rawCollaborator.stream().map(Object::toString).collect(Collectors.toList());
+        List<String> collaborators = rawCollaborator.stream().map(Object::toString).collect(Collectors.toList());
         Long countOfStudents = AJClassMember.count(AJClassMember.STUDENT_COUNT_FROM_SET_FILTER, context.classId(),
             Utils.convertListToPostgresArrayStringRepresentation(collaborators));
         return (countOfStudents != null && countOfStudents != 0);

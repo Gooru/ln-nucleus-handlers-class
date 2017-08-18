@@ -4,9 +4,8 @@ public final class MessageConstants {
 
     public static final String MSG_HEADER_OP = "mb.operation";
     public static final String MSG_HEADER_TOKEN = "session.token";
-    public static final String MSG_OP_AUTH_WITH_PREFS = "auth.with.prefs";
     public static final String MSG_OP_STATUS = "mb.operation.status";
-    public static final String MSG_KEY_PREFS = "prefs";
+    public static final String MSG_KEY_SESSION = "session";
     public static final String MSG_OP_STATUS_SUCCESS = "success";
     public static final String MSG_OP_STATUS_ERROR = "error";
     public static final String MSG_OP_STATUS_VALIDATION_ERROR = "error.validation";
@@ -36,6 +35,11 @@ public final class MessageConstants {
     public static final String MSG_OP_CLASS_GET_CONTENT_VISIBILITY = "class.content.visibility.get";
     public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
     public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
+    public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
+    public static final String MSG_OP_CLASS_CONTENT_LIST = "class.content.list";
+    public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
+    public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
+    public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
 
     // Containers for different responses
     public static final String RESP_CONTAINER_MBUS = "mb.container";
@@ -48,6 +52,14 @@ public final class MessageConstants {
     public static final String EMAIL_ID = "email_id";
     public static final String USER_ID = "userId";
     public static final String EMAIL = "email";
+    public static final String CLASS_CONTENTS = "class_contents";
+    public static final String TITLE = "title";
+    public static final String THUMBNAIL = "thumbnail";
+    public static final String ID = "id";
+    public static final String REQ_PARAM_OFFSET = "offset";
+    public static final String REQ_PARAM_LIMIT = "limit";
+    public static final String DATE_FROM = "date_from";
+    public static final String DATE_TO = "date_to";
 
     private MessageConstants() {
         throw new AssertionError();

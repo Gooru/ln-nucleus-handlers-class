@@ -22,42 +22,44 @@ public class AJEntityClass extends Model {
     public static final String ID = "id";
     public static final String CREATOR_ID = "creator_id";
     public static final String IS_DELETED = "is_deleted";
-    public static final String MODIFIER_ID = "modifier_id";
-    public static final String TITLE = "title";
-    public static final String DESCRIPTION = "description";
-    public static final String GREETING = "greeting";
+    private static final String MODIFIER_ID = "modifier_id";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
+    private static final String GREETING = "greeting";
     public static final String CLASS_SHARING = "class_sharing";
-    public static final String COVER_IMAGE = "cover_image";
-    public static final String GRADE = "grade";
+    private static final String COVER_IMAGE = "cover_image";
+    private static final String GRADE = "grade";
     public static final String CODE = "code";
-    public static final String MIN_SCORE = "min_score";
-    public static final String END_DATE = "end_date";
-    public static final String GOORU_VERSION = "gooru_version";
+    private static final String MIN_SCORE = "min_score";
+    private static final String END_DATE = "end_date";
+    private static final String GOORU_VERSION = "gooru_version";
     public static final String CONTENT_VISIBILITY = "content_visibility";
-    public static final String IS_ARCHIVED = "is_archived";
+    private static final String IS_ARCHIVED = "is_archived";
     public static final String COLLABORATOR = "collaborator";
     public static final String COURSE_ID = "course_id";
     public static final String TABLE_COURSE = "course";
-    public static final String CREATED_AT = "created_at";
-    public static final String UPDATED_AT = "updated_at";
-    public static final String CREATOR_SYSTEM = "creator_system";
-    public static final String ROSTER_ID = "roster_id";
-    public static final int CURRENT_VERSION = 3;
+    private static final String CREATED_AT = "created_at";
+    private static final String UPDATED_AT = "updated_at";
+    private static final String CREATOR_SYSTEM = "creator_system";
+    private static final String ROSTER_ID = "roster_id";
+    private static final int CURRENT_VERSION = 3;
     public static final String INVITEES = "invitees";
+    private static final String TENANT = "tenant";
+    private static final String TENANT_ROOT = "tenant_root";
 
     // Dummy field names for Content Visibility
     // TODO this needs to change when going through the setting of content visibility in new model
     public static final String CV_COLLECTIONS = "collections";
     public static final String CV_ASSESSMENTS = "assessments";
-    public static final Set<String> CV_FIELDS = new HashSet<>(Arrays.asList(CV_ASSESSMENTS, CV_COLLECTIONS));
+    private static final Set<String> CV_FIELDS = new HashSet<>(Arrays.asList(CV_ASSESSMENTS, CV_COLLECTIONS));
 
-    public static final String CONTENT_VISIBILITY_TYPE_NAME = "content_visibility_type";
-    public static final String CONTENT_VISIBILITY_TYPE_VISIBLE_NONE = "visible_none";
+    private static final String CONTENT_VISIBILITY_TYPE_NAME = "content_visibility_type";
+    private static final String CONTENT_VISIBILITY_TYPE_VISIBLE_NONE = "visible_none";
     public static final String CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION = "visible_collections";
     public static final String CONTENT_VISIBILITY_TYPE_VISIBLE_ALL = "visible_all";
-    public static final String CLASS_SHARING_TYPE_NAME = "class_sharing_type";
+    private static final String CLASS_SHARING_TYPE_NAME = "class_sharing_type";
     public static final String CLASS_SHARING_TYPE_OPEN = "open";
-    public static final String CLASS_SHARING_TYPE_RESTRICTED = "restricted";
+    private static final String CLASS_SHARING_TYPE_RESTRICTED = "restricted";
 
     public static final String FETCH_QUERY_FILTER = "id = ?::uuid and is_deleted = false";
     public static final String FETCH_MULTIPLE_QUERY_FILTER = "id = ANY(?::uuid[]) and is_deleted = false";
@@ -70,6 +72,9 @@ public class AJEntityClass extends Model {
     public static final String DELETE_QUERY =
         "select id, creator_id, end_date, course_id, gooru_version, is_archived from class where id = ?::uuid and "
             + "is_deleted = false";
+    public static final String ARCHIVE_QUERY =
+        "select id, creator_id, end_date, course_id, gooru_version, is_archived from class where id = ?::uuid and "
+            + "is_deleted = false";
     public static final String CODE_UNIQUENESS_QUERY = "code = ?";
 
     public static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
@@ -77,16 +82,16 @@ public class AJEntityClass extends Model {
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
         .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE, COLLABORATOR,
             CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID));
-    public static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(TITLE, CLASS_SHARING));
+    private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(TITLE, CLASS_SHARING));
     public static final Set<String> FORBIDDEN_FIELDS = new HashSet<>(
         Arrays.asList(ID, CREATED_AT, UPDATED_AT, CREATOR_ID, MODIFIER_ID, IS_DELETED, GOORU_VERSION, IS_ARCHIVED));
-    public static final Set<String> COLLABORATOR_FIELDS = new HashSet<>(Arrays.asList(COLLABORATOR));
-    public static final Set<String> INVITE_MANDATORY_FIELDS = new HashSet<>(Arrays.asList(INVITEES));
-    public static final Set<String> INVITE_ALLOWED_FIELDS = new HashSet<>(Arrays.asList(INVITEES, CREATOR_SYSTEM));
+    private static final Set<String> COLLABORATOR_FIELDS = new HashSet<>(Arrays.asList(COLLABORATOR));
+    private static final Set<String> INVITE_MANDATORY_FIELDS = new HashSet<>(Arrays.asList(INVITEES));
+    private static final Set<String> INVITE_ALLOWED_FIELDS = new HashSet<>(Arrays.asList(INVITEES, CREATOR_SYSTEM));
     public static final List<String> FETCH_QUERY_FIELD_LIST = Arrays
         .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE, MIN_SCORE,
             END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY, IS_ARCHIVED, CREATED_AT, UPDATED_AT);
-    public static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
+    private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
 
     private static final Map<String, FieldValidator> validatorRegistry;
     private static final Map<String, FieldConverter> converterRegistry;
@@ -110,6 +115,8 @@ public class AJEntityClass extends Model {
         converterMap.put(CLASS_SHARING,
             (fieldValue -> FieldConverter.convertFieldToNamedType(fieldValue, CLASS_SHARING_TYPE_NAME)));
         converterMap.put(COLLABORATOR, (FieldConverter::convertFieldToJson));
+        converterMap.put(TENANT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+        converterMap.put(TENANT_ROOT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
         return Collections.unmodifiableMap(converterMap);
     }
 
@@ -126,7 +133,7 @@ public class AJEntityClass extends Model {
         validatorMap.put(COVER_IMAGE, (value) -> FieldValidator.validateStringIfPresent(value, 2000));
         validatorMap.put(MIN_SCORE, (FieldValidator::validateInteger));
         validatorMap.put(END_DATE,
-            (value -> FieldValidator.validateDateWithFormat(value, DateTimeFormatter.ISO_LOCAL_DATE, false)));
+            (value -> FieldValidator.validateDateWithFormat(value, DateTimeFormatter.ISO_LOCAL_DATE, false, false)));
         validatorMap.put(COURSE_ID, (value -> FieldValidator.validateUuidIfPresent((String) value)));
         validatorMap.put(COLLABORATOR,
             (value) -> FieldValidator.validateDeepJsonArrayIfPresent(value, FieldValidator::validateUuid));
@@ -134,10 +141,10 @@ public class AJEntityClass extends Model {
         validatorMap.put(ROSTER_ID, (value) -> FieldValidator.validateStringIfPresent(value, 512));
         validatorMap.put(INVITEES,
             (value) -> FieldValidator.validateDeepJsonArrayIfPresent(value, FieldValidator::validateEmail));
-        validatorMap
-            .put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
-        validatorMap
-            .put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+        validatorMap.put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+        validatorMap.put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+        validatorMap.put(TENANT, (FieldValidator::validateUuid));
+        validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
         return Collections.unmodifiableMap(validatorMap);
     }
 
@@ -204,64 +211,38 @@ public class AJEntityClass extends Model {
     }
 
     public void setContentVisibility(JsonObject visibility) {
-        FieldConverter fc = converterRegistry.get(CONTENT_VISIBILITY);
-        if (fc != null) {
-            this.set(CONTENT_VISIBILITY, fc.convertField(visibility.toString()));
-        } else {
-            this.set(CONTENT_VISIBILITY, visibility.toString());
-        }
+        setFieldUsingConverter(CONTENT_VISIBILITY, visibility);
     }
 
     public String getContentVisibility() {
         // Treat null and default as visible all
         String contentVisibilitySetting = this.getString(CONTENT_VISIBILITY);
         if (contentVisibilitySetting == null || contentVisibilitySetting
-            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
-            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
-        } else if (contentVisibilitySetting
             .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
+        } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
+            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
         } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE;
         } else {
-            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
+            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
         }
     }
 
     public void setModifierId(String modifier) {
-        FieldConverter fc = converterRegistry.get(MODIFIER_ID);
-        if (fc != null) {
-            this.set(MODIFIER_ID, fc.convertField(modifier));
-        } else {
-            this.set(MODIFIER_ID, modifier);
-        }
+        setFieldUsingConverter(MODIFIER_ID, modifier);
     }
 
-    public void setCreatorId(String modifier) {
-        FieldConverter fc = converterRegistry.get(CREATOR_ID);
-        if (fc != null) {
-            this.set(CREATOR_ID, fc.convertField(modifier));
-        } else {
-            this.set(CREATOR_ID, modifier);
-        }
+    public void setCreatorId(String creator) {
+        setFieldUsingConverter(CREATOR_ID, creator);
     }
 
     public void setCourseId(String courseId) {
-        FieldConverter fc = converterRegistry.get(COURSE_ID);
-        if (fc != null) {
-            this.set(COURSE_ID, fc.convertField(courseId));
-        } else {
-            this.set(COURSE_ID, courseId);
-        }
+        setFieldUsingConverter(COURSE_ID, courseId);
     }
 
     public void setIdWithConverter(String id) {
-        FieldConverter fc = converterRegistry.get(ID);
-        if (fc != null) {
-            this.set(ID, fc.convertField(id));
-        } else {
-            this.set(ID, id);
-        }
+        setFieldUsingConverter(ID, id);
     }
 
     public boolean isCurrentVersion() {
@@ -270,6 +251,10 @@ public class AJEntityClass extends Model {
 
     public boolean isArchived() {
         return getBoolean(IS_ARCHIVED);
+    }
+    
+    public void setIsArchived(boolean isArchived) {
+        this.setBoolean(IS_ARCHIVED, isArchived);
     }
 
     public void setVersion() {
@@ -290,10 +275,35 @@ public class AJEntityClass extends Model {
         setEndDate(defaultEndDate);
     }
 
-    private void setEndDate(String classEndDate) {
+    public void setTenant(String tenant) {
+        setFieldUsingConverter(TENANT, tenant);
+    }
+
+    public void setTenantRoot(String tenantRoot) {
+        setFieldUsingConverter(TENANT_ROOT, tenantRoot);
+    }
+
+    public String getTenant() {
+        return this.getString(TENANT);
+    }
+
+    public String getTenantRoot() {
+        return this.getString(TENANT_ROOT);
+    }
+
+    public void setEndDate(String classEndDate) {
         FieldConverter fc = converterRegistry.get(END_DATE);
         if (fc != null) {
             this.set(END_DATE, fc.convertField(classEndDate));
+        }
+    }
+
+    private void setFieldUsingConverter(String fieldName, Object fieldValue) {
+        FieldConverter fc = converterRegistry.get(fieldName);
+        if (fc != null) {
+            this.set(fieldName, fc.convertField(fieldValue));
+        } else {
+            this.set(fieldName, fieldValue);
         }
     }
 

@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors;
 
+import io.vertx.core.MultiMap;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -8,35 +9,39 @@ import io.vertx.core.json.JsonObject;
 public final class ProcessorContext {
 
     private final String userId;
-    private final JsonObject prefs;
+    private final JsonObject session;
     private final JsonObject request;
     private final String classId;
     private final String courseId;
     private final String classCode;
     private final String studentId;
     private final String studentEmail;
+    private final MultiMap requestHeaders;
+    private final TenantContext tenantContext;
 
-    private ProcessorContext(String userId, JsonObject prefs, JsonObject request, String classId, String courseId,
-        String classCode, String studentId, String studentEmail) {
-        if (prefs == null || userId == null || prefs.isEmpty()) {
+    private ProcessorContext(String userId, JsonObject session, JsonObject request, String classId, String courseId,
+        String classCode, String studentId, String studentEmail, MultiMap headers) {
+        if (session == null || userId == null || session.isEmpty() || headers == null || headers.isEmpty()) {
             throw new IllegalStateException("Processor Context creation failed because of invalid values");
         }
         this.courseId = courseId;
         this.userId = userId;
-        this.prefs = prefs.copy();
+        this.session = session.copy();
         this.request = request != null ? request.copy() : null;
         this.classId = classId;
         this.classCode = classCode;
         this.studentEmail = studentEmail;
         this.studentId = studentId;
+        this.requestHeaders = headers;
+        this.tenantContext = new TenantContext(session);
     }
 
     public String userId() {
         return this.userId;
     }
 
-    public JsonObject prefs() {
-        return this.prefs.copy();
+    public JsonObject session() {
+        return this.session.copy();
     }
 
     public JsonObject request() {
@@ -63,48 +68,55 @@ public final class ProcessorContext {
         return this.studentEmail;
     }
 
+    public MultiMap requestHeaders() {
+        return this.requestHeaders;
+    }
+
+    public String tenant() {
+        return this.tenantContext.tenant();
+    }
+
+    public String tenantRoot() {
+        return this.tenantContext.tenantRoot();
+    }
+
+
     public static class ProcessorContextBuilder {
         private final String userId;
-        private final JsonObject prefs;
+        private final JsonObject session;
         private final JsonObject request;
         private final String classId;
+        private final MultiMap requestHeaders;
         private String courseId;
         private String studentId;
         private String studentEmail;
         private final String classCode;
         private boolean built = false;
 
-        ProcessorContextBuilder(String userId, JsonObject prefs, JsonObject request, String classId, String classCode) {
-            if (prefs == null || userId == null || prefs.isEmpty()) {
+        ProcessorContextBuilder(String userId, JsonObject session, JsonObject request, String classId, String classCode,
+            MultiMap headers) {
+            if (session == null || userId == null || session.isEmpty() || headers == null || headers.isEmpty()) {
                 throw new IllegalStateException("Processor Context creation failed because of invalid values");
             }
             this.userId = userId;
-            this.prefs = prefs.copy();
+            this.session = session.copy();
             this.request = request != null ? request.copy() : null;
             this.classId = classId;
             this.classCode = classCode;
+            this.requestHeaders = headers;
         }
 
         ProcessorContextBuilder setCourseId(String courseId) {
-            if (courseId == null || courseId.isEmpty()) {
-                throw new IllegalStateException("Invalid values");
-            }
             this.courseId = courseId;
             return this;
         }
 
         ProcessorContextBuilder setStudentId(String studentId) {
-            if (studentId == null || studentId.isEmpty()) {
-                throw new IllegalStateException("Invalid values");
-            }
             this.studentId = studentId;
             return this;
         }
 
         ProcessorContextBuilder setStudentEmail(String email) {
-            if (studentEmail == null || studentEmail.isEmpty()) {
-                throw new IllegalStateException("Invalid values");
-            }
             this.studentEmail = email;
             return this;
         }
@@ -114,9 +126,38 @@ public final class ProcessorContext {
                 throw new IllegalStateException("Tried to build again");
             } else {
                 this.built = true;
-                return new ProcessorContext(userId, prefs, request, classId, courseId, classCode, studentId,
-                    studentEmail);
+                return new ProcessorContext(userId, session, request, classId, courseId, classCode, studentId,
+                    studentEmail, requestHeaders);
             }
+        }
+    }
+
+    private static class TenantContext {
+        private static final String TENANT = "tenant";
+        private static final String TENANT_ID = "tenant_id";
+        private static final String TENANT_ROOT = "tenant_root";
+
+        private final String tenantId;
+        private final String tenantRoot;
+
+        TenantContext(JsonObject session) {
+            JsonObject tenantJson = session.getJsonObject(TENANT);
+            if (tenantJson == null || tenantJson.isEmpty()) {
+                throw new IllegalStateException("Tenant Context invalid");
+            }
+            this.tenantId = tenantJson.getString(TENANT_ID);
+            if (tenantId == null || tenantId.isEmpty()) {
+                throw new IllegalStateException("Tenant Context with invalid tenant");
+            }
+            this.tenantRoot = tenantJson.getString(TENANT_ROOT);
+        }
+
+        public String tenant() {
+            return this.tenantId;
+        }
+
+        public String tenantRoot() {
+            return this.tenantRoot;
         }
     }
 

@@ -10,7 +10,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Uti
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJUserDemographic;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUser;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -100,11 +100,11 @@ class FetchClassMembersHandler implements DBHandler {
 
     private void populateDemographics(List<String> memberIdList, JsonObject result) {
         // Now resolve the demographic of members
-        LazyList<AJUserDemographic> demographics = AJUserDemographic.findBySQL(AJUserDemographic.GET_SUMMARY_QUERY,
+        LazyList<AJEntityUser> demographics = AJEntityUser.findBySQL(AJEntityUser.GET_SUMMARY_QUERY,
             Utils.convertListToPostgresArrayStringRepresentation(memberIdList));
         // update that in the response
         JsonArray userDemographics = new JsonArray(JsonFormatterBuilder
-            .buildSimpleJsonFormatter(false, AJUserDemographic.GET_SUMMARY_QUERY_FIELD_LIST).toJson(demographics));
+            .buildSimpleJsonFormatter(false, AJEntityUser.GET_SUMMARY_QUERY_FIELD_LIST).toJson(demographics));
         result.put(RESPONSE_BUCKET_MEMBER_DETAILS, userDemographics);
     }
 

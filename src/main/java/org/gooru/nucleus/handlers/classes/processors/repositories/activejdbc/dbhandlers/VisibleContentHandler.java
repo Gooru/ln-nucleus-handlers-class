@@ -60,14 +60,6 @@ class VisibleContentHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         this.entityClass = classes.get(0);
-        // Class should be of current version and Class should not be archived
-        if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
-            LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
-                ExecutionResult.ExecutionStatus.FAILED);
-        }
         // Class should be associated with course
         courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
         if (courseId == null) {

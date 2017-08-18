@@ -18,6 +18,9 @@ public final class AppConfiguration implements Initializer {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppConfiguration.class);
     private static final String POPULATE_DUMMY_EMAIL_KEY = "populate.dummy.email";
     private static final String DUMMY_EMAIL_DOMAIN_KEY = "dummy.email.domain";
+    private static final String LIMIT_DEFAULT = "limit.default";
+    private static final String LIMIT_MAX = "limit.max";
+    private static final String DATE_RANGE_INTERVAL = "date.range.interval";
 
     public static AppConfiguration getInstance() {
         return Holder.INSTANCE;
@@ -48,13 +51,25 @@ public final class AppConfiguration implements Initializer {
     public String getClassEndDate() {
         return configuration.getJsonObject(KEY).getString(CLASS_END_DATE_KEY);
     }
-    
+
     public boolean getPopulateDummyEmail() {
         return configuration.getJsonObject(KEY).getBoolean(POPULATE_DUMMY_EMAIL_KEY);
     }
 
     public String getDummyEmailDomain() {
         return configuration.getJsonObject(KEY).getString(DUMMY_EMAIL_DOMAIN_KEY);
+    }
+
+    public int getDefaultLimit() {
+        return configuration.getJsonObject(KEY).getInteger(LIMIT_DEFAULT, 20);
+    }
+
+    public int getMaxLimit() {
+        return configuration.getJsonObject(KEY).getInteger(LIMIT_MAX, 50);
+    }
+
+    public long getDateRangeToInterval() {
+        return configuration.getJsonObject(KEY).getLong(DATE_RANGE_INTERVAL, 2L);
     }
 
     private static final class Holder {

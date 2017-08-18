@@ -90,4 +90,29 @@ class AJClassRepo implements ClassRepo {
     public MessageResponse getVisibleContent() {
         return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildGetVisibleContentHandler(context));
     }
+
+    @Override
+    public MessageResponse addContentInClass() {
+        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildAddContentInClassHandler(context));
+    }
+
+    @Override
+    public MessageResponse listClassContent() {
+        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildListClassContentHandler(context));
+    }
+
+    @Override
+    public MessageResponse enableContentInClass() {
+        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildEnableContentInClassHandler(context));
+    }
+
+    @Override
+    public MessageResponse archiveClass() {
+        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildArchiveClassHandler(context));
+    }
+
+    @Override
+    public MessageResponse deleteContentFromClass() {
+        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildDeleteClassContentHandler(context));
+    }
 }
