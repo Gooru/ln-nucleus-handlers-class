@@ -24,16 +24,13 @@ if (useLocalBuild) {
 defaultTasks 'shadowJar'
 
 if (!JavaVersion.current().java8Compatible) {
-    throw new IllegalStateException('''Nucleus:
-                                      |  This needs Java 8,
-                                      |  You are using something else,
-                                      |  Refresh. Try again.'''.stripMargin())
+    throw new IllegalStateException('''Nucleus: |  This needs Java 8, You are using something else.'''.stripMargin())
 }
 
 // Define a version registry so that we can avoid hard coding of the version numbers
 // Note that this applies only to dependencies and not to the plugins and build
 ext {
-    vertxVersion = '3.2.1'
+    vertxVersion = '3.3.3'
     slf4jVersion = '1.7.12'
     junitVersion = '4.12'
     logbackVersion = '1.0.13'
@@ -67,6 +64,9 @@ dependencies {
 
     // Test dependencies
     testCompile "junit:junit:${junitVersion}"
+
+    // Other projects
+    compile project(':nucleus-libs-tenant')
 }
 
 shadowJar {

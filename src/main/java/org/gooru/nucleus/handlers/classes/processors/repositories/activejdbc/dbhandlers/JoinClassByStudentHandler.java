@@ -55,7 +55,7 @@ class JoinClassByStudentHandler implements DBHandler {
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        this.email = context.prefs().getString(MessageConstants.EMAIL_ID);
+        this.email = context.session().getString(MessageConstants.EMAIL_ID);
         // Payload should not be null
         if (context.request() == null) {
             LOGGER.warn("Payload is null");
@@ -192,9 +192,9 @@ class JoinClassByStudentHandler implements DBHandler {
             AuthorizerBuilder.buildClassMembersAuthorizer(context).authorize(this.entityClass);
         return result.continueProcessing();
     }
-    
+
     private String getUserEmailAddress() {
-        String userEmail = (this.email != null && !this.email.isEmpty()) ? this.email : null; 
+        String userEmail = (this.email != null && !this.email.isEmpty()) ? this.email : null;
         if (userEmail == null) {
             userEmail = GeneratorBuilder.buildDummyEmailGenerator(this.context.userId()).generate();
         }

@@ -8,7 +8,8 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Uti
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJUserDemographic;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUser;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -154,20 +156,39 @@ class FetchClassesForUserHandler implements DBHandler {
     private ExecutionResult<MessageResponse> populateClassDetails(JsonObject result) {
         LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_MULTIPLE_QUERY_FILTER,
             Utils.convertListToPostgresArrayStringRepresentation(classIdList));
-        JsonArray classDetails = new JsonArray(
-            JsonFormatterBuilder.buildSimpleJsonFormatter(false, AJEntityClass.FETCH_QUERY_FIELD_LIST).toJson(classes));
+        List<String> courseIdList = new ArrayList<>(classes.size());
+        classes.stream().filter(classEntry -> classEntry.getString(AJEntityClass.COURSE_ID) != null)
+            .forEach(classEntry -> {
+                courseIdList.add(classEntry.getString(AJEntityClass.COURSE_ID));
+            });
+
+        LazyList<AJEntityCourse> courses = AJEntityCourse.findBySQL(AJEntityCourse.SELECT_COURSE_TITLE,
+            Utils.convertListToPostgresArrayStringRepresentation(courseIdList));
+        Map<String, String> courseTitleMap = new HashMap<>(courses.size());
+        courses.forEach(course -> {
+            courseTitleMap.put(course.getString(AJEntityCourse.ID), course.getString(AJEntityCourse.TITLE));
+        });
+        JsonArray classDetails = new JsonArray();
+        classes.forEach(classEntry -> {
+            JsonObject classJson = new JsonObject(JsonFormatterBuilder
+                .buildSimpleJsonFormatter(false, AJEntityClass.FETCH_QUERY_FIELD_LIST).toJson(classEntry));
+            String courseTitle = courseTitleMap.containsKey(classEntry.getString(AJEntityClass.COURSE_ID))
+                ? courseTitleMap.get(classEntry.getString(AJEntityClass.COURSE_ID)) : null;
+            classJson.put(AJEntityCourse.COURSE_TITLE, courseTitle);
+            classDetails.add(classJson);
+        });
         result.put(RESPONSE_BUCKET_CLASSES, classDetails);
         return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
     }
 
     private ExecutionResult<MessageResponse> populateTeacherDetails(JsonObject result) {
         try {
-            LazyList<AJUserDemographic> demographics =
-                AJUserDemographic.findBySQL(AJUserDemographic.FETCH_TEACHER_DETAILS_QUERY,
+            LazyList<AJEntityUser> demographics =
+                AJEntityUser.findBySQL(AJEntityUser.FETCH_TEACHER_DETAILS_QUERY,
                     Utils.convertListToPostgresArrayStringRepresentation(memberClassIdArray.getList()));
             // update that in the response
             JsonArray teacherDetails = new JsonArray(JsonFormatterBuilder
-                .buildSimpleJsonFormatter(false, AJUserDemographic.GET_SUMMARY_QUERY_FIELD_LIST).toJson(demographics));
+                .buildSimpleJsonFormatter(false, AJEntityUser.GET_SUMMARY_QUERY_FIELD_LIST).toJson(demographics));
             result.put(RESPONSE_BUCKET_TEACHER_DETAILS, teacherDetails);
             return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(result),
                 ExecutionResult.ExecutionStatus.SUCCESSFUL);
