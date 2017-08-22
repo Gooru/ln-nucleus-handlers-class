@@ -11,15 +11,17 @@ public class AJEntityCourse extends Model {
     private static final String PUBLISH_STATUS = "publish_status";
     public static final String ID = "id";
     public static final String TITLE = "title";
+    public static final String VERSION = "version";
     public static final String COURSE_TITLE = "course_title";
+    public static final String COURSE_VERSION = "course_version";
 
     public static final String SELECT_COURSE_TO_AUTHORIZE =
         "SELECT id, owner_id, collaborator, tenant, tenant_root FROM course WHERE id = ?::uuid AND is_deleted = false AND"
             + " (owner_id = ?::uuid OR collaborator ?? ?)";
-    
-    public static final String SELECT_COURSE_TITLE =
-        "SELECT id, title FROM course where id = ANY(?::uuid[]) AND is_deleted = false";
-   
+
+    public static final String SELECT_COURSE_TITLE_VERSION =
+        "SELECT id, title, version FROM course where id = ANY(?::uuid[]) AND is_deleted = false";
+
     public String getTenant() {
         return this.getString(TENANT);
     }
@@ -27,7 +29,7 @@ public class AJEntityCourse extends Model {
     public String getTenantRoot() {
         return this.getString(TENANT_ROOT);
     }
-    
+
     public boolean isCoursePublished() {
         String publishStatus = this.getString(PUBLISH_STATUS);
         return PUBLISH_STATUS_TYPE_PUBLISHED.equalsIgnoreCase(publishStatus);

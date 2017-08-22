@@ -1,7 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import java.util.*;
+
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Utils;
@@ -20,11 +20,8 @@ import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Created by ashish on 8/2/16.
@@ -156,29 +153,54 @@ class FetchClassesForUserHandler implements DBHandler {
     private ExecutionResult<MessageResponse> populateClassDetails(JsonObject result) {
         LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_MULTIPLE_QUERY_FILTER,
             Utils.convertListToPostgresArrayStringRepresentation(classIdList));
+        List<String> courseIdList = fetchCourseIdsForClasses(classes);
+
+        Map<String, String> courseTitleMap = new HashMap<>(classes.size());
+        Map<String, String> courseVersionMap = new HashMap<>((classes.size()));
+
+        populateCourseTitleVersionForIds(courseIdList, courseTitleMap, courseVersionMap);
+
+        JsonArray classDetails = createClassDetailsResponse(classes, courseTitleMap, courseVersionMap);
+
+        result.put(RESPONSE_BUCKET_CLASSES, classDetails);
+        return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+    }
+
+    private static JsonArray createClassDetailsResponse(LazyList<AJEntityClass> classes,
+        Map<String, String> courseTitleMap, Map<String, String> courseVersionMap) {
+        JsonArray classDetails = new JsonArray();
+
+        classes.forEach(classEntry -> {
+            JsonObject classJson = new JsonObject(
+                JsonFormatterBuilder.buildSimpleJsonFormatter(false, AJEntityClass.FETCH_QUERY_FIELD_LIST)
+                    .toJson(classEntry));
+            String courseTitle = courseTitleMap.getOrDefault(classEntry.getString(AJEntityClass.COURSE_ID), null);
+            String courseVersion = courseVersionMap.getOrDefault(classEntry.getString(AJEntityClass.COURSE_ID), null);
+            classJson.put(AJEntityCourse.COURSE_TITLE, courseTitle);
+            classJson.put(AJEntityCourse.COURSE_VERSION, courseVersion);
+            classDetails.add(classJson);
+        });
+        return classDetails;
+    }
+
+    private static void populateCourseTitleVersionForIds(List<String> courseIdList, Map<String, String> courseTitleMap,
+        Map<String, String> courseVersionMap) {
+        LazyList<AJEntityCourse> courses = AJEntityCourse.findBySQL(AJEntityCourse.SELECT_COURSE_TITLE_VERSION,
+            Utils.convertListToPostgresArrayStringRepresentation(courseIdList));
+
+        courses.forEach(course -> {
+            courseTitleMap.put(course.getString(AJEntityCourse.ID), course.getString(AJEntityCourse.TITLE));
+            courseVersionMap.put(course.getString(AJEntityCourse.ID), course.getString(AJEntityCourse.VERSION));
+        });
+    }
+
+    private static List<String> fetchCourseIdsForClasses(LazyList<AJEntityClass> classes) {
         List<String> courseIdList = new ArrayList<>(classes.size());
         classes.stream().filter(classEntry -> classEntry.getString(AJEntityClass.COURSE_ID) != null)
             .forEach(classEntry -> {
                 courseIdList.add(classEntry.getString(AJEntityClass.COURSE_ID));
             });
-
-        LazyList<AJEntityCourse> courses = AJEntityCourse.findBySQL(AJEntityCourse.SELECT_COURSE_TITLE,
-            Utils.convertListToPostgresArrayStringRepresentation(courseIdList));
-        Map<String, String> courseTitleMap = new HashMap<>(courses.size());
-        courses.forEach(course -> {
-            courseTitleMap.put(course.getString(AJEntityCourse.ID), course.getString(AJEntityCourse.TITLE));
-        });
-        JsonArray classDetails = new JsonArray();
-        classes.forEach(classEntry -> {
-            JsonObject classJson = new JsonObject(JsonFormatterBuilder
-                .buildSimpleJsonFormatter(false, AJEntityClass.FETCH_QUERY_FIELD_LIST).toJson(classEntry));
-            String courseTitle = courseTitleMap.containsKey(classEntry.getString(AJEntityClass.COURSE_ID))
-                ? courseTitleMap.get(classEntry.getString(AJEntityClass.COURSE_ID)) : null;
-            classJson.put(AJEntityCourse.COURSE_TITLE, courseTitle);
-            classDetails.add(classJson);
-        });
-        result.put(RESPONSE_BUCKET_CLASSES, classDetails);
-        return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+        return courseIdList;
     }
 
     private ExecutionResult<MessageResponse> populateTeacherDetails(JsonObject result) {
