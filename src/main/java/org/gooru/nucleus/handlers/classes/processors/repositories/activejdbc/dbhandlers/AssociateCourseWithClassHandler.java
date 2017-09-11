@@ -1,16 +1,20 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
+import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +37,16 @@ class AssociateCourseWithClassHandler implements DBHandler {
     @Override
     public ExecutionResult<MessageResponse> checkSanity() {
         // There should be a class id present
-        if (context.classId() == null || context.classId().isEmpty() || context.courseId() == null
-            || context.courseId().isEmpty()) {
+        if (context.classId() == null || context.classId().isEmpty() || context.courseId() == null || context.courseId()
+            .isEmpty()) {
             LOGGER.warn("Missing class/course id");
-            return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("invalid.class.or.course")), ExecutionResult.ExecutionStatus.FAILED);
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.or.course")),
+                ExecutionResult.ExecutionStatus.FAILED);
         }
         // The user should not be anonymous
-        if (context.userId() == null || context.userId().isEmpty()
-            || context.userId().equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
+        if (context.userId() == null || context.userId().isEmpty() || context.userId()
+            .equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
             LOGGER.warn("Anonymous user attempting to edit class");
             return new ExecutionResult<>(
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
@@ -72,15 +77,15 @@ class AssociateCourseWithClassHandler implements DBHandler {
         if (courseId != null) {
             LOGGER.warn("Class '{}' is already associated with course '{}' so can't associate with course '{}'",
                 this.context.classId(), courseId, this.context.courseId());
-            return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("class.associated.with.course")), ExecutionResult.ExecutionStatus.FAILED);
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.associated.with.course")),
+                ExecutionResult.ExecutionStatus.FAILED);
         }
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
             LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         return AuthorizerBuilder.buildAssociateCourseWithClassAuthorizer(this.context).authorize(this.entityClass);
@@ -91,6 +96,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
         // Set the modifier id and course id
         this.entityClass.setModifierId(this.context.userId());
         this.entityClass.setCourseId(this.context.courseId());
+        setContentVisibilityBasedOnCourse();
 
         boolean result = this.entityClass.save();
         if (!result) {
@@ -103,8 +109,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-        return new ExecutionResult<>(
-            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
+        return new ExecutionResult<>(MessageResponseFactory
+            .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
@@ -112,6 +118,21 @@ class AssociateCourseWithClassHandler implements DBHandler {
     @Override
     public boolean handlerReadOnly() {
         return false;
+    }
+
+    private void setContentVisibilityBasedOnCourse() {
+        String alternateCourseVersion = AppConfiguration.getInstance().getCourseVersionForAlternateVisibility();
+        if (alternateCourseVersion == null) {
+            LOGGER.error("Not able to obtain alternateCourseVersion from application configuration");
+        }
+        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
+        String version = versionObject == null ? null : String.valueOf(versionObject);
+
+        if (Objects.equals(alternateCourseVersion, version)) {
+            this.entityClass.setContentVisibility(this.entityClass.getDefaultAlternateContentVisibility());
+        } else {
+            this.entityClass.setContentVisibility(this.entityClass.getDefaultContentVisibility());
+        }
     }
 
 }

@@ -15,7 +15,7 @@ public final class EventBuilderFactory {
     private static final String EVT_CLASS_STUDENT_JOIN = "event.class.student.join";
     private static final String EVT_CLASS_STUDENT_INVITE_REMOVAL = "event.class.student.invite.remove";
     private static final String EVT_CLASS_STUDENT_REMOVAL = "event.class.student.remove";
-    private static final String EVT_CLASS_COLLABORATOR_UPDATE = "event.class.collaborator.join";
+    private static final String EVT_CLASS_COLLABORATOR_UPDATE = "event.class.collaborator.update";
     private static final String EVT_CLASS_COURSE_ASSIGNED = "event.class.course.assigned";
     private static final String EVT_CLASS_CONTENT_VISIBLE = "event.class.content.visible";
     private static final String EVT_CLASS_CONTENT_CREATE = "event.class.content.create";
