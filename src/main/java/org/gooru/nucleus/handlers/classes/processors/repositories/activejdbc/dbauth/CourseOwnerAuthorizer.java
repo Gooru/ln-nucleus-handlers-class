@@ -4,6 +4,7 @@ import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
@@ -28,14 +29,14 @@ class CourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
     @Override
     public ExecutionResult<MessageResponse> authorize(AJEntityClass model) {
         try {
-            long count = Base.count(AJEntityClass.TABLE_COURSE, AJEntityClass.COURSE_ASSOCIATION_FILTER,
-                context.courseId(), context.userId());
+            long count =
+                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId(),
+                    context.userId());
             if (count == 1) {
                 return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }
-            return new ExecutionResult<>(
-                MessageResponseFactory
-                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
+            return new ExecutionResult<>(MessageResponseFactory
+                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
                 ExecutionResult.ExecutionStatus.FAILED);
         } catch (DBException e) {
             LOGGER.error("Error querying course '{}' availability for associating in class '{}'", context.courseId(),

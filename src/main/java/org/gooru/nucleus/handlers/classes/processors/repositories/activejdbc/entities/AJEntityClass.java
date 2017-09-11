@@ -11,8 +11,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
-import io.vertx.core.json.JsonObject;
-
 /**
  * Created by ashish on 8/2/16.
  */
@@ -37,7 +35,6 @@ public class AJEntityClass extends Model {
     private static final String IS_ARCHIVED = "is_archived";
     public static final String COLLABORATOR = "collaborator";
     public static final String COURSE_ID = "course_id";
-    public static final String TABLE_COURSE = "course";
     private static final String CREATED_AT = "created_at";
     private static final String UPDATED_AT = "updated_at";
     private static final String CREATOR_SYSTEM = "creator_system";
@@ -68,7 +65,6 @@ public class AJEntityClass extends Model {
             + "order by created_at desc";
     public static final String FETCH_FOR_COURSE_QUERY_FILTER = "course_id = ?::uuid and is_deleted = false";
     public static final String FETCH_VIA_CODE_FILTER = "code = ? and is_deleted = false";
-    public static final String COURSE_ASSOCIATION_FILTER = "id = ?::uuid and is_deleted = false and owner_id = ?::uuid";
     public static final String DELETE_QUERY =
         "select id, creator_id, end_date, course_id, gooru_version, is_archived from class where id = ?::uuid and "
             + "is_deleted = false";
@@ -210,22 +206,35 @@ public class AJEntityClass extends Model {
         return new ClassConverterRegistry();
     }
 
-    public void setContentVisibility(JsonObject visibility) {
+    public void setContentVisibility(String visibility) {
         setFieldUsingConverter(CONTENT_VISIBILITY, visibility);
     }
 
+    private static final String DEFAULT_CONTENT_VISIBILITY = CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
+    private static final String DEFAULT_ALTERNATE_CONTENT_VISIBILITY = CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
+
+    public String getDefaultAlternateContentVisibility() {
+        return this.DEFAULT_ALTERNATE_CONTENT_VISIBILITY;
+    }
+
+    public String getDefaultContentVisibility() {
+        return this.DEFAULT_CONTENT_VISIBILITY;
+    }
+
     public String getContentVisibility() {
-        // Treat null and default as visible all
+        // Treat null and default as visible collections
         String contentVisibilitySetting = this.getString(CONTENT_VISIBILITY);
-        if (contentVisibilitySetting == null || contentVisibilitySetting
-            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
+        if (contentVisibilitySetting == null) {
+            return DEFAULT_CONTENT_VISIBILITY;
+        } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
-        } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
+        } else if (contentVisibilitySetting
+            .equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION;
         } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_NONE;
         } else {
-            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
+            return DEFAULT_CONTENT_VISIBILITY;
         }
     }
 
@@ -252,7 +261,7 @@ public class AJEntityClass extends Model {
     public boolean isArchived() {
         return getBoolean(IS_ARCHIVED);
     }
-    
+
     public void setIsArchived(boolean isArchived) {
         this.setBoolean(IS_ARCHIVED, isArchived);
     }
