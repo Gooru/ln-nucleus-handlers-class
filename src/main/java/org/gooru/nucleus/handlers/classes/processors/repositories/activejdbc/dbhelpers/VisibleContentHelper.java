@@ -63,8 +63,10 @@ public final class VisibleContentHelper {
             } else {
                 if (AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL.equalsIgnoreCase(defaultVisibility)) {
                     visibility = AJEntityCollection.VISIBLE_ON;
-                } else if (AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION.equalsIgnoreCase(defaultVisibility)) {
-                    visibility = collection.isCollection() ? AJEntityCollection.VISIBLE_ON : AJEntityCollection.VISIBLE_OFF;
+                } else if (AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION
+                    .equalsIgnoreCase(defaultVisibility)) {
+                    visibility = (collection.isCollection() || collection.isAssessmentExternal())
+                        ? AJEntityCollection.VISIBLE_ON : AJEntityCollection.VISIBLE_OFF;
                 } else {
                     visibility = AJEntityCollection.VISIBLE_OFF;
                 }
