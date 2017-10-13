@@ -21,6 +21,7 @@ public final class AppConfiguration implements Initializer {
     private static final String LIMIT_DEFAULT = "limit.default";
     private static final String LIMIT_MAX = "limit.max";
     private static final String DATE_RANGE_INTERVAL = "date.range.interval";
+    private static final String COURSE_VERSION_FOR_ALTERNATE_VISIBILITY = "course.version.for.alternate.visibility";
 
     public static AppConfiguration getInstance() {
         return Holder.INSTANCE;
@@ -70,6 +71,10 @@ public final class AppConfiguration implements Initializer {
 
     public long getDateRangeToInterval() {
         return configuration.getJsonObject(KEY).getLong(DATE_RANGE_INTERVAL, 2L);
+    }
+
+    public String getCourseVersionForAlternateVisibility() {
+        return configuration.getJsonObject(KEY).getString(COURSE_VERSION_FOR_ALTERNATE_VISIBILITY);
     }
 
     private static final class Holder {
