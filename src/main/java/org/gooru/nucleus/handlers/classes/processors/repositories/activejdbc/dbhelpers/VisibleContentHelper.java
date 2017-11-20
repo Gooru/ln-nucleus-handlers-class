@@ -36,7 +36,7 @@ public final class VisibleContentHelper {
     public static void populateVisibleItems(String classId, String courseId, String defaultVisibility, JsonObject result) {
         LazyList<AJEntityCollection> items =
             AJEntityCollection.findBySQL(AJEntityCollection.FETCH_VISIBLE_ITEMS_QUERY, courseId);
-        
+
         Map<String, Set<String>> unitLessonMap = new HashMap<>();
         Map<String, JsonArray> collectionsByLesson = new HashMap<>();
         Map<String, JsonArray> assessmentsByLesson = new HashMap<>();
@@ -53,7 +53,7 @@ public final class VisibleContentHelper {
                 lessons.add(collection.getString(AJEntityCollection.LESSON_ID));
                 unitLessonMap.put(unitId, lessons);
             }
-            
+
             String visibility = null;
             String strClassVisibility = collection.getString(AJEntityCollection.CLASS_VISIBILITY);
             JsonObject classVisibility = strClassVisibility != null && !strClassVisibility.isEmpty()
@@ -65,16 +65,16 @@ public final class VisibleContentHelper {
                     visibility = AJEntityCollection.VISIBLE_ON;
                 } else if (AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION
                     .equalsIgnoreCase(defaultVisibility)) {
-                    visibility = (collection.isCollection() || collection.isAssessmentExternal())
-                        ? AJEntityCollection.VISIBLE_ON : AJEntityCollection.VISIBLE_OFF;
+                    visibility =
+                        (collection.isCollection() ? AJEntityCollection.VISIBLE_ON : AJEntityCollection.VISIBLE_OFF);
                 } else {
                     visibility = AJEntityCollection.VISIBLE_OFF;
                 }
             }
-            
+
             JsonObject visibilityJson = new JsonObject().put(AJEntityCollection.ID, id)
                 .put(AJEntityCollection.JSON_KEY_VISIBLE, visibility);
-            
+
             if (collection.isAssessment() || collection.isAssessmentExternal()) {
                 if (assessmentsByLesson.containsKey(lessonId)) {
                     assessmentsByLesson.get(lessonId).add(visibilityJson);
