@@ -40,7 +40,6 @@ public class ClassVerticle extends AbstractVerticle {
                         future.complete(result);
                     }, res -> {
                         MessageResponse result = (MessageResponse) res.result();
-                        LOGGER.debug("Sending response: '{}'", result.reply());
                         message.reply(result.reply(), result.deliveryOptions());
                         JsonObject eventData = result.event();
                         if (eventData != null) {
