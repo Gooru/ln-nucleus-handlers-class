@@ -37,8 +37,13 @@ class ClassMemberAuthorizer implements Authorizer<AJEntityClass> {
     }
 
     private boolean checkStudent(AJEntityClass model) {
+        String classId = this.context.classId() != null ? this.context.classId() : model.getString(AJEntityClass.ID);
+        if (classId == null) {
+            LOGGER.warn("no class id present to check student enrollment");
+            return false;
+        }
         LazyList<AJClassMember> members = AJClassMember.where(AJClassMember.FETCH_FOR_USER_QUERY_FILTER,
-            this.context.classId(), this.context.userId());
+            classId, this.context.userId());
         return !members.isEmpty();
     }
 
