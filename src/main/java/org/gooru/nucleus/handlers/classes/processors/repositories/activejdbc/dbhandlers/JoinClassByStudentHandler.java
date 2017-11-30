@@ -94,11 +94,14 @@ class JoinClassByStudentHandler implements DBHandler {
                     .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        // First level of authorization, user should not be teacher, co teacher or student already
+        // First level of authorization, user should not be teacher, co teacher
+        // or student already
         if (isUserClassMember()) {
+            // User is already joined, so nothing to do; just return
+            // successfully
             return new ExecutionResult<>(
-                MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("existing.member")),
-                ExecutionResult.ExecutionStatus.FAILED);
+                MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("joined")),
+                ExecutionResult.ExecutionStatus.SUCCESSFUL);
         }
         // Now get the membership record for that user
         if (this.email != null && !this.email.isEmpty()) {
