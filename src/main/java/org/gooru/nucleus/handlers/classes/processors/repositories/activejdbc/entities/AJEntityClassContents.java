@@ -33,6 +33,7 @@ public class AJEntityClassContents extends Model {
     public static final String ACTIVATION_DATE = "activation_date";
     public static final String DCA_ADDED_DATE = "dca_added_date";
     public static final String ASSESSMENT = "assessment";
+    public static final String ASSESSMENT_EXTERNAL = "assessment-external";
     public static final String COLLECTION = "collection";
     public static final String RESOURCE = "resource";
     public static final String QUESTION = "question";
@@ -48,7 +49,7 @@ public class AJEntityClassContents extends Model {
     private static final Set<String> MANDATORY_FIELDS =
         new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, DCA_ADDED_DATE));
     private static final Set<String> ACCEPT_CONTENT_TYPES =
-        new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, RESOURCE, QUESTION));
+        new HashSet<>(Arrays.asList(ASSESSMENT, COLLECTION, ASSESSMENT_EXTERNAL, RESOURCE, QUESTION));
     public static final List<String> RESPONSE_FIELDS = Arrays
         .asList(ID, CONTENT_ID, CONTENT_TYPE, CTX_COURSE_ID, CTX_UNIT_ID, CTX_LESSON_ID, CTX_COLLECTION_ID,
             DCA_ADDED_DATE, ACTIVATION_DATE, CREATED_AT);
