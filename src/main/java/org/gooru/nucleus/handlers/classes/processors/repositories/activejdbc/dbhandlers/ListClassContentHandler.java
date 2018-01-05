@@ -128,6 +128,7 @@ class ListClassContentHandler implements DBHandler {
                     JsonObject data = new JsonObject();
                     data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
                     data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
+                    data.put(MessageConstants.URL, content.getString(MessageConstants.URL));
                     classContentOtherData.put(content.getString(MessageConstants.ID), data);
                 });
                 List<Map> collectionContentCount =
