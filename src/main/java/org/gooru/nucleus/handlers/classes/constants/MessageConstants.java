@@ -54,6 +54,7 @@ public final class MessageConstants {
     public static final String CLASS_CONTENTS = "class_contents";
     public static final String TITLE = "title";
     public static final String THUMBNAIL = "thumbnail";
+    public static final String URL = "url";
     public static final String ID = "id";
     public static final String REQ_PARAM_OFFSET = "offset";
     public static final String REQ_PARAM_LIMIT = "limit";
