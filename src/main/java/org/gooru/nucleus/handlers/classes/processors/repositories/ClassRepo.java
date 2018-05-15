@@ -46,5 +46,7 @@ public interface ClassRepo {
     MessageResponse archiveClass();
 
     MessageResponse deleteContentFromClass();
+    
+    MessageResponse updateRescopeClassSetting();
 
 }

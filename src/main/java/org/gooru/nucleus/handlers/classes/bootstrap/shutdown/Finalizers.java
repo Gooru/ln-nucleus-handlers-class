@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.gooru.nucleus.handlers.classes.app.components.AppHttpClient;
 import org.gooru.nucleus.handlers.classes.app.components.DataSourceRegistry;
 
 public class Finalizers implements Iterable<Finalizer> {
@@ -13,6 +14,7 @@ public class Finalizers implements Iterable<Finalizer> {
     public Finalizers() {
         List<Finalizer> finalizers = new ArrayList<>();
         finalizers.add(DataSourceRegistry.getInstance());
+        finalizers.add(AppHttpClient.getInstance());
         internalIterator = finalizers.iterator();
     }
 

@@ -2,6 +2,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import java.util.ResourceBundle;
 
+import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;

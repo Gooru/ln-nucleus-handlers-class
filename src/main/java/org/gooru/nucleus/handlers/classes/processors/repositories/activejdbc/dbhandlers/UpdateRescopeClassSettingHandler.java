@@ -1,66 +1,62 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
-import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.gooru.nucleus.handlers.classes.processors.utils.AppHelper;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 
-/**
- * Created by ashish on 8/2/16.
- */
-class AssociateCourseWithClassHandler implements DBHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssociateCourseWithClassHandler.class);
+class UpdateRescopeClassSettingHandler implements DBHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateRescopeClassSettingHandler.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private AJEntityClass entityClass;
-    private static final String  ASSIGN_COURSE_TO_CLASS = "assign.course.to.class";
-    AssociateCourseWithClassHandler(ProcessorContext context) {
+    private boolean rescope;
+
+    UpdateRescopeClassSettingHandler(ProcessorContext context) {
         this.context = context;
     }
 
     @Override
     public ExecutionResult<MessageResponse> checkSanity() {
         // There should be a class id present
-        if (context.classId() == null || context.classId().isEmpty() || context.courseId() == null || context.courseId()
-            .isEmpty()) {
-            LOGGER.warn("Missing class/course id");
-            return new ExecutionResult<>(MessageResponseFactory
-                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.or.course")),
+        if (context.classId() == null || context.classId().isEmpty()) {
+            LOGGER.warn("Missing class");
+            return new ExecutionResult<>(
+                MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("missing.class.id")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         // The user should not be anonymous
-        if (context.userId() == null || context.userId().isEmpty() || context.userId()
-            .equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
+        if (context.userId() == null || context.userId().isEmpty()
+            || context.userId().equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
             LOGGER.warn("Anonymous user attempting to edit class");
             return new ExecutionResult<>(
                 MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        // Payload should not be null but it should be empty
-        if (context.request() == null || !context.request().isEmpty()) {
-            LOGGER.warn("Null or non empty payload supplied to edit class");
+
+        // Rescope field should not be null or empty
+        final Boolean rescope = context.request().getBoolean(AJEntityClass.RESCOPE);
+        if (rescope == null) {
+            LOGGER.warn("Missing class rescope setting value");
             return new ExecutionResult<>(
-                MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")),
+                MessageResponseFactory
+                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("missing.class.rescope.setting")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-
+        this.rescope = rescope;
         return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
     }
 
@@ -74,31 +70,38 @@ class AssociateCourseWithClassHandler implements DBHandler {
                 ExecutionResult.ExecutionStatus.FAILED);
         }
         this.entityClass = classes.get(0);
-        String courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
-        if (courseId != null) {
-            LOGGER.warn("Class '{}' is already associated with course '{}' so can't associate with course '{}'",
-                this.context.classId(), courseId, this.context.courseId());
-            return new ExecutionResult<>(MessageResponseFactory
-                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.associated.with.course")),
-                ExecutionResult.ExecutionStatus.FAILED);
-        }
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
             LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
-            return new ExecutionResult<>(MessageResponseFactory
-                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+            return new ExecutionResult<>(
+                MessageResponseFactory
+                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        return AuthorizerBuilder.buildAssociateCourseWithClassAuthorizer(this.context).authorize(this.entityClass);
+        final String settings = this.entityClass.getString(AJEntityClass.SETTING);
+        final JsonObject classSettings = settings != null ? new JsonObject(settings) : null;
+        // Class rescope setting won't allow to turn off once it's turn on.
+        if (classSettings != null && classSettings.getBoolean(AJEntityClass.RESCOPE) && !rescope) {
+            LOGGER.warn("Rescope already turned on to this class {}, not allowed to turn off", context.classId());
+            return new ExecutionResult<>(
+                MessageResponseFactory
+                    .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.rescope.not.allowed.turn.off")),
+                ExecutionResult.ExecutionStatus.FAILED);
+        }
+
+        return AuthorizerBuilder.buildUpdateClassAuthorizer(this.context).authorize(this.entityClass);
     }
 
     @Override
     public ExecutionResult<MessageResponse> executeRequest() {
-        // Set the modifier id and course id
         this.entityClass.setModifierId(this.context.userId());
-        this.entityClass.setCourseId(this.context.courseId());
-        setContentVisibilityBasedOnCourse();
-
+        final String settings = this.entityClass.getString(AJEntityClass.SETTING);
+        final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
+        classSettings.put(AJEntityClass.RESCOPE, rescope);
+        this.entityClass.setClassSettings(classSettings);
+        if (rescope) {
+            this.entityClass.setContentVisibility(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL);
+        }
         boolean result = this.entityClass.save();
         if (!result) {
             LOGGER.error("Class with id '{}' failed to save", context.classId());
@@ -110,31 +113,18 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-        AppHelper.publishEventForRescope(context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
-        return new ExecutionResult<>(MessageResponseFactory
-            .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
-                EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
+        AppHelper.publishEventForRescope(context.accessToken(), context.classId(), AJEntityClass.RESCOPE, null);
+        return new ExecutionResult<>(
+            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
+                EventBuilderFactory.getUpdateClassRescopeSettingEventBuilder(context.classId(), rescope)),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
+
     }
 
     @Override
     public boolean handlerReadOnly() {
         return false;
     }
-
-    private void setContentVisibilityBasedOnCourse() {
-        String alternateCourseVersion = AppConfiguration.getInstance().getCourseVersionForAlternateVisibility();
-        if (alternateCourseVersion == null) {
-            LOGGER.error("Not able to obtain alternateCourseVersion from application configuration");
-        }
-        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
-        String version = versionObject == null ? null : String.valueOf(versionObject);
-
-        if (Objects.equals(alternateCourseVersion, version)) {
-            this.entityClass.setContentVisibility(this.entityClass.getDefaultAlternateContentVisibility());
-        } else {
-            this.entityClass.setContentVisibility(this.entityClass.getDefaultContentVisibility());
-        }
-    }
-
+    
+    
 }
