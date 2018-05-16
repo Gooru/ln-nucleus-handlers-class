@@ -120,8 +120,8 @@ class CreateClassHandler implements DBHandler {
         // Populate default values in case not hydrated properly
         this.entityClass.adjustEndDate(AppConfiguration.getInstance().getClassEndDate());
         
+        // Populate default values for class setting
         JsonObject classSetting = null; 
-        // Pouplate default values for class setting
         final AJEntityTenantSetting tenantSetting = AJEntityTenantSetting.findFirst(AJEntityTenantSetting.TENANT_CLASS_SETTING, context.tenant());
         if (tenantSetting != null) { 
             classSetting = new JsonObject(tenantSetting.getString(AJEntityTenantSetting.VALUE));         
