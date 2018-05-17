@@ -23,6 +23,7 @@ class MessageProcessor implements Processor {
     private String userId;
     private JsonObject session;
     private JsonObject request;
+    private String accessToken;
 
     public MessageProcessor(Message<Object> message) {
         this.message = message;
@@ -36,7 +37,6 @@ class MessageProcessor implements Processor {
             if (validateResult.isCompleted()) {
                 return validateResult.result();
             }
-
             final String msgOp = message.headers().get(MessageConstants.MSG_HEADER_OP);
             return CommandProcessorBuilder.lookupBuilder(msgOp).build(createContext()).process();
         } catch (VersionDeprecatedException e) {
@@ -56,7 +56,7 @@ class MessageProcessor implements Processor {
         String studentId = message.headers().get(MessageConstants.USER_ID);
         String studentEmail = message.headers().get(MessageConstants.EMAIL);
         return new ProcessorContext.ProcessorContextBuilder(userId, session, request, classId, classCode, headers)
-            .setCourseId(courseId).setStudentId(studentId).setStudentEmail(studentEmail).build();
+            .setCourseId(courseId).setStudentId(studentId).setStudentEmail(studentEmail).setAccessToken(accessToken).build();
     }
 
     private ExecutionResult<MessageResponse> validateAndInitialize() {
@@ -76,6 +76,7 @@ class MessageProcessor implements Processor {
         }
         session = ((JsonObject) message.body()).getJsonObject(MessageConstants.MSG_KEY_SESSION);
         request = ((JsonObject) message.body()).getJsonObject(MessageConstants.MSG_HTTP_BODY);
+        accessToken = ((JsonObject) message.body()).getString(MessageConstants.MSG_HEADER_TOKEN);
 
         if (session == null || session.isEmpty()) {
             LOGGER.error("Invalid session obtained, probably not authorized properly");

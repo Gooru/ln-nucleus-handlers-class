@@ -11,6 +11,9 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
+import io.vertx.core.json.JsonObject;
+
+
 /**
  * Created by ashish on 8/2/16.
  */
@@ -43,6 +46,8 @@ public class AJEntityClass extends Model {
     public static final String INVITEES = "invitees";
     private static final String TENANT = "tenant";
     private static final String TENANT_ROOT = "tenant_root";
+    public static final String SETTING = "setting";
+    public static final String RESCOPE = "rescope";
 
     // Dummy field names for Content Visibility
     // TODO this needs to change when going through the setting of content visibility in new model
@@ -77,7 +82,7 @@ public class AJEntityClass extends Model {
         .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE, COLLABORATOR));
     public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
         .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE, COLLABORATOR,
-            CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID));
+            CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING));
     private static final Set<String> MANDATORY_FIELDS = new HashSet<>(Arrays.asList(TITLE, CLASS_SHARING));
     public static final Set<String> FORBIDDEN_FIELDS = new HashSet<>(
         Arrays.asList(ID, CREATED_AT, UPDATED_AT, CREATOR_ID, MODIFIER_ID, IS_DELETED, GOORU_VERSION, IS_ARCHIVED));
@@ -86,7 +91,7 @@ public class AJEntityClass extends Model {
     private static final Set<String> INVITE_ALLOWED_FIELDS = new HashSet<>(Arrays.asList(INVITEES, CREATOR_SYSTEM));
     public static final List<String> FETCH_QUERY_FIELD_LIST = Arrays
         .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE, MIN_SCORE,
-            END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY, IS_ARCHIVED, CREATED_AT, UPDATED_AT);
+            END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY, IS_ARCHIVED, SETTING, CREATED_AT, UPDATED_AT);
     private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
 
     private static final Map<String, FieldValidator> validatorRegistry;
@@ -224,7 +229,11 @@ public class AJEntityClass extends Model {
     public String getContentVisibility() {
         // Treat null and default as visible collections
         String contentVisibilitySetting = this.getString(CONTENT_VISIBILITY);
-        if (contentVisibilitySetting == null) {
+        final String setting = this.getString(SETTING);
+        final JsonObject classSetting =  setting != null ? new JsonObject(this.getString(SETTING)) : null; 
+        if (classSetting != null && classSetting.getBoolean(RESCOPE)) { 
+            return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
+        } else if (contentVisibilitySetting == null) {
             return DEFAULT_CONTENT_VISIBILITY;
         } else if (contentVisibilitySetting.equalsIgnoreCase(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL)) {
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
@@ -305,6 +314,10 @@ public class AJEntityClass extends Model {
         if (fc != null) {
             this.set(END_DATE, fc.convertField(classEndDate));
         }
+    }
+    
+    public void setClassSettings(JsonObject classSettings) { 
+        this.set(SETTING, FieldConverter.convertFieldToJson(classSettings));
     }
 
     private void setFieldUsingConverter(String fieldName, Object fieldValue) {
