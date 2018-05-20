@@ -169,7 +169,7 @@ class JoinClassByStudentHandler implements DBHandler {
             }
             throw e;
         }
-        AppHelper.publishEventForRescope(context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
+        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
                 EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),
