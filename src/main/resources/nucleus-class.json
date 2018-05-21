@@ -24,7 +24,7 @@
   "rescope.event.publisher.config" : {
     "api.host" : "localhost",
     "api.port" : 8080,
-    "api.endpoint" : "/api/nucleus/v2/classes",
+    "api.endpoint" : "/api/rescope/v1/scope/skipped",
     "http.conn.poolsize" : 20
   }
 }

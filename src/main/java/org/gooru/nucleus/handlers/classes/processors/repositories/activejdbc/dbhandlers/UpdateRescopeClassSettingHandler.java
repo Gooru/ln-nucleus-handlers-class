@@ -113,7 +113,7 @@ class UpdateRescopeClassSettingHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-        AppHelper.publishEventForRescope(context.accessToken(), context.classId(), AJEntityClass.RESCOPE, null);
+        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), context.classId(), AJEntityClass.RESCOPE, null);
         return new ExecutionResult<>(
             MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getUpdateClassRescopeSettingEventBuilder(context.classId(), rescope)),

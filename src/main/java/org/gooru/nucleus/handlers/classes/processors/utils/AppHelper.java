@@ -2,6 +2,7 @@ package org.gooru.nucleus.handlers.classes.processors.utils;
 
 import org.gooru.nucleus.handlers.classes.app.components.AppHttpClient;
 import org.gooru.nucleus.handlers.classes.constants.HttpConstants;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,17 +22,21 @@ public final class AppHelper {
         throw new AssertionError();
     }
 
-    public static void publishEventForRescope(String accessToken, String classId, String source, String studentId) {
-        final String authHeader = TOKEN + accessToken;
-        final JsonObject data = new JsonObject();
-        data.put(CLASS_ID, classId);
-        if (studentId != null) {
-            JsonArray memberIds = new JsonArray();
-            memberIds.add(studentId);
-            data.put(MEMBER_IDS, memberIds);
+    public static void publishEventForRescope(AJEntityClass entityClass, String accessToken, String classId, String source, String studentId) {
+        final String setting = entityClass.getString(AJEntityClass.SETTING);
+        final JsonObject classSettings = setting == null ? null : new JsonObject(setting);
+        if (classSettings != null && classSettings.getBoolean(AJEntityClass.RESCOPE)) {
+            final String authHeader = TOKEN + accessToken;
+            final JsonObject data = new JsonObject();
+            data.put(CLASS_ID, classId);
+            if (studentId != null) {
+                JsonArray memberIds = new JsonArray();
+                memberIds.add(studentId);
+                data.put(MEMBER_IDS, memberIds);
+            }
+            data.put(SOURCE, source);
+            executeHTTPClientPost(data.toString(), authHeader);
         }
-        data.put(SOURCE, source);
-        executeHTTPClientPost(data.toString(), authHeader);
     }
 
     private static void executeHTTPClientPost(String data, String authHeader) {
@@ -45,7 +50,6 @@ public final class AppHelper {
                         data);
                 }
             });
-
             eventRequest.putHeader(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_JSON);
             eventRequest.putHeader(HttpConstants.HEADER_CONTENT_LENGTH, String.valueOf(data.getBytes().length));
             eventRequest.putHeader(HttpConstants.HEADER_AUTH, authHeader);

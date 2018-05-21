@@ -110,7 +110,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-        AppHelper.publishEventForRescope(context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
+       
+        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
         return new ExecutionResult<>(MessageResponseFactory
             .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
