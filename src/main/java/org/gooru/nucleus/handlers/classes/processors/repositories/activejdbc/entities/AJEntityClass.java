@@ -48,6 +48,7 @@ public class AJEntityClass extends Model {
     private static final String TENANT_ROOT = "tenant_root";
     public static final String SETTING = "setting";
     public static final String RESCOPE = "rescope";
+    public static final String ROUTE0 = "route0";
 
     // Dummy field names for Content Visibility
     // TODO this needs to change when going through the setting of content visibility in new model

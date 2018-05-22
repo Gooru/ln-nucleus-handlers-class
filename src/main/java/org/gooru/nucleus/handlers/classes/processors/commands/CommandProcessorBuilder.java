@@ -155,6 +155,12 @@ public enum CommandProcessorBuilder {
         public Processor build(ProcessorContext context) {
             return new ClassUpdateRescopeSettingProcessor(context);
         }
+    },
+    CLASS_UPDATE_ROUTE0_SETTING(MessageConstants.MSG_OP_CLASS_UPDATE_ROUTE0_SETTING) {
+        @Override
+        public Processor build(ProcessorContext context) {
+            return new ClassUpdateRoute0SettingProcessor(context);
+        }
     };
 
     private String name;
