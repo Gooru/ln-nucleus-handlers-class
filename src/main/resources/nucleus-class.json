@@ -17,7 +17,7 @@
     "course.version.for.alternate.visibility": "3.0-nu",
     "date.range.interval": 2,
     "class.setting" : {
-      "rescope" : true,
+      "rescope" : false,
       "route0": false
     }
   },
