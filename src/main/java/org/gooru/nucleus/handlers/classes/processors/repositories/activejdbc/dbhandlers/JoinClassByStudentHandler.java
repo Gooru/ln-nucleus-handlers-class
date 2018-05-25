@@ -14,6 +14,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.generators.Gen
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.gooru.nucleus.handlers.classes.processors.utils.AppHelper;
 import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
 import org.postgresql.util.PSQLException;
@@ -33,7 +34,7 @@ class JoinClassByStudentHandler implements DBHandler {
     private String classId;
     private AJClassMember membership;
     private String email;
-
+    private static final String JOIN_CLASS = "join.class";
     JoinClassByStudentHandler(ProcessorContext context) {
         this.context = context;
     }
@@ -168,6 +169,7 @@ class JoinClassByStudentHandler implements DBHandler {
             }
             throw e;
         }
+        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
                 EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),

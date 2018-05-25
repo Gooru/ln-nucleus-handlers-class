@@ -18,9 +18,10 @@ public final class ProcessorContext {
     private final String studentEmail;
     private final MultiMap requestHeaders;
     private final TenantContext tenantContext;
+    private final String accessToken;
 
     private ProcessorContext(String userId, JsonObject session, JsonObject request, String classId, String courseId,
-        String classCode, String studentId, String studentEmail, MultiMap headers) {
+        String classCode, String studentId, String studentEmail, MultiMap headers, String accessToken) {
         if (session == null || userId == null || session.isEmpty() || headers == null || headers.isEmpty()) {
             throw new IllegalStateException("Processor Context creation failed because of invalid values");
         }
@@ -34,6 +35,7 @@ public final class ProcessorContext {
         this.studentId = studentId;
         this.requestHeaders = headers;
         this.tenantContext = new TenantContext(session);
+        this.accessToken = accessToken;
     }
 
     public String userId() {
@@ -79,6 +81,10 @@ public final class ProcessorContext {
     public String tenantRoot() {
         return this.tenantContext.tenantRoot();
     }
+    
+    public String accessToken() {
+        return this.accessToken;
+    }
 
 
     public static class ProcessorContextBuilder {
@@ -92,6 +98,7 @@ public final class ProcessorContext {
         private String studentEmail;
         private final String classCode;
         private boolean built = false;
+        private String accessToken;
 
         ProcessorContextBuilder(String userId, JsonObject session, JsonObject request, String classId, String classCode,
             MultiMap headers) {
@@ -120,6 +127,11 @@ public final class ProcessorContext {
             this.studentEmail = email;
             return this;
         }
+        
+        ProcessorContextBuilder setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+            return this;
+        }
 
         ProcessorContext build() {
             if (this.built) {
@@ -127,7 +139,7 @@ public final class ProcessorContext {
             } else {
                 this.built = true;
                 return new ProcessorContext(userId, session, request, classId, courseId, classCode, studentId,
-                    studentEmail, requestHeaders);
+                    studentEmail, requestHeaders, accessToken);
             }
         }
     }
