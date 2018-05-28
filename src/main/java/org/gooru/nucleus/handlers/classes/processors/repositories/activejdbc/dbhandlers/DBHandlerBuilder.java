@@ -94,4 +94,8 @@ public final class DBHandlerBuilder {
     public static DBHandler buildUpdateRescopeClassSettingHandler(ProcessorContext context) {
         return new UpdateRescopeClassSettingHandler(context);
     }
+    
+    public static DBHandler buildUpdateRoute0ClassSettingHandler(ProcessorContext context) {
+        return new UpdateRoute0ClassSettingHandler(context);
+    }
 }

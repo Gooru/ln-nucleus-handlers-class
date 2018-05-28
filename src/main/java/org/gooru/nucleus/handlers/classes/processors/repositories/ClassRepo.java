@@ -48,5 +48,7 @@ public interface ClassRepo {
     MessageResponse deleteContentFromClass();
     
     MessageResponse updateRescopeClassSetting();
+    
+    MessageResponse updateRoute0ClassSetting();
 
 }
