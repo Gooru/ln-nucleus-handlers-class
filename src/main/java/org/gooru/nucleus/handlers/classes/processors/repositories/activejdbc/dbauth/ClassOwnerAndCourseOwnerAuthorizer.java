@@ -43,8 +43,7 @@ class ClassOwnerAndCourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
     private ExecutionResult<MessageResponse> checkCourseAuthorization() {
         try {
             long count =
-                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId(),
-                    context.userId());
+                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
             if (count == 1) {
                 return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }

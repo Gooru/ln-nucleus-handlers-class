@@ -30,8 +30,7 @@ class CourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
     public ExecutionResult<MessageResponse> authorize(AJEntityClass model) {
         try {
             long count =
-                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId(),
-                    context.userId());
+                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
             if (count == 1) {
                 return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }
