@@ -21,7 +21,7 @@ public class AJEntityCourse extends Model {
             + " AND (owner_id = ?::uuid OR collaborator ?? ?)";
     public static final String COURSE_VERSION_FETCH_QUERY =
         "select version from course where id = ?::uuid and " + "is_deleted = false";
-    public static final String COURSE_ASSOCIATION_FILTER = "id = ?::uuid and is_deleted = false and owner_id = ?::uuid";
+    public static final String COURSE_ASSOCIATION_FILTER = "id = ?::uuid and is_deleted = false";
 
     public static final String SELECT_COURSE_TITLE_VERSION =
         "SELECT id, title, version FROM course where id = ANY(?::uuid[]) AND is_deleted = false";
