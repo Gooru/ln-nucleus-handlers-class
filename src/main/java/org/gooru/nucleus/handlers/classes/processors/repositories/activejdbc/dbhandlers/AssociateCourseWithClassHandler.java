@@ -30,6 +30,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private AJEntityClass entityClass;
+    private String courseVersion;
     private static final String  ASSIGN_COURSE_TO_CLASS = "assign.course.to.class";
     AssociateCourseWithClassHandler(ProcessorContext context) {
         this.context = context;
@@ -97,6 +98,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
         // Set the modifier id and course id
         this.entityClass.setModifierId(this.context.userId());
         this.entityClass.setCourseId(this.context.courseId());
+        this.courseVersion = getCourseVersion();
         setContentVisibilityBasedOnCourse();
 
         boolean result = this.entityClass.save();
@@ -111,7 +113,15 @@ class AssociateCourseWithClassHandler implements DBHandler {
             }
         }
        
-        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
+        if (this.courseVersion != null && this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM)) {
+            final String settings = this.entityClass.getString(AJEntityClass.SETTING);
+            final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
+            final JsonObject courseSettings = new JsonObject();
+            courseSettings.put(AJEntityClass.PREMIUM, true);
+            classSettings.put(AJEntityClass.COURSE, courseSettings);
+            this.entityClass.setClassSettings(classSettings);
+            AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
+        }
         return new ExecutionResult<>(MessageResponseFactory
             .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
@@ -128,14 +138,17 @@ class AssociateCourseWithClassHandler implements DBHandler {
         if (alternateCourseVersion == null) {
             LOGGER.error("Not able to obtain alternateCourseVersion from application configuration");
         }
-        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
-        String version = versionObject == null ? null : String.valueOf(versionObject);
-
-        if (Objects.equals(alternateCourseVersion, version)) {
+        
+        if (Objects.equals(alternateCourseVersion, this.courseVersion)) {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultAlternateContentVisibility());
         } else {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultContentVisibility());
         }
+    }
+
+    private String getCourseVersion() {
+        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
+        return versionObject == null ? null : String.valueOf(versionObject);
     }
 
 }

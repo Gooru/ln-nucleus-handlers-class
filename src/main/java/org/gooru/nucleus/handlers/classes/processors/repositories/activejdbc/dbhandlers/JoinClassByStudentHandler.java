@@ -9,12 +9,14 @@ import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.generators.GeneratorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.gooru.nucleus.handlers.classes.processors.utils.AppHelper;
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
 import org.postgresql.util.PSQLException;
@@ -32,6 +34,7 @@ class JoinClassByStudentHandler implements DBHandler {
     private final ProcessorContext context;
     private AJEntityClass entityClass;
     private String classId;
+    private String courseId;
     private AJClassMember membership;
     private String email;
     private static final String JOIN_CLASS = "join.class";
@@ -87,6 +90,7 @@ class JoinClassByStudentHandler implements DBHandler {
         }
         this.entityClass = classes.get(0);
         this.classId = this.entityClass.getId().toString();
+        this.courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
             LOGGER.warn("Class with code '{}' is either archived or not of current version", classCode);
@@ -169,7 +173,7 @@ class JoinClassByStudentHandler implements DBHandler {
             }
             throw e;
         }
-        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
+        if (this.courseId != null && isAssignedCoursePremium()) AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
                 EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),
@@ -204,5 +208,11 @@ class JoinClassByStudentHandler implements DBHandler {
             userEmail = GeneratorBuilder.buildDummyEmailGenerator(this.context.userId()).generate();
         }
         return userEmail;
+    }
+    
+    private boolean isAssignedCoursePremium() {
+        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.courseId);
+        String version = versionObject == null ? null : String.valueOf(versionObject);
+        return (version != null && version.equalsIgnoreCase(AJEntityCourse.PREMIUM));
     }
 }
