@@ -116,9 +116,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
         if (this.courseVersion != null && this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM)) {
             final String settings = this.entityClass.getString(AJEntityClass.SETTING);
             final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
-            final JsonObject courseSettings = new JsonObject();
-            courseSettings.put(AJEntityClass.PREMIUM, true);
-            classSettings.put(AJEntityClass.COURSE, courseSettings);
+            classSettings.put(AJEntityCourse.COURSE_PREMIUM, true);
             this.entityClass.setClassSettings(classSettings);
             AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
         }

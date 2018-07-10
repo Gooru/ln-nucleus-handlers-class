@@ -16,7 +16,8 @@ public class AJEntityCourse extends Model {
     public static final String COURSE_TITLE = "course_title";
     public static final String COURSE_VERSION = "course_version";
     public static final String PREMIUM = "premium";
-
+    public static final String COURSE_PREMIUM = "course.premium";
+    
     public static final String SELECT_COURSE_TO_AUTHORIZE =
         "SELECT id, owner_id, collaborator, tenant, tenant_root FROM course WHERE id = ?::uuid AND is_deleted = false"
             + " AND (owner_id = ?::uuid OR collaborator ?? ?)";
