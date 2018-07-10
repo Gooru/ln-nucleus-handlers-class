@@ -17,7 +17,7 @@ public final class AuthorizerBuilder {
     }
 
     public static Authorizer<AJEntityClass> buildAssociateCourseWithClassAuthorizer(ProcessorContext context) {
-        return new ClassOwnerAndCourseOwnerAuthorizer(context);
+        return new AssociateCourseWithClassAuthorizer(context);
     }
 
     public static Authorizer<AJEntityClass> buildDeleteAuthorizer(ProcessorContext context) {
