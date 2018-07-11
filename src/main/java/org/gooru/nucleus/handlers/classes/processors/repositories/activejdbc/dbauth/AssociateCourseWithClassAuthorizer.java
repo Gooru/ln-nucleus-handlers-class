@@ -21,7 +21,6 @@ class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AssociateCourseWithClassAuthorizer.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
-    private AJEntityClass entityClass;
 
     AssociateCourseWithClassAuthorizer(ProcessorContext context) {
         this.context = context;
@@ -29,7 +28,6 @@ class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
 
     @Override
     public ExecutionResult<MessageResponse> authorize(AJEntityClass model) {
-        this.entityClass = model;
         // Check user's ownership of class
         String creatorId = model.getString(AJEntityClass.CREATOR_ID);
         if (creatorId == null || creatorId.isEmpty() || !creatorId.equalsIgnoreCase(context.userId())) {
@@ -48,15 +46,20 @@ class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
             AJEntityCourse course =
                 AJEntityCourse.findFirst(AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
             if (course != null) {
-                if (Objects.equals(this.entityClass.getTenant(), course.getTenant())) {
+                if (Objects.equals(context.tenant(), course.getTenant()))
                     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
-                }
 
                 final AJEntityTenant courseTenant =
                     AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, course.getTenant());
-                if (courseTenant.isContentVisibilityGlobal())
+                if (courseTenant != null && ((courseTenant.isContentVisibilityTenant()
+                    && Objects.equals(context.tenantRoot(), course.getTenant()))
+                    || courseTenant.isContentVisibilityGlobal()))
                     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }
+            return new ExecutionResult<>(
+                MessageResponseFactory.createInvalidRequestResponse(
+                    RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
+                ExecutionResult.ExecutionStatus.FAILED);
         } catch (DBException e) {
             LOGGER.error("Error querying course '{}' availability for associating in class '{}'", context.courseId(),
                 context.classId(), e);
@@ -64,9 +67,5 @@ class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
                 MessageResponseFactory.createInternalErrorResponse(RESOURCE_BUNDLE.getString("error.from.store")),
                 ExecutionResult.ExecutionStatus.FAILED);
         }
-        return new ExecutionResult<>(
-            MessageResponseFactory.createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
-            ExecutionResult.ExecutionStatus.FAILED);
     }
 }

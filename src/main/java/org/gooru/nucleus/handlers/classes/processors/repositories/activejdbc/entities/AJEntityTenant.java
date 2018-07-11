@@ -14,6 +14,8 @@ public class AJEntityTenant extends Model {
     
     private static final String CONTENT_VISIBILITY_GLOBAL = "global";
 
+    private static final String CONTENT_VISIBILITY_TENANT = "tenant";
+
     public String getContentVisibility() {
         return this.getString(CONTENT_VISIBILITY);
     }
@@ -22,4 +24,7 @@ public class AJEntityTenant extends Model {
         return Objects.equals(this.getString(CONTENT_VISIBILITY), CONTENT_VISIBILITY_GLOBAL);
     }
 
+    public boolean isContentVisibilityTenant() {
+        return Objects.equals(this.getString(CONTENT_VISIBILITY), CONTENT_VISIBILITY_TENANT);
+    }
 }
