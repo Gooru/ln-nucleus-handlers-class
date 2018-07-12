@@ -47,8 +47,8 @@ public class AJEntityClass extends Model {
     private static final String TENANT = "tenant";
     private static final String TENANT_ROOT = "tenant_root";
     public static final String SETTING = "setting";
-    public static final String RESCOPE = "rescope";
-    public static final String ROUTE0 = "route0";
+    public static final String COURSE_PREMIUM = "course.premium";
+
 
     // Dummy field names for Content Visibility
     // TODO this needs to change when going through the setting of content visibility in new model
@@ -232,7 +232,7 @@ public class AJEntityClass extends Model {
         String contentVisibilitySetting = this.getString(CONTENT_VISIBILITY);
         final String setting = this.getString(SETTING);
         final JsonObject classSetting =  setting != null ? new JsonObject(this.getString(SETTING)) : null; 
-        if (classSetting != null && classSetting.getBoolean(RESCOPE)) { 
+        if (classSetting != null && classSetting.getBoolean(COURSE_PREMIUM)) { 
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
         } else if (contentVisibilitySetting == null) {
             return DEFAULT_CONTENT_VISIBILITY;

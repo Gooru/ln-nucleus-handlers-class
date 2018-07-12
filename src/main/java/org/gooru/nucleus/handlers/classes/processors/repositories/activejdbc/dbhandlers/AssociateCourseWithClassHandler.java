@@ -112,14 +112,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-       
-        if (this.courseVersion != null && this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM)) {
-            final String settings = this.entityClass.getString(AJEntityClass.SETTING);
-            final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
-            classSettings.put(AJEntityCourse.COURSE_PREMIUM, true);
-            this.entityClass.setClassSettings(classSettings);
-            AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
-        }
+        setClassSettingsBasedOnCourse();
+        AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
         return new ExecutionResult<>(MessageResponseFactory
             .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
@@ -136,14 +130,24 @@ class AssociateCourseWithClassHandler implements DBHandler {
         if (alternateCourseVersion == null) {
             LOGGER.error("Not able to obtain alternateCourseVersion from application configuration");
         }
-        
-        if (Objects.equals(alternateCourseVersion, this.courseVersion)) {
+        if (Objects.equals(alternateCourseVersion, this.courseVersion) || this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM)) {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultAlternateContentVisibility());
         } else {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultContentVisibility());
         }
     }
 
+    // Set if premium course else reset class settings when user deletes premium course and assigns a non-premium course to class.
+    private void setClassSettingsBasedOnCourse() {
+        final String settings = this.entityClass.getString(AJEntityClass.SETTING);
+        final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
+        boolean premiumCourse = false;
+        if (this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM))
+            premiumCourse = true;
+        classSettings.put(AJEntityClass.COURSE_PREMIUM, premiumCourse);
+        this.entityClass.setClassSettings(classSettings);
+    }
+    
     private String getCourseVersion() {
         final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
         return versionObject == null ? null : String.valueOf(versionObject);

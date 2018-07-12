@@ -9,14 +9,12 @@ import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.generators.GeneratorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.gooru.nucleus.handlers.classes.processors.utils.AppHelper;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
 import org.postgresql.util.PSQLException;
@@ -173,7 +171,7 @@ class JoinClassByStudentHandler implements DBHandler {
             }
             throw e;
         }
-        if (this.courseId != null && isAssignedCoursePremium()) AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
+        if (this.courseId != null) AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
                 EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),
@@ -209,10 +207,5 @@ class JoinClassByStudentHandler implements DBHandler {
         }
         return userEmail;
     }
-    
-    private boolean isAssignedCoursePremium() {
-        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.courseId);
-        String version = versionObject == null ? null : String.valueOf(versionObject);
-        return (version != null && version.equalsIgnoreCase(AJEntityCourse.PREMIUM));
-    }
+
 }

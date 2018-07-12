@@ -21,10 +21,11 @@
       "route0": false
     }
   },
-  "rescope.event.publisher.config" : {
+  "event.publisher.config" : {
     "api.host" : "localhost",
     "api.port" : 8080,
-    "api.endpoint" : "/api/rescope/v1/scope/skipped",
+    "rescope.api.endpoint" : "/api/rescope/v1/scope/skipped",
+    "route0.api.endpoint" : "/api/route0/v1/rtd",
     "http.conn.poolsize" : 20
   }
 }
