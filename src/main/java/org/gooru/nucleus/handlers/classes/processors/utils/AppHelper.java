@@ -42,7 +42,7 @@ public final class AppHelper {
     
     private static void postRescopeEvent(String data, String authHeader) {
             AppHttpClient httpClient = AppHttpClient.getInstance();
-            String endPoint = httpClient.route0Endpoint();
+            String endPoint = httpClient.rescopeEndpoint();
             executeHTTPClientPost(data, authHeader, httpClient, endPoint);
     }
     
