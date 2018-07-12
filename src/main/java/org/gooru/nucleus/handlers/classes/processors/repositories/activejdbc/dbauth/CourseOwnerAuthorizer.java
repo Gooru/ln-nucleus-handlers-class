@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 class CourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassOwnerAndCourseOwnerAuthorizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssociateCourseWithClassAuthorizer.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
 

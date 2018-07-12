@@ -1,14 +1,15 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTenant;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +17,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ashish on 8/2/16.
  */
-class ClassOwnerAndCourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassOwnerAndCourseOwnerAuthorizer.class);
+class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssociateCourseWithClassAuthorizer.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
 
-    ClassOwnerAndCourseOwnerAuthorizer(ProcessorContext context) {
+    AssociateCourseWithClassAuthorizer(ProcessorContext context) {
         this.context = context;
     }
 
@@ -42,13 +43,22 @@ class ClassOwnerAndCourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
 
     private ExecutionResult<MessageResponse> checkCourseAuthorization() {
         try {
-            long count =
-                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
-            if (count == 1) {
-                return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+            AJEntityCourse course =
+                AJEntityCourse.findFirst(AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
+            if (course != null) {
+                if (Objects.equals(context.tenant(), course.getTenant()))
+                    return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
+
+                final AJEntityTenant courseTenant =
+                    AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, course.getTenant());
+                if (courseTenant != null && ((courseTenant.isContentVisibilityTenant()
+                    && Objects.equals(context.tenantRoot(), course.getTenant()))
+                    || courseTenant.isContentVisibilityGlobal()))
+                    return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }
-            return new ExecutionResult<>(MessageResponseFactory
-                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
+            return new ExecutionResult<>(
+                MessageResponseFactory.createInvalidRequestResponse(
+                    RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
                 ExecutionResult.ExecutionStatus.FAILED);
         } catch (DBException e) {
             LOGGER.error("Error querying course '{}' availability for associating in class '{}'", context.courseId(),
