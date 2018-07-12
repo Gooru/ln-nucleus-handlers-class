@@ -15,11 +15,7 @@
     "limit.default": 20,
     "limit.max": 50,
     "course.version.for.alternate.visibility": "3.0-nu",
-    "date.range.interval": 2,
-    "class.setting" : {
-      "rescope" : false,
-      "route0": false
-    }
+    "date.range.interval": 2
   },
   "event.publisher.config" : {
     "api.host" : "localhost",
