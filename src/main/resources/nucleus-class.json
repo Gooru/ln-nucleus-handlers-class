@@ -15,6 +15,7 @@
     "limit.default": 20,
     "limit.max": 50,
     "course.version.for.alternate.visibility": "3.0-nu",
+    "course.version.for.premium.content": "premium",
     "date.range.interval": 2
   },
   "event.publisher.config" : {

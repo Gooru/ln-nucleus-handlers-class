@@ -127,10 +127,11 @@ class AssociateCourseWithClassHandler implements DBHandler {
 
     private void setContentVisibilityBasedOnCourse() {
         String alternateCourseVersion = AppConfiguration.getInstance().getCourseVersionForAlternateVisibility();
+        String premiumCourseVersion = AppConfiguration.getInstance().getCourseVersionForPremiumContent();
         if (alternateCourseVersion == null) {
             LOGGER.error("Not able to obtain alternateCourseVersion from application configuration");
         }
-        if (Objects.equals(alternateCourseVersion, this.courseVersion) || this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM)) {
+        if (Objects.equals(alternateCourseVersion, this.courseVersion) || Objects.equals(premiumCourseVersion, this.courseVersion)) {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultAlternateContentVisibility());
         } else {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultContentVisibility());
@@ -142,7 +143,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
         final String settings = this.entityClass.getString(AJEntityClass.SETTING);
         final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
         boolean premiumCourse = false;
-        if (this.courseVersion.equalsIgnoreCase(AJEntityCourse.PREMIUM))
+        if (Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(), this.courseVersion))
             premiumCourse = true;
         classSettings.put(AJEntityClass.COURSE_PREMIUM, premiumCourse);
         this.entityClass.setClassSettings(classSettings);
