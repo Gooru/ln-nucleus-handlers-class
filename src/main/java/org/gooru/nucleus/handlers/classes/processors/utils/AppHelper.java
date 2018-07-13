@@ -25,7 +25,7 @@ public final class AppHelper {
     public static void publishEventForRescopeAndRoute0(AJEntityClass entityClass, String accessToken, String classId, String source, String studentId) {
         final String setting = entityClass.getString(AJEntityClass.SETTING);
         final JsonObject classSettings = setting == null ? null : new JsonObject(setting);
-        if (classSettings != null && classSettings.getBoolean(AJEntityClass.COURSE_PREMIUM)) {
+        if (classSettings != null && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM) && classSettings.getBoolean(AJEntityClass.COURSE_PREMIUM)) {
             final String authHeader = TOKEN + accessToken;
             final JsonObject data = new JsonObject();
             data.put(CLASS_ID, classId);

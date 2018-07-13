@@ -100,6 +100,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
         this.entityClass.setCourseId(this.context.courseId());
         this.courseVersion = getCourseVersion();
         setContentVisibilityBasedOnCourse();
+        setClassSettingsBasedOnCourse();
 
         boolean result = this.entityClass.save();
         if (!result) {
@@ -112,7 +113,6 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-        setClassSettingsBasedOnCourse();
         AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
         return new ExecutionResult<>(MessageResponseFactory
             .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
