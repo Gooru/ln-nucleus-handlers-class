@@ -116,13 +116,4 @@ class AJClassRepo implements ClassRepo {
         return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildDeleteClassContentHandler(context));
     }
 
-    @Override
-    public MessageResponse updateRescopeClassSetting() {
-        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildUpdateRescopeClassSettingHandler(context));
-    }
-    
-    @Override
-    public MessageResponse updateRoute0ClassSetting() {
-        return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildUpdateRoute0ClassSettingHandler(context));
-    }
 }

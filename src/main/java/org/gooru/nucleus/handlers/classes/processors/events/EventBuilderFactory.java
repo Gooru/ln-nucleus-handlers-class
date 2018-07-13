@@ -37,11 +37,7 @@ public final class EventBuilderFactory {
     private static final String CTX_LESSON_ID = "ctx_lesson_id";
     private static final String CTX_COLLECTION_ID = "ctx_collection_id";
     private static final String ID_CLASS = "class_id";
-    private static final String RESCOPE = "rescope";
-    private static final String ROUTE0 = "route0";
-    private static final String EVT_CLASS_UPDATE_RESCOPE_SETTING = "event.class.update.rescope.setting";
-    private static final String EVT_CLASS_UPDATE_ROUTE_SETTING = "event.class.update.route0.setting";
-
+    
     private EventBuilderFactory() {
         throw new AssertionError();
     }
@@ -120,16 +116,6 @@ public final class EventBuilderFactory {
             .put(EVENT_BODY, new JsonObject().put(CLASS_CONTENT_ID, id).put(ID_CLASS, classId)
             .put(CONTENT_ID, contentId).put(CONTENT_TYPE, contentType).put(CTX_COURSE_ID, ctxCourseId)
             .put(CTX_UNIT_ID, ctxUnitId).put(CTX_LESSON_ID, ctxLessonId).put(CTX_COLLECTION_ID, ctxCollectionId));
-    }
-    
-    public static EventBuilder getUpdateClassRescopeSettingEventBuilder(String classId, boolean rescope) {
-        return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_UPDATE_RESCOPE_SETTING).put(EVENT_BODY,
-            new JsonObject().put(CLASS_ID, classId).put(RESCOPE, rescope));
-    }
-    
-    public static EventBuilder getUpdateClassRoute0SettingEventBuilder(String classId, boolean route0) {
-        return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_UPDATE_ROUTE_SETTING).put(EVENT_BODY,
-            new JsonObject().put(CLASS_ID, classId).put(ROUTE0, route0));
     }
 
 }

@@ -15,16 +15,14 @@
     "limit.default": 20,
     "limit.max": 50,
     "course.version.for.alternate.visibility": "3.0-nu",
-    "date.range.interval": 2,
-    "class.setting" : {
-      "rescope" : false,
-      "route0": false
-    }
+    "course.version.for.premium.content": "premium",
+    "date.range.interval": 2
   },
-  "rescope.event.publisher.config" : {
+  "event.publisher.config" : {
     "api.host" : "localhost",
     "api.port" : 8080,
-    "api.endpoint" : "/api/rescope/v1/scope/skipped",
+    "rescope.api.endpoint" : "/api/rescope/v1/scope/skipped",
+    "route0.api.endpoint" : "/api/route0/v1/rtd",
     "http.conn.poolsize" : 20
   }
 }
