@@ -232,7 +232,7 @@ public class AJEntityClass extends Model {
         String contentVisibilitySetting = this.getString(CONTENT_VISIBILITY);
         final String setting = this.getString(SETTING);
         final JsonObject classSetting =  setting != null ? new JsonObject(this.getString(SETTING)) : null; 
-        if (classSetting != null && classSetting.getBoolean(COURSE_PREMIUM)) { 
+        if (classSetting != null && classSetting.containsKey(COURSE_PREMIUM) && classSetting.getBoolean(COURSE_PREMIUM)) { 
             return AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
         } else if (contentVisibilitySetting == null) {
             return DEFAULT_CONTENT_VISIBILITY;
