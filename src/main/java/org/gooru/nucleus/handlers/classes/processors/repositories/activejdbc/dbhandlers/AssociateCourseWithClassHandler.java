@@ -141,11 +141,14 @@ class AssociateCourseWithClassHandler implements DBHandler {
     // Set if premium course else reset class settings when user deletes premium course and assigns a non-premium course to class.
     private void setClassSettingsBasedOnCourse() {
         final String settings = this.entityClass.getString(AJEntityClass.SETTING);
-        final JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
-        boolean premiumCourse = false;
-        if (Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(), this.courseVersion))
-            premiumCourse = true;
-        classSettings.put(AJEntityClass.COURSE_PREMIUM, premiumCourse);
+        JsonObject classSettings = settings != null ? new JsonObject(settings) : null;
+        if (Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(), this.courseVersion)) {
+            if (classSettings == null) classSettings = new JsonObject();
+            classSettings.put(AJEntityClass.COURSE_PREMIUM, true);
+        } else if (classSettings != null && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)) {
+            classSettings.remove(AJEntityClass.COURSE_PREMIUM);
+            if (classSettings.isEmpty()) classSettings = null;
+        }
         this.entityClass.setClassSettings(classSettings);
     }
     
