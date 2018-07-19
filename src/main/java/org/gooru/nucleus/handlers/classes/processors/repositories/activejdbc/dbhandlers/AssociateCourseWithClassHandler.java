@@ -30,6 +30,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
     private AJEntityClass entityClass;
+    private String courseVersion;
     private static final String  ASSIGN_COURSE_TO_CLASS = "assign.course.to.class";
     AssociateCourseWithClassHandler(ProcessorContext context) {
         this.context = context;
@@ -97,7 +98,9 @@ class AssociateCourseWithClassHandler implements DBHandler {
         // Set the modifier id and course id
         this.entityClass.setModifierId(this.context.userId());
         this.entityClass.setCourseId(this.context.courseId());
+        this.courseVersion = getCourseVersion();
         setContentVisibilityBasedOnCourse();
+        setClassSettingsBasedOnCourse();
 
         boolean result = this.entityClass.save();
         if (!result) {
@@ -110,8 +113,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
-       
-        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
+        AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
         return new ExecutionResult<>(MessageResponseFactory
             .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
@@ -125,17 +127,34 @@ class AssociateCourseWithClassHandler implements DBHandler {
 
     private void setContentVisibilityBasedOnCourse() {
         String alternateCourseVersion = AppConfiguration.getInstance().getCourseVersionForAlternateVisibility();
+        String premiumCourseVersion = AppConfiguration.getInstance().getCourseVersionForPremiumContent();
         if (alternateCourseVersion == null) {
             LOGGER.error("Not able to obtain alternateCourseVersion from application configuration");
         }
-        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
-        String version = versionObject == null ? null : String.valueOf(versionObject);
-
-        if (Objects.equals(alternateCourseVersion, version)) {
+        if (Objects.equals(alternateCourseVersion, this.courseVersion) || Objects.equals(premiumCourseVersion, this.courseVersion)) {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultAlternateContentVisibility());
         } else {
             this.entityClass.setContentVisibility(this.entityClass.getDefaultContentVisibility());
         }
+    }
+
+    // Set if premium course else reset class settings when user deletes premium course and assigns a non-premium course to class.
+    private void setClassSettingsBasedOnCourse() {
+        final String settings = this.entityClass.getString(AJEntityClass.SETTING);
+        JsonObject classSettings = settings != null ? new JsonObject(settings) : null;
+        if (Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(), this.courseVersion)) {
+            if (classSettings == null) classSettings = new JsonObject();
+            classSettings.put(AJEntityClass.COURSE_PREMIUM, true);
+        } else if (classSettings != null && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)) {
+            classSettings.remove(AJEntityClass.COURSE_PREMIUM);
+            if (classSettings.isEmpty()) classSettings = null;
+        }
+        this.entityClass.setClassSettings(classSettings);
+    }
+    
+    private String getCourseVersion() {
+        final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
+        return versionObject == null ? null : String.valueOf(versionObject);
     }
 
 }

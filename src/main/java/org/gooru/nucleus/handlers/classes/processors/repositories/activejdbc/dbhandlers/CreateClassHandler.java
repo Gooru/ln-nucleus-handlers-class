@@ -9,7 +9,6 @@ import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTenantSetting;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.generators.Generator;
@@ -119,19 +118,6 @@ class CreateClassHandler implements DBHandler {
             .build(this.entityClass, this.context.request(), AJEntityClass.getConverterRegistry());
         // Populate default values in case not hydrated properly
         this.entityClass.adjustEndDate(AppConfiguration.getInstance().getClassEndDate());
-        
-        // Populate default values for class setting
-        JsonObject classSetting = null; 
-        final AJEntityTenantSetting tenantSetting = AJEntityTenantSetting.findFirst(AJEntityTenantSetting.TENANT_CLASS_SETTING, context.tenant());
-        if (tenantSetting != null) { 
-            classSetting = new JsonObject(tenantSetting.getString(AJEntityTenantSetting.VALUE));         
-        } else { 
-            classSetting = AppConfiguration.getInstance().getClassSetting();
-        }
-        this.entityClass.setClassSettings(classSetting);
-        if (classSetting != null && classSetting.getBoolean(AJEntityClass.RESCOPE)) { 
-            this.entityClass.setContentVisibility(AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_ALL);
-        }
         
     }
 

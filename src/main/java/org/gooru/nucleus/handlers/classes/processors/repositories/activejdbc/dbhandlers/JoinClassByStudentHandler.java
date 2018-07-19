@@ -32,6 +32,7 @@ class JoinClassByStudentHandler implements DBHandler {
     private final ProcessorContext context;
     private AJEntityClass entityClass;
     private String classId;
+    private String courseId;
     private AJClassMember membership;
     private String email;
     private static final String JOIN_CLASS = "join.class";
@@ -87,6 +88,7 @@ class JoinClassByStudentHandler implements DBHandler {
         }
         this.entityClass = classes.get(0);
         this.classId = this.entityClass.getId().toString();
+        this.courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
         // Class should be of current version and Class should not be archived
         if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
             LOGGER.warn("Class with code '{}' is either archived or not of current version", classCode);
@@ -169,7 +171,7 @@ class JoinClassByStudentHandler implements DBHandler {
             }
             throw e;
         }
-        AppHelper.publishEventForRescope(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
+        if (this.courseId != null) AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
                 EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),
@@ -205,4 +207,5 @@ class JoinClassByStudentHandler implements DBHandler {
         }
         return userEmail;
     }
+
 }

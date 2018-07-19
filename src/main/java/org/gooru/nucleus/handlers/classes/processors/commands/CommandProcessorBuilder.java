@@ -149,12 +149,6 @@ public enum CommandProcessorBuilder {
         public Processor build(ProcessorContext context) {
             return new ClassContentDeleteProcessor(context);
         }
-    }, 
-    CLASS_UPDATE_RESCOPE_SETTING(MessageConstants.MSG_OP_CLASS_UPDATE_RESCOPE_SETTING) {
-        @Override
-        public Processor build(ProcessorContext context) {
-            return new ClassUpdateRescopeSettingProcessor(context);
-        }
     };
 
     private String name;

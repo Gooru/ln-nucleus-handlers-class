@@ -22,10 +22,10 @@ public final class AppHelper {
         throw new AssertionError();
     }
 
-    public static void publishEventForRescope(AJEntityClass entityClass, String accessToken, String classId, String source, String studentId) {
+    public static void publishEventForRescopeAndRoute0(AJEntityClass entityClass, String accessToken, String classId, String source, String studentId) {
         final String setting = entityClass.getString(AJEntityClass.SETTING);
         final JsonObject classSettings = setting == null ? null : new JsonObject(setting);
-        if (classSettings != null && classSettings.getBoolean(AJEntityClass.RESCOPE)) {
+        if (classSettings != null && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM) && classSettings.getBoolean(AJEntityClass.COURSE_PREMIUM)) {
             final String authHeader = TOKEN + accessToken;
             final JsonObject data = new JsonObject();
             data.put(CLASS_ID, classId);
@@ -35,14 +35,26 @@ public final class AppHelper {
                 data.put(MEMBER_IDS, memberIds);
             }
             data.put(SOURCE, source);
-            executeHTTPClientPost(data.toString(), authHeader);
+            postRescopeEvent(data.toString(), authHeader);
+            postRoute0Event(data.toString(), authHeader);
         }
     }
-
-    private static void executeHTTPClientPost(String data, String authHeader) {
-        try {
+    
+    private static void postRescopeEvent(String data, String authHeader) {
             AppHttpClient httpClient = AppHttpClient.getInstance();
-            HttpClientRequest eventRequest = httpClient.getHttpClient().post(httpClient.endpoint(), responseHandler -> {
+            String endPoint = httpClient.rescopeEndpoint();
+            executeHTTPClientPost(data, authHeader, httpClient, endPoint);
+    }
+    
+    private static void postRoute0Event(String data, String authHeader) {
+            AppHttpClient httpClient = AppHttpClient.getInstance();
+            String endPoint = httpClient.route0Endpoint();
+            executeHTTPClientPost(data, authHeader, httpClient, endPoint);
+    }
+
+    private static void executeHTTPClientPost(String data, String authHeader, AppHttpClient httpClient, String endPoint) {
+        try {
+            HttpClientRequest eventRequest = httpClient.getHttpClient().post(endPoint, responseHandler -> {
                 if (responseHandler.statusCode() == HttpConstants.HttpStatus.SUCCESS.getCode()) {
                     LOGGER.info("event posted successfully");
                 } else {

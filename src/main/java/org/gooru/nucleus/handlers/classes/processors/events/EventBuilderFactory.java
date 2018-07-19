@@ -37,8 +37,7 @@ public final class EventBuilderFactory {
     private static final String CTX_LESSON_ID = "ctx_lesson_id";
     private static final String CTX_COLLECTION_ID = "ctx_collection_id";
     private static final String ID_CLASS = "class_id";
-    private static final String RESCOPE = "rescope";
-
+    
     private EventBuilderFactory() {
         throw new AssertionError();
     }
@@ -117,11 +116,6 @@ public final class EventBuilderFactory {
             .put(EVENT_BODY, new JsonObject().put(CLASS_CONTENT_ID, id).put(ID_CLASS, classId)
             .put(CONTENT_ID, contentId).put(CONTENT_TYPE, contentType).put(CTX_COURSE_ID, ctxCourseId)
             .put(CTX_UNIT_ID, ctxUnitId).put(CTX_LESSON_ID, ctxLessonId).put(CTX_COLLECTION_ID, ctxCollectionId));
-    }
-    
-    public static EventBuilder getUpdateClassRescopeSettingEventBuilder(String classId, boolean rescope) {
-        return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_UPDATE).put(EVENT_BODY,
-            new JsonObject().put(CLASS_ID, classId).put(RESCOPE, rescope));
     }
 
 }

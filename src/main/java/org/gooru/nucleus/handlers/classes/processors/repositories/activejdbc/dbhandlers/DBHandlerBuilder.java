@@ -90,8 +90,5 @@ public final class DBHandlerBuilder {
     public static DBHandler buildDeleteClassContentHandler(ProcessorContext context) {
         return new DeleteClassContentHandler(context);
     }
-    
-    public static DBHandler buildUpdateRescopeClassSettingHandler(ProcessorContext context) {
-        return new UpdateRescopeClassSettingHandler(context);
-    }
+
 }

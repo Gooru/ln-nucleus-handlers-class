@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 class CourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassOwnerAndCourseOwnerAuthorizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssociateCourseWithClassAuthorizer.class);
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
     private final ProcessorContext context;
 
@@ -30,8 +30,7 @@ class CourseOwnerAuthorizer implements Authorizer<AJEntityClass> {
     public ExecutionResult<MessageResponse> authorize(AJEntityClass model) {
         try {
             long count =
-                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId(),
-                    context.userId());
+                Base.count(AJEntityCourse.TABLE_COURSE, AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
             if (count == 1) {
                 return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
             }
