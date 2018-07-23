@@ -47,8 +47,8 @@ public final class AppHelper {
         String courseId, List<String> memberIds) {
         final String setting = entityClass.getString(AJEntityClass.SETTING);
         final JsonObject classSettings = setting == null ? null : new JsonObject(setting);
-        if (classSettings != null && !(classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)
-            && classSettings.getBoolean(AJEntityClass.COURSE_PREMIUM))) {
+        if (classSettings == null || (classSettings != null && !(classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)
+            && classSettings.getBoolean(AJEntityClass.COURSE_PREMIUM)))) {
             final String authHeader = TOKEN + accessToken;
             memberIds.forEach(memberId -> {
                 AppHttpClient httpClient = AppHttpClient.getInstance();
