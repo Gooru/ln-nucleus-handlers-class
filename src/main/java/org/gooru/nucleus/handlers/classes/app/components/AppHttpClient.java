@@ -20,21 +20,21 @@ public final class AppHttpClient implements Initializer, Finalizer {
 
     private HttpClient httpClient;
 
-    private static final String KEY_RESCOPE_ENDPOINT = "rescope.api.endpoint";
-    private static final String KEY_ROUTE0_ENDPOINT = "route0.api.endpoint";
-    private static final String KEY_HOST = "api.host";
-    private static final String KEY_PORT = "api.port";
+    private static final String KEY_RESCOPE_URI = "rescope.uri";
+    private static final String KEY_ROUTE0_URI = "route0.uri";
+    private static final String KEY_LP_BASELINE_URI = "lpbaseline.uri";
     private static final String KEY_MAX_POOLSIZE = "http.conn.poolsize";
-    private static final String KEY_EVENT_CONFIG = "event.publisher.config";
+    private static final String KEY_HTTP_TIMEOUT = "http.conn.timeout";
+    private static final String KEY_EVENT_CONFIG = "rescope.event.publisher.config";
 
-    private static final int DEFAULT_PORT = 8080;
     private static final int DEFAULT_POOLSIZE = 20;
+    private static final int DEFAULT_TIMEOUT = 60000;
 
-    private String host;
-    private int port;
-    private String rescopeEndpoint;
-    private String route0Endpoint;
+    private String rescopeUri;
+    private String route0Uri;
+    private String lpbaselineUri;
     private int maxPoolsize;
+    private int timeout;
 
     private AppHttpClient() {
     }
@@ -57,28 +57,26 @@ public final class AppHttpClient implements Initializer, Finalizer {
                         throw new AssertionError(RESOURCE_BUNDLE.getString("event.config.not.found"));
                     }
 
-                    this.host = eventConfig.getString(KEY_HOST);
-                    if (this.host == null || this.host.isEmpty()) {
-                        LOGGER.warn(RESOURCE_BUNDLE.getString("api.host.missing"));
-                        throw new AssertionError(RESOURCE_BUNDLE.getString("api.host.missing"));
-                    }
-
-                    this.port = eventConfig.getInteger(KEY_PORT, DEFAULT_PORT);
                     this.maxPoolsize = eventConfig.getInteger(KEY_MAX_POOLSIZE, DEFAULT_POOLSIZE);
+                    this.timeout = eventConfig.getInteger(KEY_HTTP_TIMEOUT, DEFAULT_TIMEOUT);
 
-                    this.rescopeEndpoint = eventConfig.getString(KEY_RESCOPE_ENDPOINT);
-                    if (this.rescopeEndpoint == null || this.rescopeEndpoint.isEmpty()) {
-                        LOGGER.warn(RESOURCE_BUNDLE.getString("rescope.api.endpoint.missing"));
-                        throw new AssertionError(RESOURCE_BUNDLE.getString("rescope.api.endpoint.missing"));
+                    this.rescopeUri = eventConfig.getString(KEY_RESCOPE_URI);
+                    if (this.rescopeUri == null || this.rescopeUri.isEmpty()) {
+                        LOGGER.warn(RESOURCE_BUNDLE.getString("rescope.uri.missing"));
+                        throw new AssertionError(RESOURCE_BUNDLE.getString("rescope.uri.missing"));
                     }
-                    this.route0Endpoint = eventConfig.getString(KEY_ROUTE0_ENDPOINT);
-                    if (this.route0Endpoint == null || this.route0Endpoint.isEmpty()) {
-                        LOGGER.warn(RESOURCE_BUNDLE.getString("route0.api.endpoint.missing"));
-                        throw new AssertionError(RESOURCE_BUNDLE.getString("route0.api.endpoint.missing"));
+                    this.route0Uri = eventConfig.getString(KEY_ROUTE0_URI);
+                    if (this.route0Uri == null || this.route0Uri.isEmpty()) {
+                        LOGGER.warn(RESOURCE_BUNDLE.getString("route0.uri.missing"));
+                        throw new AssertionError(RESOURCE_BUNDLE.getString("route0.uri.missing"));
                     }
-
-                    this.httpClient = vertx.createHttpClient(new HttpClientOptions().setDefaultHost(this.host)
-                        .setDefaultPort(this.port).setMaxPoolSize(this.maxPoolsize));
+                    this.lpbaselineUri = eventConfig.getString(KEY_LP_BASELINE_URI);
+                    if (this.lpbaselineUri == null || this.lpbaselineUri.isEmpty()) {
+                        LOGGER.warn(RESOURCE_BUNDLE.getString("lpbaseline.uri.missing"));
+                        throw new AssertionError(RESOURCE_BUNDLE.getString("lpbaseline.uri.missing"));
+                    }
+                    this.httpClient = vertx.createHttpClient(
+                        new HttpClientOptions().setMaxPoolSize(this.maxPoolsize).setConnectTimeout(this.timeout));
                     initialized = true;
                     LOGGER.debug("App Http Client initialized successfully");
                 }
@@ -90,16 +88,16 @@ public final class AppHttpClient implements Initializer, Finalizer {
         return this.httpClient;
     }
 
-    public String host() {
-        return host;
+    public String rescopeUri() {
+        return rescopeUri;
     }
 
-    public String rescopeEndpoint() {
-        return rescopeEndpoint;
+    public String route0Uri() {
+        return route0Uri;
     }
-
-    public String route0Endpoint() {
-        return route0Endpoint;
+    
+    public String lpbaselineUri() {
+        return lpbaselineUri;
     }
     
     @Override
