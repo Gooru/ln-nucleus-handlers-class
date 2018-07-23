@@ -25,7 +25,7 @@ public final class AppHttpClient implements Initializer, Finalizer {
     private static final String KEY_LP_BASELINE_URI = "lpbaseline.uri";
     private static final String KEY_MAX_POOLSIZE = "http.conn.poolsize";
     private static final String KEY_HTTP_TIMEOUT = "http.conn.timeout";
-    private static final String KEY_EVENT_CONFIG = "rescope.event.publisher.config";
+    private static final String KEY_EVENT_CONFIG = "event.publisher.config";
 
     private static final int DEFAULT_POOLSIZE = 20;
     private static final int DEFAULT_TIMEOUT = 60000;
