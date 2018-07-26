@@ -1,5 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -9,6 +11,7 @@ import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
@@ -113,7 +116,13 @@ class AssociateCourseWithClassHandler implements DBHandler {
                     ExecutionResult.ExecutionStatus.FAILED);
             }
         }
+
         AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
+        // Fetch all the class members
+        List<String> members = fetchAllMembersOfClass();
+        if (!members.isEmpty()) AppHelper.doLpBaselineSave(this.entityClass, this.context.accessToken(), this.context.classId(),
+                this.context.courseId(), members);
+        
         return new ExecutionResult<>(MessageResponseFactory
             .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
                 EventBuilderFactory.getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
@@ -155,6 +164,21 @@ class AssociateCourseWithClassHandler implements DBHandler {
     private String getCourseVersion() {
         final Object versionObject = Base.firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
         return versionObject == null ? null : String.valueOf(versionObject);
+    }
+
+    private List<String> fetchAllMembersOfClass() {
+        LazyList<AJClassMember> members =
+            AJClassMember.where(AJClassMember.FETCH_ALL_QUERY_FILTER, this.context.classId());
+        List<String> memberIdList = new ArrayList<>();
+        if (!members.isEmpty()) {
+            members.forEach(ajClassMember -> {
+                final String ajClassMemberIdString = ajClassMember.getString(AJClassMember.USER_ID);
+                if (ajClassMemberIdString != null && !ajClassMemberIdString.isEmpty()) {
+                    memberIdList.add(ajClassMemberIdString);
+                }
+            });
+        }
+        return memberIdList;
     }
 
 }

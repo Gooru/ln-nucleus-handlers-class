@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -171,7 +172,10 @@ class JoinClassByStudentHandler implements DBHandler {
             }
             throw e;
         }
-        if (this.courseId != null) AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
+        if (this.courseId != null)  {
+            AppHelper.publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.classId, JOIN_CLASS, this.context.userId());
+            AppHelper.doLpBaselineSave(this.entityClass, context.accessToken(), this.classId, this.courseId, Arrays.asList(this.context.userId()));
+        }
         return new ExecutionResult<>(
             MessageResponseFactory.createCreatedResponse(this.classId,
                 EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),

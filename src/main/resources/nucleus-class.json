@@ -19,10 +19,10 @@
     "date.range.interval": 2
   },
   "event.publisher.config" : {
-    "api.host" : "localhost",
-    "api.port" : 8080,
-    "rescope.api.endpoint" : "/api/rescope/v1/scope/skipped",
-    "route0.api.endpoint" : "/api/route0/v1/rtd",
-    "http.conn.poolsize" : 20
+    "rescope.uri" : "http://localhost:8080/api/rescope/v1/scope/skipped",
+    "route0.uri" : "http://localhost:8080/api/route0/v1/rtd",
+    "lpbaseline.uri" : "http://localhost:8080/api/internal/lp/baseline",
+    "http.conn.poolsize" : 20,
+    "http.conn.timeout": 60000
   }
 }
