@@ -12,6 +12,7 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.gooru.nucleus.libs.tenant.TenantTree;
 import org.gooru.nucleus.libs.tenant.TenantTreeBuilder;
+import org.gooru.nucleus.libs.tenant.classes.ClassAttributes;
 import org.gooru.nucleus.libs.tenant.classes.ClassTenantAuthorization;
 import org.gooru.nucleus.libs.tenant.classes.ClassTenantAuthorizationBuilder;
 import org.javalite.activejdbc.LazyList;
@@ -46,14 +47,14 @@ class TenantCollaboratorAuthorizer implements Authorizer<AJEntityClass> {
             LOGGER.warn("Not all collaborators are present in DB");
             return sendError();
         }
-        return authorizeCollaborators(classTenantTree, collaboratorTenantTrees);
+        return authorizeCollaborators(classTenantTree, collaboratorTenantTrees, model);
     }
 
     private ExecutionResult<MessageResponse> authorizeCollaborators(TenantTree classTenantTree,
-        List<TenantTree> collaboratorTenantTrees) {
+        List<TenantTree> collaboratorTenantTrees, AJEntityClass model) {
         for (TenantTree collaboratorTree : collaboratorTenantTrees) {
-            ClassTenantAuthorization authorization =
-                ClassTenantAuthorizationBuilder.build(classTenantTree, collaboratorTree);
+			ClassTenantAuthorization authorization = ClassTenantAuthorizationBuilder.build(classTenantTree,
+					collaboratorTree, ClassAttributes.build(model.isPublished()));
             if (authorization.canCollaborate()) {
                 continue;
             } else {
