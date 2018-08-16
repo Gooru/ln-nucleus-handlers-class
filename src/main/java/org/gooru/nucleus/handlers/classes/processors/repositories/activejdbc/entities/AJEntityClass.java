@@ -36,6 +36,7 @@ public class AJEntityClass extends Model {
     private static final String GOORU_VERSION = "gooru_version";
     public static final String CONTENT_VISIBILITY = "content_visibility";
     private static final String IS_ARCHIVED = "is_archived";
+    public static final String IS_PUBLISHED = "is_published";
     public static final String COLLABORATOR = "collaborator";
     public static final String COURSE_ID = "course_id";
     private static final String CREATED_AT = "created_at";
@@ -278,6 +279,10 @@ public class AJEntityClass extends Model {
 
     public void setVersion() {
         this.set(GOORU_VERSION, CURRENT_VERSION);
+    }
+    
+    public boolean isPublished() {
+    	return getBoolean(IS_PUBLISHED);
     }
 
     public void adjustEndDate(String defaultEndDate) {
