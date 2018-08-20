@@ -9,6 +9,7 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.gooru.nucleus.libs.tenant.TenantTree;
 import org.gooru.nucleus.libs.tenant.TenantTreeBuilder;
+import org.gooru.nucleus.libs.tenant.classes.ClassAttributes;
 import org.gooru.nucleus.libs.tenant.classes.ClassTenantAuthorization;
 import org.gooru.nucleus.libs.tenant.classes.ClassTenantAuthorizationBuilder;
 import org.slf4j.Logger;
@@ -31,7 +32,8 @@ public class TenantReadAuthorizer implements Authorizer<AJEntityClass> {
         TenantTree userTenantTree = TenantTreeBuilder.build(context.tenant(), context.tenantRoot());
         TenantTree classTenantTree = TenantTreeBuilder.build(model.getTenant(), model.getTenantRoot());
 
-        ClassTenantAuthorization authorization = ClassTenantAuthorizationBuilder.build(classTenantTree, userTenantTree);
+		ClassTenantAuthorization authorization = ClassTenantAuthorizationBuilder.build(classTenantTree, userTenantTree,
+				ClassAttributes.build(model.isPublished()));
 
         if (authorization.canRead()) {
             return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
