@@ -108,7 +108,7 @@ public class AJEntityClassContents extends Model {
         validatorMap
             .put(CONTENT_TYPE, (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
         validatorMap.put(DCA_ADDED_DATE, (value -> FieldValidator
-            .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1, 1)));
+            .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1)));
         return Collections.unmodifiableMap(validatorMap);
     }
 

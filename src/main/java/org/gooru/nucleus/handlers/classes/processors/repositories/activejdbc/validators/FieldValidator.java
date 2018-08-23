@@ -55,8 +55,7 @@ public interface FieldValidator {
         return true;
     }
 
-    static boolean validateDateWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter, long daysInPast,
-        long daysInFuture) {
+    static boolean validateDateWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter, long daysInPast) {
         if (o == null) {
             return false;
         }
@@ -64,7 +63,7 @@ public interface FieldValidator {
             LocalDate date = LocalDate.parse(o.toString(), formatter);
             LocalDate today = LocalDate.now();
 
-            if (today.minusDays(daysInPast).isAfter(date) || today.plusDays(daysInFuture).isBefore(date)) {
+            if (today.minusDays(daysInPast).isAfter(date)) {
                 return false;
             }
         } catch (DateTimeParseException e) {

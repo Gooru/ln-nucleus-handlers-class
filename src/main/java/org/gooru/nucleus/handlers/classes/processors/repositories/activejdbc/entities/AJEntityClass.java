@@ -45,10 +45,11 @@ public class AJEntityClass extends Model {
     private static final String ROSTER_ID = "roster_id";
     private static final int CURRENT_VERSION = 3;
     public static final String INVITEES = "invitees";
-    private static final String TENANT = "tenant";
+    public static final String TENANT = "tenant";
     private static final String TENANT_ROOT = "tenant_root";
     public static final String SETTING = "setting";
     public static final String COURSE_PREMIUM = "course.premium";
+    public static final String OWNER_ID = "owner_id";
 
 
     // Dummy field names for Content Visibility
