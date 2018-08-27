@@ -55,8 +55,7 @@ public interface FieldValidator {
         return true;
     }
 
-    static boolean validateDateWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter, long daysInPast,
-        long daysInFuture) {
+    static boolean validateDateWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter, long daysInPast, long daysInFuture) {
         if (o == null) {
             return false;
         }

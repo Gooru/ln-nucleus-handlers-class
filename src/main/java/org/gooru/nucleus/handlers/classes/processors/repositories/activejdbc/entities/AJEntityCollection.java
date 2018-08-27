@@ -53,8 +53,7 @@ public class AJEntityCollection extends Model {
         "SELECT id FROM collection where id = ?::uuid AND is_deleted = false AND lesson_id = ?::uuid AND unit_id = ?::uuid AND course_id = ?::uuid AND format = ?::content_container_type";
 
     public static final String SELECT_COLLECTION_TO_AUTHORIZE =
-        "SELECT id  FROM collection where id = ?::uuid AND is_deleted = false AND"
-            + " (publish_status = 'published'::publish_status_type OR owner_id = ?::uuid  OR collaborator ?? ?)";
+        "SELECT id, owner_id, collaborator, tenant  FROM collection where id = ?::uuid AND is_deleted = false";
     public static final String SELECT_COLLECTION = "SELECT id, title, thumbnail, url from collection where id = ANY(?::uuid[])";
     
     public static final String JSON_KEY_VISIBLE = "visible";
