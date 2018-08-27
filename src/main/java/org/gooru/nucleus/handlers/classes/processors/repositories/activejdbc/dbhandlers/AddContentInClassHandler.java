@@ -85,7 +85,9 @@ class AddContentInClassHandler implements DBHandler {
                 LazyList<AJEntityCourse> ajEntityCourse = AJEntityCourse.findBySQL(
                     AJEntityCourse.SELECT_COURSE_TO_AUTHORIZE, ctxCourseId);
                 AJEntityCourse entityCourse = null;
-                if (!ajEntityCourse.isEmpty()) entityCourse = ajEntityCourse.get(0);
+                if (!ajEntityCourse.isEmpty()) {
+                    entityCourse = ajEntityCourse.get(0);
+                }
                 if (ajEntityCourse.isEmpty()
                     || !(entityCourse != null && (isOwner(entityCourse, ctxCourseId) || isCollaborator(entityCourse, ctxCourseId)
                         || isAccessibleToUserTenant(entityCourse, ctxCourseId)))) {
@@ -137,7 +139,9 @@ class AddContentInClassHandler implements DBHandler {
                 LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
                     .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, contentId);
                 AJEntityCollection entityCollection = null;
-                if (!ajEntityCollection.isEmpty()) entityCollection = ajEntityCollection.get(0);
+                if (!ajEntityCollection.isEmpty()) {
+                    entityCollection = ajEntityCollection.get(0);
+                }
                 if (ajEntityCollection.isEmpty()
                     || !(entityCollection != null && (isOwner(entityCollection, contentId) || isCollaborator(entityCollection, contentId)
                             || isAccessibleToUserTenant(entityCollection, contentId)))) {
@@ -151,7 +155,9 @@ class AddContentInClassHandler implements DBHandler {
                 LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
                     .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, ctxCollectionId);
                 AJEntityCollection entityCollection = null;
-                if (!ajEntityCollection.isEmpty()) entityCollection = ajEntityCollection.get(0);
+                if (!ajEntityCollection.isEmpty()) {
+                    entityCollection = ajEntityCollection.get(0);
+                }
                 if (ajEntityCollection.isEmpty()
                     || !(entityCollection != null && (isOwner(entityCollection, ctxCollectionId) || isCollaborator(entityCollection, ctxCollectionId)
                         || isAccessibleToUserTenant(entityCollection, ctxCollectionId)))) {
@@ -330,13 +336,15 @@ class AddContentInClassHandler implements DBHandler {
     
     private boolean isAccessibleToUserTenant(Model model, String contentId) {
         String tenantId = model.getString(AJEntityClass.TENANT);
-        if (Objects.equals(context.tenant(), tenantId)) return true;
-        final AJEntityTenant contentTenant =
-            AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, tenantId);
-        if (contentTenant != null && ((contentTenant.isContentVisibilityTenant()
-            && Objects.equals(context.tenantRoot(), tenantId))
-            || contentTenant.isContentVisibilityGlobal())) return true;
-            
+        if (Objects.equals(context.tenant(), tenantId)) {
+            return true;
+        }
+        final AJEntityTenant contentTenant = AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, tenantId);
+        if (contentTenant != null
+            && ((contentTenant.isContentVisibilityTenant() && Objects.equals(context.tenantRoot(), tenantId))
+                || contentTenant.isContentVisibilityGlobal())) {
+            return true;
+        }
         LOGGER.warn("User '{}' is not accessible to tenant of content '{}'", context.userId(), contentId);
         return false;
     }
