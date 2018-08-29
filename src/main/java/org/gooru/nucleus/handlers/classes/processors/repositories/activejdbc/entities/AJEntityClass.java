@@ -94,7 +94,7 @@ public class AJEntityClass extends Model {
     private static final Set<String> INVITE_ALLOWED_FIELDS = new HashSet<>(Arrays.asList(INVITEES, CREATOR_SYSTEM));
     public static final List<String> FETCH_QUERY_FIELD_LIST = Arrays
         .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE, MIN_SCORE,
-            END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY, IS_ARCHIVED, SETTING, CREATED_AT, UPDATED_AT);
+            END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY, IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT);
     private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
 
     private static final Map<String, FieldValidator> validatorRegistry;
