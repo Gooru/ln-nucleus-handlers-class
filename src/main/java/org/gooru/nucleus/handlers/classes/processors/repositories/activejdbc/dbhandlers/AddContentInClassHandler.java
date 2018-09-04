@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -15,9 +16,11 @@ import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.E
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.LazyList;
+import org.javalite.activejdbc.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 class AddContentInClassHandler implements DBHandler {
@@ -79,15 +82,19 @@ class AddContentInClassHandler implements DBHandler {
             AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
         if (classAuthorize.continueProcessing()) {
             if (ctxCourseId != null) {
-                LazyList<AJEntityCourse> ajEntityCourse = AJEntityCourse
-                    .findBySQL(AJEntityCourse.SELECT_COURSE_TO_AUTHORIZE, ctxCourseId, context.userId(),
-                        context.userId());
-                if (ajEntityCourse.isEmpty()) {
+                LazyList<AJEntityCourse> ajEntityCourse = AJEntityCourse.findBySQL(
+                    AJEntityCourse.SELECT_COURSE_TO_AUTHORIZE, ctxCourseId);
+                AJEntityCourse entityCourse = null;
+                if (!ajEntityCourse.isEmpty()) {
+                    entityCourse = ajEntityCourse.get(0);
+                }
+                if (ajEntityCourse.isEmpty()
+                    || !(entityCourse != null && (isOwner(entityCourse, ctxCourseId) || isCollaborator(entityCourse, ctxCourseId)
+                        || isAccessibleToUserTenant(entityCourse, ctxCourseId)))) {
                     LOGGER
                         .warn("user is not owner or collaborator of context course to create class contents. aborting");
-                    return new ExecutionResult<>(MessageResponseFactory
-                        .createForbiddenResponse(RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
-                        ExecutionStatus.FAILED);
+                    return new ExecutionResult<>(MessageResponseFactory.createForbiddenResponse(
+                        RESOURCE_BUNDLE.getString("course.not.found.or.not.available")), ExecutionStatus.FAILED);
                 }
                 LazyList<AJEntityUnit> ajEntityUnit =
                     AJEntityUnit.findBySQL(AJEntityUnit.SELECT_UNIT_TO_VALIDATE, ctxUnitId, ctxCourseId);
@@ -130,21 +137,30 @@ class AddContentInClassHandler implements DBHandler {
 
             } else if (isContentTypeEntityIsCollection()) {
                 LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
-                    .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, contentId, context.userId(),
-                        context.userId());
-                if (ajEntityCollection.isEmpty()) {
-                    LOGGER.warn(
-                        "user is not owner or collaborator of content type collection to create class contents. "
+                    .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, contentId);
+                AJEntityCollection entityCollection = null;
+                if (!ajEntityCollection.isEmpty()) {
+                    entityCollection = ajEntityCollection.get(0);
+                }
+                if (ajEntityCollection.isEmpty()
+                    || !(entityCollection != null && (isOwner(entityCollection, contentId) || isCollaborator(entityCollection, contentId)
+                            || isAccessibleToUserTenant(entityCollection, contentId)))) {
+                    LOGGER
+                        .warn("user is not owner or collaborator of content type collection to create class contents. "
                             + "aborting", contentId);
-                    return new ExecutionResult<>(MessageResponseFactory
-                        .createNotFoundResponse(RESOURCE_BUNDLE.getString("collection.not.found")),
-                        ExecutionStatus.FAILED);
+                    return new ExecutionResult<>(MessageResponseFactory.createNotFoundResponse(
+                        RESOURCE_BUNDLE.getString("collection.not.found")), ExecutionStatus.FAILED);
                 }
             } else if (isContentTypeEntityIsContent() && ctxCollectionId != null) {
                 LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
-                    .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, ctxCollectionId, context.userId(),
-                        context.userId());
-                if (ajEntityCollection.isEmpty()) {
+                    .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, ctxCollectionId);
+                AJEntityCollection entityCollection = null;
+                if (!ajEntityCollection.isEmpty()) {
+                    entityCollection = ajEntityCollection.get(0);
+                }
+                if (ajEntityCollection.isEmpty()
+                    || !(entityCollection != null && (isOwner(entityCollection, ctxCollectionId) || isCollaborator(entityCollection, ctxCollectionId)
+                        || isAccessibleToUserTenant(entityCollection, ctxCollectionId)))) {
                     LOGGER.warn(
                         "user is not owner or collaborator of context collection to create class contents. aborting",
                         ctxCollectionId);
@@ -296,7 +312,43 @@ class AddContentInClassHandler implements DBHandler {
             throw new MessageResponseWrapperException(MessageResponseFactory.createValidationErrorResponse(errors));
         }
     }
+    
+    private boolean isOwner(Model model, String contentId) {
+        String creatorId = model.getString(AJEntityClass.OWNER_ID);
+        if (!Objects.equals(context.userId(), creatorId)) {
+            LOGGER.warn("User '{}' is not owner of content '{}'", context.userId(), contentId);
+            return false;
+        }
+        return true;
+    }
 
+    private boolean isCollaborator(Model model, String contentId) {
+        String collaboratorString = model.getString(AJEntityClass.COLLABORATOR);
+        if (collaboratorString != null && !collaboratorString.isEmpty()) {
+            JsonArray collaborators = new JsonArray(collaboratorString);
+            if (collaborators.contains(context.userId())) {
+                return true;
+            }
+        }
+        LOGGER.warn("User '{}' is not collaborator of content '{}'", context.userId(), contentId);
+        return false;
+    }
+    
+    private boolean isAccessibleToUserTenant(Model model, String contentId) {
+        String tenantId = model.getString(AJEntityClass.TENANT);
+        if (Objects.equals(context.tenant(), tenantId)) {
+            return true;
+        }
+        final AJEntityTenant contentTenant = AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, tenantId);
+        if (contentTenant != null
+            && ((contentTenant.isContentVisibilityTenant() && Objects.equals(context.tenantRoot(), tenantId))
+                || contentTenant.isContentVisibilityGlobal())) {
+            return true;
+        }
+        LOGGER.warn("User '{}' is not accessible to tenant of content '{}'", context.userId(), contentId);
+        return false;
+    }
+    
     private JsonObject getModelErrors() {
         JsonObject errors = new JsonObject();
         this.classContents.errors().entrySet().forEach(entry -> errors.put(entry.getKey(), entry.getValue()));
@@ -308,5 +360,5 @@ class AddContentInClassHandler implements DBHandler {
 
     private static class DefaultAJEntityClassContentsBuilder implements EntityBuilder<AJEntityClassContents> {
     }
-
+    
 }

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.ConverterRegistry;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldSelector;
@@ -108,7 +109,7 @@ public class AJEntityClassContents extends Model {
         validatorMap
             .put(CONTENT_TYPE, (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
         validatorMap.put(DCA_ADDED_DATE, (value -> FieldValidator
-            .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1, 1)));
+            .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1, AppConfiguration.getInstance().getDateRangeToInterval())));
         return Collections.unmodifiableMap(validatorMap);
     }
 
