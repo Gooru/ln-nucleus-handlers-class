@@ -137,9 +137,11 @@ class FetchClassesForUserHandler implements DBHandler {
     private ExecutionResult<MessageResponse> populateClassMemberCounts(JsonObject result) {
         try {
             JsonObject memberCount = new JsonObject();
+            /*
             List<Map> rs = Base.findAll(AJClassMember.FETCH_MEMBERSHIP_COUNT_FOR_CLASSES,
                 Utils.convertListToPostgresArrayStringRepresentation(classIdList));
             rs.forEach(map -> memberCount.put(map.get("class_id").toString(), map.get("count")));
+            */
             result.put(RESPONSE_BUCKET_MEMBER_COUNT, memberCount);
             return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
         } catch (DBException dbe) {
