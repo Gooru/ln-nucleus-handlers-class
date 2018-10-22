@@ -64,7 +64,9 @@ public class ClassVerticle extends AbstractVerticle {
                     }
                 });
             } else {
-                voidFuture.fail("Not able to initialize the Class machinery properly");
+                LOGGER.warn("Not able to initialize Class machinery properly.",
+                    startApplicationFuture.cause());
+                voidFuture.fail(startApplicationFuture.cause());
             }
         });
 
