@@ -1,8 +1,8 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.ResourceBundle;
-
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
@@ -16,8 +16,6 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.vertx.core.json.JsonObject;
 
 /**
  * Created by ashish on 28/1/16.
