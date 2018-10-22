@@ -91,4 +91,12 @@ public final class DBHandlerBuilder {
     return new DeleteClassContentHandler(context);
   }
 
+  public static DBHandler buildUpdateClassRerouteSettingHandler(ProcessorContext context) {
+    return new UpdateClassRerouteSettingHandler(context);
+  }
+
+  public static DBHandler buildUpdateProfileBaselineForSpecifiedStudentsHandler(
+      ProcessorContext context) {
+    return new UpdateProfileBaselineForSpecifiedStudentsHandler(context);
+  }
 }

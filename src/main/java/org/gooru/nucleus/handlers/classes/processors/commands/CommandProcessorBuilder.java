@@ -152,13 +152,13 @@ public enum CommandProcessorBuilder {
   MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE(MessageConstants.MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE) {
     @Override
     public Processor build(ProcessorContext context) {
-      return null;
+      return new ClassRerouteSettingsUpdateProcessor(context);
     }
   },
   MSG_OP_CLASS_LPBASELINE_TRIGGER(MessageConstants.MSG_OP_CLASS_LPBASELINE_TRIGGER) {
     @Override
     public Processor build(ProcessorContext context) {
-      return null;
+      return new ClassProfileBaselineTriggerProcessor(context);
     }
   };
   private String name;

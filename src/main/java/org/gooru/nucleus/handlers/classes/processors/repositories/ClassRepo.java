@@ -47,4 +47,7 @@ public interface ClassRepo {
 
   MessageResponse deleteContentFromClass();
 
+  MessageResponse updateClassRerouteSetting();
+
+  MessageResponse updateProfileBaselineForSpecifiedStudents();
 }
