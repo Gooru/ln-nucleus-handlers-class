@@ -41,6 +41,9 @@ public final class MessageConstants {
     public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
     public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
 
+    public static final String MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE = "class.reroute.settings.update";
+    public static final String MSG_OP_CLASS_LPBASELINE_TRIGGER = "class.lb.baseline.trigger";
+
     // Containers for different responses
     public static final String RESP_CONTAINER_MBUS = "mb.container";
     public static final String RESP_CONTAINER_EVENT = "mb.event";

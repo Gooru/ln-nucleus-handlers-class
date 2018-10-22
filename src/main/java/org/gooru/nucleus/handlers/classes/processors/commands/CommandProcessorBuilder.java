@@ -149,8 +149,19 @@ public enum CommandProcessorBuilder {
         public Processor build(ProcessorContext context) {
             return new ClassContentDeleteProcessor(context);
         }
+    },
+    MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE(MessageConstants.MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE) {
+        @Override
+        public Processor build(ProcessorContext context) {
+            return null;
+        }
+    },
+    MSG_OP_CLASS_LPBASELINE_TRIGGER(MessageConstants.MSG_OP_CLASS_LPBASELINE_TRIGGER){
+        @Override
+        public Processor build(ProcessorContext context) {
+            return null;
+        }
     };
-
     private String name;
 
     CommandProcessorBuilder(String name) {
