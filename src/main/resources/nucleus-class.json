@@ -8,7 +8,7 @@
     "jdbcUrl": "jdbc:postgresql://localhost:5432/nucleus",
     "maximumPoolSize": 5
   },
-  "app.configuration" : {
+  "app.configuration": {
     "class.end.date": "2018-06-30",
     "populate.dummy.email": true,
     "dummy.email.domain": "example.org",
@@ -18,11 +18,11 @@
     "course.version.for.premium.content": "premium",
     "date.range.interval": 2
   },
-  "event.publisher.config" : {
-    "rescope.uri" : "http://localhost:8080/api/rescope/v1/scope/skipped",
-    "route0.uri" : "http://localhost:8080/api/route0/v1/rtd",
-    "lpbaseline.uri" : "http://localhost:8080/api/internal/lp/baseline",
-    "http.conn.poolsize" : 20,
+  "event.publisher.config": {
+    "rescope.uri": "http://localhost:8080/api/rescope/v1/scope/skipped",
+    "route0.uri": "http://localhost:8080/api/route0/v1/rtd",
+    "lpbaseline.uri": "http://localhost:8080/api/internal/lp/baseline",
+    "http.conn.poolsize": 20,
     "http.conn.timeout": 60000
   }
 }
