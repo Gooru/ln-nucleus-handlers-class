@@ -51,6 +51,10 @@ public class AJEntityClass extends Model {
   public static final String INVITEES = "invitees";
   public static final String TENANT = "tenant";
   private static final String TENANT_ROOT = "tenant_root";
+  private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+  private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+  private static final String GRADE_CURRENT = "grade_current";
+  private static final String ROUTE0 = "route0";
   public static final String SETTING = "setting";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
@@ -306,6 +310,10 @@ public class AJEntityClass extends Model {
     this.setBoolean(IS_ARCHIVED, isArchived);
   }
 
+  public String getCourseId() {
+    return this.getString(COURSE_ID);
+  }
+
   public void setVersion() {
     this.set(GOORU_VERSION, CURRENT_VERSION);
   }
@@ -332,6 +340,18 @@ public class AJEntityClass extends Model {
     setFieldUsingConverter(TENANT, tenant);
   }
 
+  public void setGradeUpperBound(Long upperBound) {
+    this.setLong(GRADE_UPPER_BOUND, upperBound);
+  }
+
+  public void setGradeLowerBound(Long lowerBound) {
+    this.setLong(GRADE_LOWER_BOUND, lowerBound);
+  }
+
+  public void setGradeCurrent(Long gradeCurrent) {
+    this.setLong(GRADE_CURRENT, gradeCurrent);
+  }
+
   public void setTenantRoot(String tenantRoot) {
     setFieldUsingConverter(TENANT_ROOT, tenantRoot);
   }
@@ -342,6 +362,18 @@ public class AJEntityClass extends Model {
 
   public String getTenantRoot() {
     return this.getString(TENANT_ROOT);
+  }
+
+  public Long getGradeUpperBound() {
+    return this.getLong(GRADE_UPPER_BOUND);
+  }
+
+  public Long getGradeLowerBound() {
+    return this.getLong(GRADE_LOWER_BOUND);
+  }
+
+  public Long getGradeCurrent() {
+    return this.getLong(GRADE_CURRENT);
   }
 
   public void setEndDate(String classEndDate) {
@@ -362,6 +394,10 @@ public class AJEntityClass extends Model {
     } else {
       this.set(fieldName, fieldValue);
     }
+  }
+
+  public void setRoute0(boolean route0) {
+    this.setBoolean(ROUTE0, route0);
   }
 
   private static class ClassValidationRegistry implements ValidatorRegistry {

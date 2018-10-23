@@ -128,12 +128,12 @@ class AssociateCourseWithClassHandler implements DBHandler {
         this.context.classId(), ASSIGN_COURSE_TO_CLASS, null);
     // Fetch all the class members
     List<String> members = fetchAllMembersOfClass();
-      if (!members.isEmpty()) {
-          AppHelper
-              .doLpBaselineSave(this.entityClass, this.context.accessToken(),
-                  this.context.classId(),
-                  this.context.courseId(), members);
-      }
+    if (!members.isEmpty()) {
+      AppHelper
+          .doLpBaselineSave(this.entityClass, this.context.accessToken(),
+              this.context.classId(),
+              this.context.courseId(), members);
+    }
 
     return new ExecutionResult<>(MessageResponseFactory
         .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
@@ -170,15 +170,15 @@ class AssociateCourseWithClassHandler implements DBHandler {
     JsonObject classSettings = settings != null ? new JsonObject(settings) : null;
     if (Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(),
         this.courseVersion)) {
-        if (classSettings == null) {
-            classSettings = new JsonObject();
-        }
+      if (classSettings == null) {
+        classSettings = new JsonObject();
+      }
       classSettings.put(AJEntityClass.COURSE_PREMIUM, true);
     } else if (classSettings != null && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)) {
       classSettings.remove(AJEntityClass.COURSE_PREMIUM);
-        if (classSettings.isEmpty()) {
-            classSettings = null;
-        }
+      if (classSettings.isEmpty()) {
+        classSettings = null;
+      }
     }
     this.entityClass.setClassSettings(classSettings);
   }

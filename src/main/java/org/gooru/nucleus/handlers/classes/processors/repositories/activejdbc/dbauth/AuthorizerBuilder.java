@@ -82,6 +82,11 @@ public final class AuthorizerBuilder {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
 
+  public static Authorizer<AJEntityClass> buildUpdateRerouteSettingAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
   public static Authorizer<AJEntityClass> buildUpdateCollaboratorAuthorizer(
       ProcessorContext context) {
     return new ClassOwnerAuthorizer(context);
