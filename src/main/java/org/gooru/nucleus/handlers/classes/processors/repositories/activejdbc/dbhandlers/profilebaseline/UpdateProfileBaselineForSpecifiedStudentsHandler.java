@@ -77,8 +77,8 @@ public class UpdateProfileBaselineForSpecifiedStudentsHandler implements DBHandl
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    // TODO: Implement this
-    return null;
+    return new ProfileBaselineRequestQueueService(command, this.context.classId(),
+        entityClass.getCourseId()).enqueue();
   }
 
   @Override
