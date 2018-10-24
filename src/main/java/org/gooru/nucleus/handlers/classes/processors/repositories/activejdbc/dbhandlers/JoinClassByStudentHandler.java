@@ -1,7 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
 import io.vertx.core.json.JsonObject;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -15,7 +14,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.generators.Gen
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.gooru.nucleus.handlers.classes.processors.utils.AppHelper;
 import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
 import org.postgresql.util.PSQLException;
@@ -179,14 +177,7 @@ class JoinClassByStudentHandler implements DBHandler {
       }
       throw e;
     }
-    if (this.courseId != null) {
-      AppHelper
-          .publishEventForRescopeAndRoute0(this.entityClass, context.accessToken(), this.classId,
-              JOIN_CLASS, this.context.userId());
-      AppHelper
-          .doLpBaselineSave(this.entityClass, context.accessToken(), this.classId, this.courseId,
-              Arrays.asList(this.context.userId()));
-    }
+
     return new ExecutionResult<>(
         MessageResponseFactory.createCreatedResponse(this.classId,
             EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),

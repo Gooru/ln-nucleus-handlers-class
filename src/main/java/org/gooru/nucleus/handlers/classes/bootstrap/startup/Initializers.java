@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
-import org.gooru.nucleus.handlers.classes.app.components.AppHttpClient;
 import org.gooru.nucleus.handlers.classes.app.components.DataSourceRegistry;
 import org.gooru.nucleus.handlers.classes.app.components.UtilityManager;
 import org.gooru.nucleus.handlers.classes.app.components.VersionInfo;
@@ -18,7 +17,6 @@ public class Initializers implements Iterable<Initializer> {
     initializers.add(DataSourceRegistry.getInstance());
     initializers.add(AppConfiguration.getInstance());
     initializers.add(UtilityManager.getInstance());
-    initializers.add(AppHttpClient.getInstance());
     initializers.add(new VersionInfo());
     internalIterator = initializers.iterator();
   }
