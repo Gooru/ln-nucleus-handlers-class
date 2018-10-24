@@ -38,7 +38,7 @@ public class UpdateProfileBaselineForSpecifiedStudentsHandler implements DBHandl
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private AJEntityClass entityClass;
 
-  UpdateProfileBaselineForSpecifiedStudentsHandler(ProcessorContext context) {
+  public UpdateProfileBaselineForSpecifiedStudentsHandler(ProcessorContext context) {
     this.context = context;
   }
 
