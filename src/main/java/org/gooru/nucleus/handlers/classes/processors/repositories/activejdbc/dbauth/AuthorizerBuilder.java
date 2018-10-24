@@ -87,6 +87,11 @@ public final class AuthorizerBuilder {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
 
+  public static Authorizer<AJEntityClass> buildUpdateProfileBaselineAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
   public static Authorizer<AJEntityClass> buildUpdateCollaboratorAuthorizer(
       ProcessorContext context) {
     return new ClassOwnerAuthorizer(context);

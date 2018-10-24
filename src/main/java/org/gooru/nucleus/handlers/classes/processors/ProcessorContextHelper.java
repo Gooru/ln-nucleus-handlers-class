@@ -87,11 +87,11 @@ public final class ProcessorContextHelper {
     throw new AssertionError("Should not instantiate");
   }
 
-  private static boolean validateId(String id) {
+  public static boolean validateId(String id) {
     return !(id == null || id.isEmpty()) && validateUuid(id);
   }
 
-  private static boolean validateUuid(String uuidString) {
+  public static boolean validateUuid(String uuidString) {
     try {
       UUID.fromString(uuidString);
       return true;
