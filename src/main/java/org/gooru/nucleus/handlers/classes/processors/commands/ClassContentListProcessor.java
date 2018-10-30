@@ -6,17 +6,18 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 
 
 class ClassContentListProcessor extends AbstractCommandProcessor {
-    public ClassContentListProcessor(ProcessorContext context) {
-        super(context);
-    }
 
-    @Override
-    protected void setDeprecatedVersions() {
+  public ClassContentListProcessor(ProcessorContext context) {
+    super(context);
+  }
 
-    }
+  @Override
+  protected void setDeprecatedVersions() {
 
-    @Override
-    protected MessageResponse processCommand() {
-        return RepoBuilder.buildClassRepo(context).listClassContent();
-    }
+  }
+
+  @Override
+  protected MessageResponse processCommand() {
+    return RepoBuilder.buildClassRepo(context).listClassContent();
+  }
 }

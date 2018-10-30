@@ -10,21 +10,22 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
  * @author ashish on 2/1/17.
  */
 class ClassCourseAssociationProcessor extends AbstractCommandProcessor {
-    public ClassCourseAssociationProcessor(ProcessorContext context) {
-        super(context);
-    }
 
-    @Override
-    protected void setDeprecatedVersions() {
+  public ClassCourseAssociationProcessor(ProcessorContext context) {
+    super(context);
+  }
 
-    }
+  @Override
+  protected void setDeprecatedVersions() {
 
-    @Override
-    protected MessageResponse processCommand() {
-        if (!ProcessorContextHelper.validateContextWithCourse(context)) {
-            return MessageResponseFactory
-                .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.or.course"));
-        }
-        return RepoBuilder.buildClassRepo(context).associateCourseWithClass();
+  }
+
+  @Override
+  protected MessageResponse processCommand() {
+    if (!ProcessorContextHelper.validateContextWithCourse(context)) {
+      return MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.or.course"));
     }
+    return RepoBuilder.buildClassRepo(context).associateCourseWithClass();
+  }
 }
