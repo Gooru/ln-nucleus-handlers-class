@@ -10,20 +10,22 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
  * @author ashish on 2/1/17.
  */
 class ClassGetProcessor extends AbstractCommandProcessor {
-    public ClassGetProcessor(ProcessorContext context) {
-        super(context);
-    }
 
-    @Override
-    protected void setDeprecatedVersions() {
+  public ClassGetProcessor(ProcessorContext context) {
+    super(context);
+  }
 
-    }
+  @Override
+  protected void setDeprecatedVersions() {
 
-    @Override
-    protected MessageResponse processCommand() {
-        if (!ProcessorContextHelper.validateContext(context)) {
-            return MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class"));
-        }
-        return RepoBuilder.buildClassRepo(context).fetchClass();
+  }
+
+  @Override
+  protected MessageResponse processCommand() {
+    if (!ProcessorContextHelper.validateContext(context)) {
+      return MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class"));
     }
+    return RepoBuilder.buildClassRepo(context).fetchClass();
+  }
 }

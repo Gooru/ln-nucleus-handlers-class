@@ -8,17 +8,18 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
  * @author ashish on 2/1/17.
  */
 class ClassCreateProcessor extends AbstractCommandProcessor {
-    public ClassCreateProcessor(ProcessorContext context) {
-        super(context);
-    }
 
-    @Override
-    protected void setDeprecatedVersions() {
+  public ClassCreateProcessor(ProcessorContext context) {
+    super(context);
+  }
 
-    }
+  @Override
+  protected void setDeprecatedVersions() {
 
-    @Override
-    protected MessageResponse processCommand() {
-        return RepoBuilder.buildClassRepo(context).createClass();
-    }
+  }
+
+  @Override
+  protected MessageResponse processCommand() {
+    return RepoBuilder.buildClassRepo(context).createClass();
+  }
 }
