@@ -54,7 +54,7 @@ public class AJEntityClass extends Model {
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_CURRENT = "grade_current";
-  private static final String ROUTE0 = "route0";
+  private static final String ROUTE0 = "route0_applicable";
   public static final String SETTING = "setting";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
