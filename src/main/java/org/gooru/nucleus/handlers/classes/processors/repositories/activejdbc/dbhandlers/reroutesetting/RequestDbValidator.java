@@ -44,6 +44,7 @@ class RequestDbValidator {
 
   void validate() {
     validateClassNotArchivedAndCorrectVersion();
+    validateCourse();
     validateGradeValues();
     if (validGradesCount > 0) {
       validateGradesSequence();
@@ -51,15 +52,26 @@ class RequestDbValidator {
     validateRoute0();
   }
 
+  private void validateCourse() {
+    String courseId = entityClass.getCourseId();
+    if (courseId == null) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("reroute.settings.course.needed")));
+    }
+    final Object subjectBucket = Base
+        .firstCell(AJEntityCourse.COURSE_SUBJECT_BUCKET_FETCH_QUERY, courseId);
+    if (subjectBucket == null) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("reroute.settings.course.subject.needed")));
+    }
+  }
+
   private void validateRoute0() {
     if (command.getRoute0() != null) {
       if (command.getRoute0()) {
         String courseId = entityClass.getCourseId();
-        if (courseId == null) {
-          throw new MessageResponseWrapperException(MessageResponseFactory
-              .createInvalidRequestResponse(
-                  RESOURCE_BUNDLE.getString("route0.course.needed")));
-        }
         final Object versionObject = Base
             .firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, courseId);
         if (versionObject == null || !Objects
