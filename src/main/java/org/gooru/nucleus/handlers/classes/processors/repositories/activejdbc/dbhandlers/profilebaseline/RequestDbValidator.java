@@ -59,7 +59,7 @@ class RequestDbValidator {
   private void validateSubjectBucketForCourse() {
     final Object subjectBucket = Base
         .firstCell(AJEntityCourse.COURSE_SUBJECT_BUCKET_FETCH_QUERY, courseId);
-    if (subjectBucket == null) {
+    if (subjectBucket == null || String.valueOf(subjectBucket).trim().isEmpty()) {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(
               RESOURCE_BUNDLE.getString("profilebaseline.course.subject.needed")));
