@@ -39,7 +39,7 @@ class ProfileBaselineRequestQueueService {
     try (PreparedStatement ps = Base.startBatch(PROFILE_BASELINE_ENQUEUE_QUERY)) {
 
       for (String userId : command.getUsersList()) {
-        Base.addBatch(ps, userId, classId, courseId, DEFAULT_QUEUE_PRIORITY, RQ_STATUS_QUEUED);
+        Base.addBatch(ps, userId, courseId, classId, DEFAULT_QUEUE_PRIORITY, RQ_STATUS_QUEUED);
       }
       Base.executeBatch(ps);
       return new ExecutionResult<>(MessageResponseFactory
