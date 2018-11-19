@@ -160,6 +160,13 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ClassProfileBaselineTriggerProcessor(context);
     }
+  },
+  MSG_OP_CLASS_MEMBERS_REROUTE_SETTINGS_UPDATE(
+      MessageConstants.MSG_OP_CLASS_MEMBERS_REROUTE_SETTINGS_UPDATE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassMembersRerouteSettingsUpdateProcessor(context);
+    }
   };
   private String name;
 
