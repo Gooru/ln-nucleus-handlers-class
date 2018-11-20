@@ -18,6 +18,8 @@ public class AJClassMember extends Model {
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private static final Logger LOGGER = LoggerFactory.getLogger(AJClassMember.class);
+  private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+  private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
 
   public static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
@@ -125,4 +127,11 @@ public class AJClassMember extends Model {
     }
   }
 
+  public Long getGradeLowerBound() {
+    return this.getLong(GRADE_LOWER_BOUND);
+  }
+
+  public Long getGradeUpperBound() {
+    return this.getLong(GRADE_UPPER_BOUND);
+  }
 }

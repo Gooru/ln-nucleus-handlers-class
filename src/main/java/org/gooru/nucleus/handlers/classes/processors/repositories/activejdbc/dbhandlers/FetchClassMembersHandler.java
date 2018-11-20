@@ -35,6 +35,9 @@ class FetchClassMembersHandler implements DBHandler {
   private static final String RESPONSE_BUCKET_MEMBER = "member";
   private static final String RESPONSE_BUCKET_INVITEES = "invitees";
   private static final String RESPONSE_BUCKET_MEMBER_DETAILS = "details";
+  private static final String RESPONSE_BUCKET_MEMBER_BOUNDS = "member_grade_bounds";
+  private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+  private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
 
   public FetchClassMembersHandler(ProcessorContext context) {
     this.context = context;
@@ -118,11 +121,19 @@ class FetchClassMembersHandler implements DBHandler {
     if (!members.isEmpty()) {
       JsonArray membersArray = new JsonArray();
       JsonArray invitedArrays = new JsonArray();
+      JsonArray membersBoundArray = new JsonArray();
+
       members.forEach(ajClassMember -> {
         final String ajClassMemberIdString = ajClassMember.getString(AJClassMember.USER_ID);
         if (ajClassMemberIdString != null && !ajClassMemberIdString.isEmpty()) {
           memberIdList.add(ajClassMemberIdString);
           membersArray.add(ajClassMemberIdString);
+          JsonObject memberBounds = new JsonObject();
+          JsonObject memberBoundsValue = new JsonObject();
+          memberBoundsValue.put(GRADE_LOWER_BOUND, ajClassMember.getGradeLowerBound());
+          memberBoundsValue.put(GRADE_UPPER_BOUND, ajClassMember.getGradeUpperBound());
+          memberBounds.put(ajClassMemberIdString, memberBoundsValue);
+          membersBoundArray.add(memberBounds);
         } else {
           final String ajClassMemberEmailString = ajClassMember.getString(AJClassMember.EMAIL);
           if (ajClassMemberEmailString != null && !ajClassMemberEmailString.isEmpty()) {
@@ -130,9 +141,11 @@ class FetchClassMembersHandler implements DBHandler {
           }
         }
       });
+      result.put(RESPONSE_BUCKET_MEMBER_BOUNDS, membersBoundArray);
       result.put(RESPONSE_BUCKET_MEMBER, membersArray);
       result.put(RESPONSE_BUCKET_INVITEES, invitedArrays);
     } else {
+      result.put(RESPONSE_BUCKET_MEMBER_BOUNDS, new JsonArray());
       result.put(RESPONSE_BUCKET_MEMBER, new JsonArray());
       result.put(RESPONSE_BUCKET_INVITEES, new JsonArray());
     }
