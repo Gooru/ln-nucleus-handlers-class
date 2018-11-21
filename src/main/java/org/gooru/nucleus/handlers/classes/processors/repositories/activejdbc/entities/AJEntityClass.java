@@ -58,6 +58,7 @@ public class AJEntityClass extends Model {
   public static final String SETTING = "setting";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
+  public static final String IS_OFFLINE = "is_offline";
 
 
   // Dummy field names for Content Visibility
@@ -92,11 +93,11 @@ public class AJEntityClass extends Model {
 
   public static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
-          COLLABORATOR));
+          COLLABORATOR, IS_OFFLINE));
   public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
           COLLABORATOR,
-          CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING));
+          CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING, IS_OFFLINE));
   private static final Set<String> MANDATORY_FIELDS = new HashSet<>(
       Arrays.asList(TITLE, CLASS_SHARING));
   public static final Set<String> FORBIDDEN_FIELDS = new HashSet<>(
@@ -110,7 +111,7 @@ public class AJEntityClass extends Model {
       .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE,
           MIN_SCORE, END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY,
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
-          GRADE_UPPER_BOUND, ROUTE0);
+          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
 
