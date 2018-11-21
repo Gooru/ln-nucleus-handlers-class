@@ -18,6 +18,8 @@ public class AJClassMember extends Model {
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private static final Logger LOGGER = LoggerFactory.getLogger(AJClassMember.class);
+  private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+  private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
 
   public static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
@@ -43,6 +45,8 @@ public class AJClassMember extends Model {
       "class_id = ?::uuid and email = ANY(?::text[])";
   public static final String FETCH_ALL_QUERY_FILTER = "class_id = ?::uuid";
   public static final String DELETE_MEMBERSHIP_FOR_CLASS_QUERY = "delete from class_member where class_id = ?::uuid";
+  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING = "update class_member set grade_lower_bound = ?, grade_upper_bound = ? "
+      + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String FETCH_USER_MEMBERSHIP_QUERY =
       "select class_id from class_member cm, class c where cm.user_id = ?::uuid and cm.class_member_status = "
           + "'joined'::class_member_status_type and cm.class_id = c.id and c.is_deleted = false order by "
@@ -123,4 +127,11 @@ public class AJClassMember extends Model {
     }
   }
 
+  public Long getGradeLowerBound() {
+    return this.getLong(GRADE_LOWER_BOUND);
+  }
+
+  public Long getGradeUpperBound() {
+    return this.getLong(GRADE_UPPER_BOUND);
+  }
 }

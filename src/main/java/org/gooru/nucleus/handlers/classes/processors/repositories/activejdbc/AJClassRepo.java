@@ -149,4 +149,9 @@ class AJClassRepo implements ClassRepo {
             DBHandlerBuilder.buildUpdateProfileBaselineForSpecifiedStudentsHandler(context));
   }
 
+  @Override
+  public MessageResponse updateClassMembersRerouteSetting() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildUpdateClassMembersRerouteSettingHandler(context));
+  }
 }
