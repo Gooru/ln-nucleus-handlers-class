@@ -46,12 +46,33 @@ class ProfileBaselineRequestQueueService {
           .createNoContentResponse(RESOURCE_BUNDLE.getString("queued")),
           ExecutionResult.ExecutionStatus.SUCCESSFUL);
 
-    } catch (DBException | SQLException dbe) {
+    } catch (DBException dbe) {
       LOGGER.error("Error trying to queue requests", dbe);
+      if (dbe.getCause() != null && dbe.getCause() instanceof SQLException) {
+        return handleSqlException((SQLException) dbe.getCause());
+      }
       return new ExecutionResult<>(
           MessageResponseFactory
               .createInternalErrorResponse(RESOURCE_BUNDLE.getString("error.from.store")),
           ExecutionResult.ExecutionStatus.FAILED);
+    } catch (SQLException dbe) {
+      LOGGER.error("Error trying to queue requests", dbe);
+      return handleSqlException(dbe);
     }
+  }
+
+  private ExecutionResult<MessageResponse> handleSqlException(SQLException e) {
+    String message =
+        (e.getNextException() != null) ? e.getNextException().getMessage() : e.getMessage();
+    LOGGER.error("SqlException: State: '{}', message: '{}'", e.getSQLState(), message);
+    if (e.getSQLState().equals("23505")) {
+      return new ExecutionResult<>(MessageResponseFactory
+          .createNoContentResponse(RESOURCE_BUNDLE.getString("queued")),
+          ExecutionResult.ExecutionStatus.SUCCESSFUL);
+    }
+    return new ExecutionResult<>(
+        MessageResponseFactory
+            .createInternalErrorResponse(RESOURCE_BUNDLE.getString("error.from.store")),
+        ExecutionResult.ExecutionStatus.FAILED);
   }
 }
