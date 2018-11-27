@@ -114,15 +114,10 @@ public final class EventBuilderFactory {
   }
 
   public static EventBuilder getDeleteClassContentEventBuilder(Object id, String classId,
-      String contentId,
-      String contentType, String ctxCourseId, String ctxUnitId, String ctxLessonId,
-      String ctxCollectionId) {
+      String contentId, String contentType) {
     return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_CONTENT_DELETE)
         .put(EVENT_BODY, new JsonObject().put(CLASS_CONTENT_ID, id).put(ID_CLASS, classId)
-            .put(CONTENT_ID, contentId).put(CONTENT_TYPE, contentType)
-            .put(CTX_COURSE_ID, ctxCourseId)
-            .put(CTX_UNIT_ID, ctxUnitId).put(CTX_LESSON_ID, ctxLessonId)
-            .put(CTX_COLLECTION_ID, ctxCollectionId));
+            .put(CONTENT_ID, contentId).put(CONTENT_TYPE, contentType));
   }
 
 }

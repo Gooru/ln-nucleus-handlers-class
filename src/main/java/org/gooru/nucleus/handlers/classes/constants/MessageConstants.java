@@ -62,8 +62,8 @@ public final class MessageConstants {
   public static final String ID = "id";
   public static final String REQ_PARAM_OFFSET = "offset";
   public static final String REQ_PARAM_LIMIT = "limit";
-  public static final String DATE_FROM = "date_from";
-  public static final String DATE_TO = "date_to";
+  public static final String FOR_MONTH = "for_month";
+  public static final String FOR_YEAR = "for_year";
 
   private MessageConstants() {
     throw new AssertionError();
