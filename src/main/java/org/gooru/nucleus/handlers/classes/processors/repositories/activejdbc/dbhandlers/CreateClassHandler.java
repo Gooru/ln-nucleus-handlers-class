@@ -125,8 +125,8 @@ class CreateClassHandler implements DBHandler {
 
   private boolean populateClassCode() {
     Generator<String> generator = GeneratorBuilder.buildClassCodeGenerator();
-    String resultCode = null;
-    int retries = 0;
+    String resultCode;
+    int retries;
     for (retries = 0; retries < RETRY_COUNT_FOR_CODE_GENERATION; retries++) {
       resultCode = generator.generate();
       if (checkUniqueness(resultCode)) {

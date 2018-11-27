@@ -23,7 +23,7 @@ public class ClassVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClassVerticle.class);
 
   @Override
-  public void start(Future<Void> voidFuture) throws Exception {
+  public void start(Future<Void> voidFuture) {
 
     EventBus eb = vertx.eventBus();
 

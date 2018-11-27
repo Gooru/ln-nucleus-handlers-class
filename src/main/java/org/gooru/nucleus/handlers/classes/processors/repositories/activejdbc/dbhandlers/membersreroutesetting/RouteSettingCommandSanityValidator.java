@@ -21,7 +21,7 @@ class RouteSettingCommandSanityValidator {
   private static final Logger LOGGER = LoggerFactory
       .getLogger(
           RouteSettingCommandSanityValidator.class);
-  protected static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
+  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
   RouteSettingCommandSanityValidator(UUID classId, Long gradeLowerBound,
       Long gradeUpperBound, List<String> users) {

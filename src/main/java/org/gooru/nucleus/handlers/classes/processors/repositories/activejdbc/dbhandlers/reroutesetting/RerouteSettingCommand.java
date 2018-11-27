@@ -66,10 +66,10 @@ class RerouteSettingCommand {
 
   static class RerouteSettingRequestAttributes {
 
-    static String GRADE_LOWER_BOUND = "grade_lower_bound";
-    static String GRADE_UPPER_BOUND = "grade_upper_bound";
-    static String GRADE_CURRENT = "grade_current";
-    static String ROUTE0 = "route0";
+    static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+    static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+    static final String GRADE_CURRENT = "grade_current";
+    static final String ROUTE0 = "route0";
 
     private RerouteSettingRequestAttributes() {
       throw new AssertionError();

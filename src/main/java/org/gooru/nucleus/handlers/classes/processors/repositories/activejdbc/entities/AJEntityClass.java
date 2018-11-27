@@ -40,7 +40,7 @@ public class AJEntityClass extends Model {
   private static final String GOORU_VERSION = "gooru_version";
   public static final String CONTENT_VISIBILITY = "content_visibility";
   private static final String IS_ARCHIVED = "is_archived";
-  public static final String IS_PUBLISHED = "is_published";
+  private static final String IS_PUBLISHED = "is_published";
   public static final String COLLABORATOR = "collaborator";
   public static final String COURSE_ID = "course_id";
   private static final String CREATED_AT = "created_at";
@@ -49,7 +49,7 @@ public class AJEntityClass extends Model {
   private static final String ROSTER_ID = "roster_id";
   private static final int CURRENT_VERSION = 3;
   public static final String INVITEES = "invitees";
-  public static final String TENANT = "tenant";
+  private static final String TENANT = "tenant";
   private static final String TENANT_ROOT = "tenant_root";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
@@ -58,7 +58,7 @@ public class AJEntityClass extends Model {
   public static final String SETTING = "setting";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
-  public static final String IS_OFFLINE = "is_offline";
+  private static final String IS_OFFLINE = "is_offline";
 
 
   // Dummy field names for Content Visibility
@@ -91,10 +91,10 @@ public class AJEntityClass extends Model {
           + "is_deleted = false";
   public static final String CODE_UNIQUENESS_QUERY = "code = ?";
 
-  public static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
+  private static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
           COLLABORATOR, IS_OFFLINE));
-  public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
+  private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
           COLLABORATOR,
           CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING, IS_OFFLINE));
@@ -157,7 +157,7 @@ public class AJEntityClass extends Model {
     validatorMap.put(DESCRIPTION, (value) -> FieldValidator.validateStringIfPresent(value, 5000));
     validatorMap.put(GREETING, (value) -> FieldValidator.validateStringIfPresent(value, 5000));
     validatorMap.put(GRADE, FieldValidator::validateJsonArrayIfPresent);
-    validatorMap.put(CLASS_SHARING, (value) -> ((value != null) && (value instanceof String) && (
+    validatorMap.put(CLASS_SHARING, (value) -> ((value instanceof String) && (
         CLASS_SHARING_TYPE_OPEN.equalsIgnoreCase((String) value) || CLASS_SHARING_TYPE_RESTRICTED
             .equalsIgnoreCase((String) value))));
     validatorMap.put(COVER_IMAGE, (value) -> FieldValidator.validateStringIfPresent(value, 2000));
@@ -174,8 +174,8 @@ public class AJEntityClass extends Model {
     validatorMap.put(INVITEES,
         (value) -> FieldValidator
             .validateDeepJsonArrayIfPresent(value, FieldValidator::validateEmail));
-    validatorMap.put(CV_ASSESSMENTS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
-    validatorMap.put(CV_COLLECTIONS, (value) -> FieldValidator.validateJsonArrayIfPresent(value));
+    validatorMap.put(CV_ASSESSMENTS, FieldValidator::validateJsonArrayIfPresent);
+    validatorMap.put(CV_COLLECTIONS, FieldValidator::validateJsonArrayIfPresent);
     validatorMap.put(TENANT, (FieldValidator::validateUuid));
     validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
     return Collections.unmodifiableMap(validatorMap);
@@ -251,11 +251,11 @@ public class AJEntityClass extends Model {
   private static final String DEFAULT_ALTERNATE_CONTENT_VISIBILITY = CONTENT_VISIBILITY_TYPE_VISIBLE_ALL;
 
   public String getDefaultAlternateContentVisibility() {
-    return this.DEFAULT_ALTERNATE_CONTENT_VISIBILITY;
+    return DEFAULT_ALTERNATE_CONTENT_VISIBILITY;
   }
 
   public String getDefaultContentVisibility() {
-    return this.DEFAULT_CONTENT_VISIBILITY;
+    return DEFAULT_CONTENT_VISIBILITY;
   }
 
   public String getContentVisibility() {

@@ -30,7 +30,7 @@ public class AJEntityClassContents extends Model {
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private static final String CREATED_AT = "created_at";
   private static final String UPDATED_AT = "updated_at";
-  public static final String CLASS_ID = "class_id";
+  private static final String CLASS_ID = "class_id";
   public static final String FOR_MONTH = "for_month";
   public static final String FOR_YEAR = "for_year";
   public static final String CONTENT_ID = "content_id";
@@ -48,10 +48,10 @@ public class AJEntityClassContents extends Model {
   public static final String ID = "id";
   private static final String COMMA_SEPARATOR = ",";
 
-  public static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
+  private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
           DCA_ADDED_DATE));
-  public static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
+  private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
       Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
   private static final Set<String> MANDATORY_FIELDS =
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
@@ -135,12 +135,7 @@ public class AJEntityClassContents extends Model {
   }
 
   public static FieldSelector updateFieldSelector() {
-    return new FieldSelector() {
-      @Override
-      public Set<String> allowedFields() {
-        return Collections.unmodifiableSet(UPDATEABLE_FIELDS);
-      }
-    };
+    return () -> Collections.unmodifiableSet(UPDATEABLE_FIELDS);
   }
 
   public void setClassId(String classId) {

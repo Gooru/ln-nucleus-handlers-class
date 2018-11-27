@@ -148,7 +148,7 @@ class ListClassContentHandler implements DBHandler {
     });
     List<Map> collectionContentCount =
         Base.findAll(AJEntityContent.SELECT_CONTENT_COUNT_BY_COLLECTION, collectionArrayString);
-    collectionContentCount.stream().forEach(data -> {
+    collectionContentCount.forEach(data -> {
       final String key = ((String) data.get(AJEntityContent.CONTENT_FORMAT))
           .equalsIgnoreCase(AJEntityContent.QUESTION_FORMAT) ? AJEntityContent.QUESTION_COUNT
           : AJEntityContent.RESOURCE_COUNT;
@@ -158,9 +158,9 @@ class ListClassContentHandler implements DBHandler {
     });
     List<Map> oeQuestionCountFromDB =
         Base.findAll(AJEntityContent.SELECT_OE_QUESTION_COUNT, collectionArrayString);
-    oeQuestionCountFromDB.stream().forEach(data -> {
+    oeQuestionCountFromDB.forEach(data -> {
       classContentOtherData
-          .getJsonObject((String) data.get(AJEntityContent.COLLECTION_ID).toString())
+          .getJsonObject(data.get(AJEntityContent.COLLECTION_ID).toString())
           .put(AJEntityContent.OE_QUESTION_COUNT, data.get(AJEntityContent.OE_QUESTION_COUNT));
     });
   }

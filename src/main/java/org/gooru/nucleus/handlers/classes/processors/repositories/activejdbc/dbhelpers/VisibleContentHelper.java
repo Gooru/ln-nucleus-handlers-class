@@ -56,7 +56,7 @@ public final class VisibleContentHelper {
         unitLessonMap.put(unitId, lessons);
       }
 
-      String visibility = null;
+      String visibility;
       String strClassVisibility = collection.getString(AJEntityCollection.CLASS_VISIBILITY);
       JsonObject classVisibility = strClassVisibility != null && !strClassVisibility.isEmpty()
           ? new JsonObject(strClassVisibility) : new JsonObject();

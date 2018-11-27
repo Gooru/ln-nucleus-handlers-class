@@ -1,10 +1,8 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -16,7 +14,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTenant;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
@@ -24,7 +21,6 @@ import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.E
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.LazyList;
-import org.javalite.activejdbc.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -272,45 +268,6 @@ class AddContentInClassHandler implements DBHandler {
     contentId = context.request().getString(AJEntityClassContents.CONTENT_ID);
     forMonth = context.request().getInteger(AJEntityClassContents.FOR_MONTH);
     forYear = context.request().getInteger(AJEntityClassContents.FOR_YEAR);
-  }
-
-  private boolean isOwner(Model model) {
-    String creatorId = model.getString(AJEntityClass.OWNER_ID);
-    if (!Objects.equals(context.userId(), creatorId)) {
-      LOGGER.warn("User '{}' is not owner of content '{}'", context.userId(), model.getId());
-      return false;
-    }
-    return true;
-  }
-
-  private boolean isCollaborator(Model model) {
-    String collaboratorString = model.getString(AJEntityClass.COLLABORATOR);
-    if (collaboratorString != null && !collaboratorString.isEmpty()) {
-      JsonArray collaborators = new JsonArray(collaboratorString);
-      if (collaborators.contains(context.userId())) {
-        return true;
-      }
-    }
-    LOGGER.warn("User '{}' is not collaborator of content '{}'", context.userId(), model.getId());
-    return false;
-  }
-
-  private boolean isAccessibleToUserTenant(Model model, String contentId) {
-    String tenantId = model.getString(AJEntityClass.TENANT);
-    if (Objects.equals(context.tenant(), tenantId)) {
-      return true;
-    }
-    final AJEntityTenant contentTenant = AJEntityTenant
-        .findFirst(AJEntityTenant.SELECT_TENANT, tenantId);
-    if (contentTenant != null
-        && ((contentTenant.isContentVisibilityTenant() && Objects
-        .equals(context.tenantRoot(), tenantId))
-        || contentTenant.isContentVisibilityGlobal())) {
-      return true;
-    }
-    LOGGER
-        .warn("User '{}' is not accessible to tenant of content '{}'", context.userId(), contentId);
-    return false;
   }
 
   private JsonObject getModelErrors() {

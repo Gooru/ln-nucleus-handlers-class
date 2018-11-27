@@ -7,8 +7,8 @@ import org.javalite.activejdbc.annotations.Table;
 public class AJEntityCourse extends Model {
 
   public static final String TABLE_COURSE = "course";
-  public static final String TENANT = "tenant";
-  public static final String TENANT_ROOT = "tenant_root";
+  private static final String TENANT = "tenant";
+  private static final String TENANT_ROOT = "tenant_root";
   private static final String PUBLISH_STATUS_TYPE_PUBLISHED = "published";
   private static final String PUBLISH_STATUS = "publish_status";
   public static final String ID = "id";

@@ -21,7 +21,7 @@ public class AJClassMember extends Model {
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
 
-  public static final String CLASS_ID = "class_id";
+  private static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
   public static final String EMAIL = "email";
   public static final String CREATOR_ID = "creator_id";
@@ -30,9 +30,9 @@ public class AJClassMember extends Model {
   public static final String CREATOR_SYSTEM = "creator_system";
   public static final String ROSTER_ID = "roster_id";
   public static final String CLASS_MEMBER_STATUS = "class_member_status";
-  public static final String CLASS_MEMBER_STATUS_TYPE = "class_member_status_type";
+  private static final String CLASS_MEMBER_STATUS_TYPE = "class_member_status_type";
   public static final String CLASS_MEMBER_STATUS_TYPE_INVITED = "invited";
-  public static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
+  private static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
   public static final String TABLE_CLASS_MEMBER = "class_member";
 
   public static final String INVITE_STUDENT_QUERY =

@@ -145,13 +145,13 @@ public class ContentVisibilityHandler implements DBHandler {
             ? new JsonObject(strClassVisibility) : new JsonObject();
         if (classVisibility.containsKey(context.classId())) {
           String currentVisibility = classVisibility.getString(context.classId());
-          String newVisibility = collectionVisibilityMap.get(id).toString();
+          String newVisibility = collectionVisibilityMap.get(id);
           if (!currentVisibility.equalsIgnoreCase(newVisibility)) {
             classVisibility.put(context.classId(), newVisibility);
             Base.addBatch(ps, classVisibility.toString(), id, courseId);
           }
         } else {
-          classVisibility.put(context.classId(), collectionVisibilityMap.get(id).toString());
+          classVisibility.put(context.classId(), collectionVisibilityMap.get(id));
           Base.addBatch(ps, classVisibility.toString(), id, courseId);
         }
       });

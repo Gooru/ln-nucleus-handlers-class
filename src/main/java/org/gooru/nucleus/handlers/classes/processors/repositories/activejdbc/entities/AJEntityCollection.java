@@ -10,7 +10,7 @@ import org.javalite.activejdbc.annotations.Table;
 public class AJEntityCollection extends Model {
 
   public static final String ID = "id";
-  public static final String COURSE_ID = "course_id";
+  private static final String COURSE_ID = "course_id";
   public static final String UNIT_ID = "unit_id";
   public static final String LESSON_ID = "lesson_id";
   public static final String CA_COUNT = "count";
@@ -43,10 +43,10 @@ public class AJEntityCollection extends Model {
   public static final String FETCH_COLLECTIONS_CLASS_VISIBILITY_ALL =
       "SELECT id, class_visibility, format FROM collection WHERE course_id = ?::uuid AND is_deleted = false";
   public static final String TABLE_COLLECTION = "collection";
-  public static final String FORMAT_TYPE = "format";
-  public static final String FORMAT_TYPE_COLLECTION = "collection";
-  public static final String FORMAT_TYPE_ASSESSMENT = "assessment";
-  public static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
+  private static final String FORMAT_TYPE = "format";
+  private static final String FORMAT_TYPE_COLLECTION = "collection";
+  private static final String FORMAT_TYPE_ASSESSMENT = "assessment";
+  private static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
   public static final String VISIBILITY_DML =
       "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
   public static final String SELECT_COLLECTION_TO_AUTHORIZE =
