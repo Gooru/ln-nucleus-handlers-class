@@ -79,8 +79,9 @@ public class AddClassContentUsersHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
+    int usersCount = users == null ? -1 : users.size();
     AJEntityClassContents.updateClassContentUsers(classContentId,
-        users == null ? null : DbHelperUtil.toPostgresArrayString(users));
+        users == null ? null : DbHelperUtil.toPostgresArrayString(users), usersCount);
     return new ExecutionResult<>(MessageResponseFactory
         .createNoContentResponse(RESOURCE_BUNDLE.getString("updated")),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);

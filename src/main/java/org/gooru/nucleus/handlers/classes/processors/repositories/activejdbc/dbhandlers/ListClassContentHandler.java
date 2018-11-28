@@ -92,9 +92,16 @@ class ListClassContentHandler implements DBHandler {
 
     fetchClassContents();
 
-    JsonArray results = new JsonArray(JsonFormatterBuilder
-        .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS)
-        .toJson(classContents));
+    JsonArray results;
+    if (isStudent) {
+      results = new JsonArray(JsonFormatterBuilder
+          .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_STUDENT)
+          .toJson(classContents));
+    } else {
+      results = new JsonArray(JsonFormatterBuilder
+          .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_TEACHER)
+          .toJson(classContents));
+    }
     JsonArray resultSet = new JsonArray();
 
     if (results.size() > 0) {

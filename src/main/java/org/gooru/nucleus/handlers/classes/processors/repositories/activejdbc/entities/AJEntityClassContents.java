@@ -51,6 +51,7 @@ public class AJEntityClassContents extends Model {
   public static final String ID_CONTENT = "contentId";
   private static final String SORT_DESC = " desc";
   public static final String USERS = "users";
+  public static final String USERS_COUNT = "users_count";
   public static final String ID = "id";
   private static final String COMMA_SEPARATOR = ",";
 
@@ -66,7 +67,10 @@ public class AJEntityClassContents extends Model {
   private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
       .asList(ASSESSMENT, COLLECTION, ASSESSMENT_EXTERNAL, COLLECTION_EXTERNAL, RESOURCE,
           QUESTION));
-  public static final List<String> RESPONSE_FIELDS = Arrays
+  public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
+      .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
+          CREATED_AT, USERS_COUNT);
+  public static final List<String> RESPONSE_FIELDS_FOR_STUDENT = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
           CREATED_AT);
   private static final Map<String, FieldValidator> validatorRegistry;
@@ -91,7 +95,7 @@ public class AJEntityClassContents extends Model {
   private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
       "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date AND (?::text = any(users) OR users is null)";
 
-  private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_content set users = ?::text[] where id = ?";
+  private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_content set users = ?::text[], users_count = ? where id = ?";
 
   public static final String FETCH_CLASS_CONTENT = "id = ?::bigint AND class_id = ?::uuid";
 
@@ -251,6 +255,10 @@ public class AJEntityClassContents extends Model {
     }
   }
 
+  public int getUsersCount() {
+    return this.getInteger(USERS_COUNT);
+  }
+
   public static LazyList<AJEntityClassContents> fetchAllContentsForStudent(String classId,
       int forMonth, int forYear, String userId) {
 
@@ -291,8 +299,8 @@ public class AJEntityClassContents extends Model {
         .orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
-  public static void updateClassContentUsers(Long classContentId, String users) {
-    Base.exec(UPDATE_CLASS_CONTENTS_USERS, users, classContentId);
+  public static void updateClassContentUsers(Long classContentId, String users, int count) {
+    Base.exec(UPDATE_CLASS_CONTENTS_USERS, users, count, classContentId);
   }
 
   public static ValidatorRegistry getValidatorRegistry() {
