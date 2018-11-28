@@ -1,8 +1,10 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,11 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.ConverterRegistry;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldSelector;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
+import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.javalite.activejdbc.Model;
@@ -218,6 +222,33 @@ public class AJEntityClassContents extends Model {
 
   public Integer getForYear() {
     return this.getInteger(FOR_YEAR);
+  }
+
+  public List<String> getUsers() {
+    Object usersObjects = this.get(USERS);
+    if (usersObjects == null) {
+      return null;
+    }
+    if (usersObjects instanceof java.sql.Array) {
+      String[] result = new String[0];
+      try {
+        result = (String[]) ((java.sql.Array) usersObjects).getArray();
+        List<String> users = new ArrayList<>();
+        if (result.length == 0) {
+          return users;
+        }
+        Collections.addAll(users, result);
+        return users;
+      } catch (SQLException e) {
+        LOGGER.warn("Invalid users for CA '{}' in db ", this.getId(), e);
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInternalErrorResponse(RESOURCE_BUNDLE.getString("error.from.store")));
+      }
+    } else {
+      LOGGER.warn("Not an instance of array");
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInternalErrorResponse(RESOURCE_BUNDLE.getString("error.from.store")));
+    }
   }
 
   public static LazyList<AJEntityClassContents> fetchAllContentsForStudent(String classId,

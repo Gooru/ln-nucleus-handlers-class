@@ -73,7 +73,7 @@ public class AddClassContentUsersHandler implements DBHandler {
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionStatus.FAILED);
     }
-    return AuthorizerBuilder.buildListClassContentUsersAuthorizer(context)
+    return AuthorizerBuilder.buildAddClassContentUsersAuthorizer(context)
         .authorize(this.entityClass);
   }
 

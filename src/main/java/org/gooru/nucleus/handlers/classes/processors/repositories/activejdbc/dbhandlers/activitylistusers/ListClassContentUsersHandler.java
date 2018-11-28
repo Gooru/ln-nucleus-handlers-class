@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activitylistusers;
 
+import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -38,20 +39,8 @@ public class ListClassContentUsersHandler implements DBHandler {
   @Override
   public ExecutionResult<MessageResponse> checkSanity() {
     try {
-      if (!ProcessorContextHelper.validateId(context.classId())) {
-        LOGGER.warn("Invalid format of class id: '{}'", context.classId());
-        return new ExecutionResult<>(MessageResponseFactory
-            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class")),
-            ExecutionStatus.FAILED);
-      }
+      new RequestValidator(context).validate();
       initializeContentId();
-      if (!ProcessorContextHelper.validateId(context.userId())) {
-        LOGGER.warn("Invalid user");
-        return new ExecutionResult<>(
-            MessageResponseFactory
-                .createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
-            ExecutionResult.ExecutionStatus.FAILED);
-      }
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionStatus.FAILED);
     }
@@ -66,18 +55,14 @@ public class ListClassContentUsersHandler implements DBHandler {
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(), ExecutionStatus.FAILED);
     }
-    return AuthorizerBuilder.buildAddClassContentUsersAuthorizer(context)
+    return AuthorizerBuilder.buildListClassContentUsersAuthorizer(context)
         .authorize(this.entityClass);
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    // TODO: Implement this
-    // Fetch the users for this activity
-    // Enrich them with the status and filter out from class_members table
-    // Enrich them further with data from users table
-    // Create Json payload
-    return null;
+    List<String> users = entityClassContent.getUsers();
+    return new ResponseBuilder(context.classId(), users).buildResponse();
   }
 
   @Override
@@ -117,13 +102,8 @@ public class ListClassContentUsersHandler implements DBHandler {
 
   private void initializeContentId() {
     String contentId = context.requestHeaders().get(MessageConstants.CLASS_CONTENT_ID);
-    try {
-      classContentId = Long.parseLong(contentId);
-    } catch (NumberFormatException nfe) {
-      LOGGER.warn("Invalid class activity id: '{}'", contentId);
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.classcontentid")));
-    }
+    // Validator took care of type conversion
+    classContentId = Long.parseLong(contentId);
   }
-  
+
 }
