@@ -196,7 +196,7 @@ class ListClassContentHandler implements DBHandler {
     if (isStudent) {
       return AJEntityClassContents
           .fetchClassContentsByContentTypeForStudent(context.classId(), contentType, forMonth,
-              forYear);
+              forYear, context.userId());
     } else {
       return AJEntityClassContents
           .fetchClassContentsByContentTypeForTeacher(context.classId(), contentType, forMonth,
@@ -206,7 +206,8 @@ class ListClassContentHandler implements DBHandler {
 
   private LazyList<AJEntityClassContents> getAllClassContents() {
     if (isStudent) {
-      return AJEntityClassContents.fetchAllContentsForStudent(context.classId(), forMonth, forYear);
+      return AJEntityClassContents
+          .fetchAllContentsForStudent(context.classId(), forMonth, forYear, context.userId());
     } else {
       return AJEntityClassContents.fetchAllContentsForTeacher(context.classId(), forMonth, forYear);
     }
