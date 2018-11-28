@@ -49,7 +49,7 @@ class ResponseBuilder {
   }
 
   private ExecutionResult<MessageResponse> fetchSpecifiedMembers() {
-    members = AJClassMember.where(AJClassMember.FETCH_SPECIFIC_QUERY_FILTER, classId);
+    members = AJClassMember.where(AJClassMember.FETCH_SPECIFIC_USERS_QUERY_FILTER, classId);
     if (members.isEmpty()) {
       return noClassMembersResponse();
     }
@@ -87,7 +87,7 @@ class ResponseBuilder {
 
   private ExecutionResult<MessageResponse> fetchAllClassMembers() {
     members =
-        AJClassMember.where(AJClassMember.FETCH_ALL_QUERY_FILTER, classId);
+        AJClassMember.where(AJClassMember.FETCH_ALL_JOINED_USERS_FILTER, classId);
     if (members.isEmpty()) {
       return noClassMembersResponse();
     }
