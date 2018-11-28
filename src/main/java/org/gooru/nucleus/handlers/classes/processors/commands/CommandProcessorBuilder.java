@@ -124,11 +124,22 @@ public enum CommandProcessorBuilder {
       return new ClassContentAddProcessor(context);
     }
   },
-
+  CLASS_CONTENT_USERS_ADD(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_ADD) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentUsersAddProcessor(context);
+    }
+  },
   CLASS_CONTENT_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_LIST) {
     @Override
     public Processor build(ProcessorContext context) {
       return new ClassContentListProcessor(context);
+    }
+  },
+  CLASS_CONTENT_USERS_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_LIST) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentUsersListProcessor(context);
     }
   },
   CLASS_CONTENT_ENABLE(MessageConstants.MSG_OP_CLASS_CONTENT_ENABLE) {

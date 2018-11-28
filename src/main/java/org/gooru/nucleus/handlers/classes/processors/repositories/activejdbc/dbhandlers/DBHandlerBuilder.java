@@ -1,6 +1,8 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activityaddusers.AddClassContentUsersHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activitylistusers.ListClassContentUsersHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting.UpdateClassMembersRerouteSettingHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.profilebaseline.UpdateProfileBaselineForSpecifiedStudentsHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.UpdateClassRerouteSettingHandler;
@@ -105,5 +107,13 @@ public final class DBHandlerBuilder {
 
   public static DBHandler buildUpdateClassMembersRerouteSettingHandler(ProcessorContext context) {
     return new UpdateClassMembersRerouteSettingHandler(context);
+  }
+
+  public static DBHandler buildAddClassContentUsersHandler(ProcessorContext context) {
+    return new AddClassContentUsersHandler(context);
+  }
+
+  public static DBHandler buildListClassContentUsersHandler(ProcessorContext context) {
+    return new ListClassContentUsersHandler(context);
   }
 }

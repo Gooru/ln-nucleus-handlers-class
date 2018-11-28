@@ -52,4 +52,8 @@ public interface ClassRepo {
   MessageResponse updateProfileBaselineForSpecifiedStudents();
 
   MessageResponse updateClassMembersRerouteSetting();
+
+  MessageResponse addClassContentUsers();
+
+  MessageResponse listClassContentUsers();
 }

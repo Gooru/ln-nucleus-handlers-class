@@ -158,4 +158,14 @@ public final class AuthorizerBuilder {
       ProcessorContext context) {
     return new TenantReadContentAuthorizer(context);
   }
+
+  public static Authorizer<AJEntityClass> buildListClassContentUsersAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildAddClassContentUsersAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
 }

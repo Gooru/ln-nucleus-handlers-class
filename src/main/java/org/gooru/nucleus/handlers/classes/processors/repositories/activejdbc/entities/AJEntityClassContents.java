@@ -16,6 +16,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.con
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldSelector;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
@@ -45,12 +46,15 @@ public class AJEntityClassContents extends Model {
   public static final String QUESTION = "question";
   public static final String ID_CONTENT = "contentId";
   private static final String SORT_DESC = " desc";
+  public static final String USERS = "users";
   public static final String ID = "id";
   private static final String COMMA_SEPARATOR = ",";
 
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
           DCA_ADDED_DATE));
+  private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
+      .asList(USERS));
   private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
       Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
   private static final Set<String> MANDATORY_FIELDS =
@@ -82,6 +86,8 @@ public class AJEntityClassContents extends Model {
 
   private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
       "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date";
+
+  private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_content set users = ?::text[] where id = ?";
 
   public static final String FETCH_CLASS_CONTENT = "id = ?::bigint AND class_id = ?::uuid";
 
@@ -117,6 +123,9 @@ public class AJEntityClassContents extends Model {
             (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
     validatorMap.put(DCA_ADDED_DATE, (value -> FieldValidator
         .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1)));
+    validatorMap.put(USERS,
+        (value) -> FieldValidator
+            .validateDeepJsonArrayIfPresentAllowEmpty(value, FieldValidator::validateUuid));
     return Collections.unmodifiableMap(validatorMap);
   }
 
@@ -133,6 +142,21 @@ public class AJEntityClassContents extends Model {
       }
     };
   }
+
+  public static FieldSelector updateUsersFieldSelector() {
+    return new FieldSelector() {
+      @Override
+      public Set<String> allowedFields() {
+        return Collections.unmodifiableSet(UPDATE_USERS_FIELDS);
+      }
+
+      @Override
+      public Set<String> mandatoryFields() {
+        return Collections.unmodifiableSet(UPDATE_USERS_FIELDS);
+      }
+    };
+  }
+
 
   public static FieldSelector updateFieldSelector() {
     return () -> Collections.unmodifiableSet(UPDATEABLE_FIELDS);
@@ -166,7 +190,6 @@ public class AJEntityClassContents extends Model {
               .convertFieldToDateWithFormat(dcaAddedDate, DateTimeFormatter.ISO_LOCAL_DATE));
     }
   }
-
 
 
   public Date getActivationDate() {
@@ -234,6 +257,10 @@ public class AJEntityClassContents extends Model {
     return AJEntityClassContents
         .where(SELECT_CLASS_CONTENTS_GRP_BY_TYPE, classId, forYear, forMonth, contentType)
         .orderBy("dca_added_date desc nulls first, created_at desc");
+  }
+
+  public static void updateClassContentUsers(Long classContentId, String users) {
+    Base.exec(UPDATE_CLASS_CONTENTS_USERS, users, classContentId);
   }
 
   public static ValidatorRegistry getValidatorRegistry() {

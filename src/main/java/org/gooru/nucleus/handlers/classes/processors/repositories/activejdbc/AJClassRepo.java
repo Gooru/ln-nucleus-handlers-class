@@ -154,4 +154,16 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildUpdateClassMembersRerouteSettingHandler(context));
   }
+
+  @Override
+  public MessageResponse addClassContentUsers() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildAddClassContentUsersHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentUsers() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildListClassContentUsersHandler(context));
+  }
 }

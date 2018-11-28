@@ -117,6 +117,25 @@ public interface FieldValidator {
     return true;
   }
 
+  static boolean validateDeepJsonArrayIfPresentAllowEmpty(Object o, FieldValidator fv) {
+    if (o == null) {
+      return true;
+    } else if (!(o instanceof JsonArray)) {
+      return false;
+    } else if (((JsonArray) o).isEmpty()) {
+        return true;
+    } else {
+      JsonArray array = (JsonArray) o;
+      for (Object element : array) {
+        if (!fv.validateField(element)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+
   static boolean validateDeepJsonArray(Object o, FieldValidator fv) {
     if (o == null || !(o instanceof JsonArray) || ((JsonArray) o).isEmpty()) {
       return false;

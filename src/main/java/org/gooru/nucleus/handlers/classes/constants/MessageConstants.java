@@ -36,6 +36,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
   public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
   public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
+  public static final String MSG_OP_CLASS_CONTENT_USERS_ADD = "class.content.users.add";
+  public static final String MSG_OP_CLASS_CONTENT_USERS_LIST = "class.content.users.list";
   public static final String MSG_OP_CLASS_CONTENT_LIST = "class.content.list";
   public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
   public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
@@ -50,6 +52,7 @@ public final class MessageConstants {
   public static final String RESP_CONTAINER_EVENT = "mb.event";
 
   public static final String CLASS_ID = "classId";
+  public static final String CLASS_CONTENT_ID = "classContentId";
   public static final String COURSE_ID = "courseId";
   public static final String STUDENT_ID = "studentId";
   public static final String CLASS_CODE = "classCode";
