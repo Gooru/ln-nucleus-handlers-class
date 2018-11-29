@@ -86,7 +86,7 @@ public final class VisibleContentHelper {
           assessmentsArray.add(visibilityJson);
           assessmentsByLesson.put(lessonId, assessmentsArray);
         }
-      } else if (collection.isCollection()) {
+      } else if (collection.isCollection() || collection.isCollectionExternal()) {
         if (collectionsByLesson.containsKey(lessonId)) {
           collectionsByLesson.get(lessonId).add(visibilityJson);
         } else {
