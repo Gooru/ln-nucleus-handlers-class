@@ -52,7 +52,7 @@ public class AJEntityCollection extends Model {
       "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
   public static final String SELECT_COLLECTION_TO_AUTHORIZE =
       "SELECT id, course_id, owner_id, collaborator, publish_status, tenant, tenant_root FROM collection where id = ?::uuid AND is_deleted = false";
-  public static final String SELECT_COLLECTION = "SELECT id, title, thumbnail, url from collection where id = ANY(?::uuid[])";
+  public static final String SELECT_COLLECTION = "SELECT id, title, thumbnail, url, taxonomy from collection where id = ANY(?::uuid[])";
 
   public static final String JSON_KEY_VISIBLE = "visible";
   public static final String VISIBLE_ON = "on";
