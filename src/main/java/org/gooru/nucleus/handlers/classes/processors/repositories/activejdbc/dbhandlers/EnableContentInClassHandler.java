@@ -4,6 +4,7 @@ import io.vertx.core.json.JsonObject;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -193,7 +194,7 @@ class EnableContentInClassHandler implements DBHandler {
         activationDateAsString = activationDate.toString();
       }
       // toString() method will extract the date only (yyyy-mm-dd)
-      final String dcaAddedDate = this.classContents.getDcaAddedDate().toString();
+      final String dcaAddedDate = Objects.toString(this.classContents.getDcaAddedDate(), null);
       if (dcaAddedDate != null && !activationDateAsString.equals(dcaAddedDate)) {
         LOGGER.warn("Activation date {} should be same as class content creation date {}",
             activationDateAsString, dcaAddedDate);

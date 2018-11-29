@@ -95,7 +95,7 @@ public class AJEntityClassContents extends Model {
   private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
       "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date AND (?::text = any(users) OR users is null)";
 
-  private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_content set users = ?::text[], users_count = ? where id = ?";
+  private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_contents set users = ?::text[], users_count = ? where id = ?";
 
   public static final String FETCH_CLASS_CONTENT = "id = ?::bigint AND class_id = ?::uuid";
 
@@ -309,6 +309,10 @@ public class AJEntityClassContents extends Model {
 
   public static ConverterRegistry getConverterRegistry() {
     return new ClassContentsConverterRegistry();
+  }
+
+  public void setInitialUsersCount() {
+    this.setInteger(USERS_COUNT, -1);
   }
 
   private static class ClassContentsValidationRegistry implements ValidatorRegistry {

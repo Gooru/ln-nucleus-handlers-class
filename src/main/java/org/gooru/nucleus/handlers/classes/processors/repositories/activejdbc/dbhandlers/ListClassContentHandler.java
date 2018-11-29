@@ -151,6 +151,10 @@ class ListClassContentHandler implements DBHandler {
       data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
       data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
       data.put(MessageConstants.URL, content.getString(MessageConstants.URL));
+      String taxonomyString = content.getString(MessageConstants.TAXONOMY);
+      JsonObject taxonomy = (taxonomyString == null || taxonomyString.isEmpty()) ? new JsonObject()
+          : new JsonObject(taxonomyString);
+      data.put(MessageConstants.TAXONOMY, taxonomy);
       classContentOtherData.put(content.getString(MessageConstants.ID), data);
     });
     List<Map> collectionContentCount =

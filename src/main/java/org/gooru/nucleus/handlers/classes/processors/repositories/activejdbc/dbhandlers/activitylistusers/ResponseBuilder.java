@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Utils;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUser;
@@ -49,7 +50,8 @@ class ResponseBuilder {
   }
 
   private ExecutionResult<MessageResponse> fetchSpecifiedMembers() {
-    members = AJClassMember.where(AJClassMember.FETCH_SPECIFIC_USERS_QUERY_FILTER, classId);
+    members = AJClassMember.where(AJClassMember.FETCH_SPECIFIC_USERS_QUERY_FILTER, classId,
+        DbHelperUtil.toPostgresArrayString(users));
     if (members.isEmpty()) {
       return noClassMembersResponse();
     }

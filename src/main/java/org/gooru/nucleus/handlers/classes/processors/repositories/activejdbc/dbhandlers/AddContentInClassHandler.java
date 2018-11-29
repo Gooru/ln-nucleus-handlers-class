@@ -95,6 +95,7 @@ class AddContentInClassHandler implements DBHandler {
     new DefaultAJEntityClassContentsBuilder()
         .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
     classContents.setClassId(context.classId());
+    classContents.setInitialUsersCount();
 
     AJEntityClassContents content = findAlreadyAddedContentForToday();
     if (content != null) {
