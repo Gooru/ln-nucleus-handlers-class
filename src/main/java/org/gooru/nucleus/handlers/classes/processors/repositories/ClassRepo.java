@@ -56,4 +56,8 @@ public interface ClassRepo {
   MessageResponse addClassContentUsers();
 
   MessageResponse listClassContentUsers();
+
+  MessageResponse classMembersDeactivate();
+
+  MessageResponse classMembersActivate();
 }

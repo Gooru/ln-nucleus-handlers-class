@@ -168,4 +168,16 @@ public final class AuthorizerBuilder {
       ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
+
+  public static Authorizer<AJEntityClass> buildClassMemberDeactivateAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildClassMemberActivateAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+
 }

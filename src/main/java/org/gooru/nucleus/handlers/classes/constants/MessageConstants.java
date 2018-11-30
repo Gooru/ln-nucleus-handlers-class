@@ -25,6 +25,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_DELETE = "class.delete";
   public static final String MSG_OP_CLASS_GET = "class.get";
   public static final String MSG_OP_CLASS_MEMBERS_GET = "class.members.get";
+  public static final String MSG_OP_CLASS_MEMBERS_ACTIVATE = "class.members.activate";
+  public static final String MSG_OP_CLASS_MEMBERS_DEACTIVATE = "class.members.deactivate";
   public static final String MSG_OP_CLASS_COLLABORATORS_UPDATE = "class.collaborators.update";
   public static final String MSG_OP_CLASS_LIST = "class.list";
   public static final String MSG_OP_CLASS_LIST_FOR_COURSE = "class.list.for.course";

@@ -166,4 +166,16 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildListClassContentUsersHandler(context));
   }
+
+  @Override
+  public MessageResponse classMembersDeactivate() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassMembersActivateHandler(context));
+  }
+
+  @Override
+  public MessageResponse classMembersActivate() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassMembersDectivateHandler(context));
+  }
 }
