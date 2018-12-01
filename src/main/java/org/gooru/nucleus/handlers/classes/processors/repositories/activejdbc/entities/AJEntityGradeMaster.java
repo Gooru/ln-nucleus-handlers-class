@@ -11,11 +11,11 @@ import org.javalite.activejdbc.annotations.Table;
 @Table("grade_master")
 public class AJEntityGradeMaster extends Model {
 
-  static final String ID = "id";
-  static final String GRADE = "grade";
-  static final String GRADE_SEQ = "grade_seq";
+  private static final String ID = "id";
+  private static final String GRADE = "grade";
+  private static final String GRADE_SEQ = "grade_seq";
 
-  static final String FETCH_MULTIPLE_QUERY_FILTER = "id = ANY(?::bigint[])";
+  private static final String FETCH_MULTIPLE_QUERY_FILTER = "id = ANY(?::bigint[])";
 
   public Long getId() {
     return this.getLong(ID);

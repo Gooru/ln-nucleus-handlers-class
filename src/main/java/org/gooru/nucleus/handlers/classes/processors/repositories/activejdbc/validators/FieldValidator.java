@@ -59,16 +59,15 @@ public interface FieldValidator {
   }
 
   static boolean validateDateWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter,
-      long daysInPast, long daysInFuture) {
+      long daysInPast) {
     if (o == null) {
-      return false;
+      return true;
     }
     try {
       LocalDate date = LocalDate.parse(o.toString(), formatter);
       LocalDate today = LocalDate.now();
 
-      if (today.minusDays(daysInPast).isAfter(date) || today.plusDays(daysInFuture)
-          .isBefore(date)) {
+      if (today.minusDays(daysInPast).isAfter(date)) {
         return false;
       }
     } catch (DateTimeParseException e) {
@@ -118,6 +117,25 @@ public interface FieldValidator {
     return true;
   }
 
+  static boolean validateDeepJsonArrayIfPresentAllowEmpty(Object o, FieldValidator fv) {
+    if (o == null) {
+      return true;
+    } else if (!(o instanceof JsonArray)) {
+      return false;
+    } else if (((JsonArray) o).isEmpty()) {
+        return true;
+    } else {
+      JsonArray array = (JsonArray) o;
+      for (Object element : array) {
+        if (!fv.validateField(element)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+
   static boolean validateDeepJsonArray(Object o, FieldValidator fv) {
     if (o == null || !(o instanceof JsonArray) || ((JsonArray) o).isEmpty()) {
       return false;
@@ -166,4 +184,29 @@ public interface FieldValidator {
     Matcher matcher = EMAIL_PATTERN.matcher((String) o);
     return matcher.matches();
   }
+
+  static boolean validateMonth(Object o) {
+    if (o == null) {
+      return false;
+    }
+    try {
+      Integer month = (Integer) o;
+      return ((month >= 1) && (month <= 12));
+    } catch (ClassCastException cce) {
+      return false;
+    }
+  }
+
+  static boolean validateYear(Object o) {
+    if (o == null) {
+      return false;
+    }
+    try {
+      Integer year = (Integer) o;
+      return ((year >= 2000) && (year <= 2100));
+    } catch (ClassCastException cce) {
+      return false;
+    }
+  }
+
 }

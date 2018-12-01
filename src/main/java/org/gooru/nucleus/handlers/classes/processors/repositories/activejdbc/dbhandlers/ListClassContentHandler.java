@@ -32,6 +32,12 @@ class ListClassContentHandler implements DBHandler {
   private final ProcessorContext context;
   private String contentType;
   private boolean isStudent;
+  private int forMonth;
+  private int forYear;
+  private List<String> contentIds;
+  private List<String> collectionIds;
+  private JsonObject classContentOtherData;
+  private LazyList<AJEntityClassContents> classContents;
 
   ListClassContentHandler(ProcessorContext context) {
     this.context = context;
@@ -42,6 +48,8 @@ class ListClassContentHandler implements DBHandler {
     try {
       validateUser();
       contentType = DbHelperUtil.readRequestParam(AJEntityClassContents.CONTENT_TYPE, context);
+      forMonth = DbHelperUtil.getForMonth(context);
+      forYear = DbHelperUtil.getForYear(context);
       validateClassId();
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
@@ -62,9 +70,9 @@ class ListClassContentHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
     AJEntityClass entityClass = classes.get(0);
-    ExecutionResult<MessageResponse> classAuthorize =
+    ExecutionResult<MessageResponse> classAuthorization =
         AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
-    if (!classAuthorize.continueProcessing()) {
+    if (!classAuthorization.continueProcessing()) {
       isStudent = checkStudent(entityClass);
       if (!isStudent) {
         return new ExecutionResult<>(
@@ -75,87 +83,39 @@ class ListClassContentHandler implements DBHandler {
         return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
       }
     } else {
-      return classAuthorize;
+      return classAuthorization;
     }
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    LazyList<AJEntityClassContents> classContents = null;
-    if (contentType == null) {
-      classContents = AJEntityClassContents
-          .where(AJEntityClassContents.getClassContent(isStudent), context.classId(),
-              DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
-          .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder(isStudent));
+
+    fetchClassContents();
+
+    JsonArray results;
+    if (isStudent) {
+      results = new JsonArray(JsonFormatterBuilder
+          .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_STUDENT)
+          .toJson(classContents));
     } else {
-      classContents = AJEntityClassContents
-          .where(AJEntityClassContents.getClassContentWithGrouping(isStudent), context.classId(),
-              contentType,
-              DbHelperUtil.getDateRangeFrom(context), DbHelperUtil.getDateRangeTo(context))
-          .orderBy(AJEntityClassContents.getSequenceFieldNameWithSortOrder(isStudent));
+      results = new JsonArray(JsonFormatterBuilder
+          .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_TEACHER)
+          .toJson(classContents));
     }
-
-    JsonArray results = new JsonArray(JsonFormatterBuilder
-        .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS)
-        .toJson(classContents));
     JsonArray resultSet = new JsonArray();
-    if (results != null && results.size() > 0) {
-      final List<String> contentIds = new ArrayList<>();
-      final List<String> collectionIds = new ArrayList<>();
-      results.forEach(content -> {
-        JsonObject classContent = (JsonObject) content;
-        if (checkContentTypeIsCollection(
-            classContent.getString(AJEntityClassContents.CONTENT_TYPE))) {
-          collectionIds.add(classContent.getString(AJEntityClassContents.CONTENT_ID));
-        } else if (checkContentTypeIsContent(
-            classContent.getString(AJEntityClassContents.CONTENT_TYPE))) {
-          contentIds.add(classContent.getString(AJEntityClassContents.CONTENT_ID));
-        }
 
-      });
-      JsonObject classContentOtherData = new JsonObject();
+    if (results.size() > 0) {
+      initializeCollectionIdsAndContentIds(results);
+      classContentOtherData = new JsonObject();
+
       if (contentIds.size() > 0) {
-        String contentArrayString = DbHelperUtil.toPostgresArrayString(contentIds);
-        LazyList<AJEntityContent> contents =
-            AJEntityContent.findBySQL(AJEntityContent.SELECT_CONTENTS, contentArrayString);
-        contents.forEach(content -> {
-          JsonObject data = new JsonObject();
-          data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
-          data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
-          classContentOtherData.put(content.getString(MessageConstants.ID), data);
-        });
+        enrichContentInfo();
       }
 
       if (collectionIds.size() > 0) {
-        String collectionArrayString = DbHelperUtil.toPostgresArrayString(collectionIds);
-        LazyList<AJEntityCollection> collections =
-            AJEntityCollection
-                .findBySQL(AJEntityCollection.SELECT_COLLECTION, collectionArrayString);
-        collections.forEach(content -> {
-          JsonObject data = new JsonObject();
-          data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
-          data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
-          data.put(MessageConstants.URL, content.getString(MessageConstants.URL));
-          classContentOtherData.put(content.getString(MessageConstants.ID), data);
-        });
-        List<Map> collectionContentCount =
-            Base.findAll(AJEntityContent.SELECT_CONTENT_COUNT_BY_COLLECTION, collectionArrayString);
-        collectionContentCount.stream().forEach(data -> {
-          final String key = ((String) data.get(AJEntityContent.CONTENT_FORMAT))
-              .equalsIgnoreCase(AJEntityContent.QUESTION_FORMAT) ? AJEntityContent.QUESTION_COUNT
-              : AJEntityContent.RESOURCE_COUNT;
-          classContentOtherData.getJsonObject(data.get(AJEntityContent.COLLECTION_ID).toString())
-              .put(key,
-                  data.get(AJEntityContent.CONTENT_COUNT));
-        });
-        List<Map> oeQuestionCountFromDB =
-            Base.findAll(AJEntityContent.SELECT_OE_QUESTION_COUNT, collectionArrayString);
-        oeQuestionCountFromDB.stream().forEach(data -> {
-          classContentOtherData
-              .getJsonObject((String) data.get(AJEntityContent.COLLECTION_ID).toString())
-              .put(AJEntityContent.OE_QUESTION_COUNT, data.get(AJEntityContent.OE_QUESTION_COUNT));
-        });
+        enrichCollectionInfo();
       }
+
       results.forEach(result -> {
         JsonObject data = ((JsonObject) result);
         if (classContentOtherData.containsKey(data.getString(AJEntityClassContents.CONTENT_ID))) {
@@ -171,6 +131,101 @@ class ListClassContentHandler implements DBHandler {
         MessageResponseFactory
             .createOkayResponse(new JsonObject().put(MessageConstants.CLASS_CONTENTS, resultSet)),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
+  }
+
+  private void fetchClassContents() {
+    if (contentType == null) {
+      classContents = getAllClassContents();
+    } else {
+      classContents = getClassContentsByContentType();
+    }
+  }
+
+  private void enrichCollectionInfo() {
+    String collectionArrayString = DbHelperUtil.toPostgresArrayString(collectionIds);
+    LazyList<AJEntityCollection> collections =
+        AJEntityCollection
+            .findBySQL(AJEntityCollection.SELECT_COLLECTION, collectionArrayString);
+    collections.forEach(content -> {
+      JsonObject data = new JsonObject();
+      data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+      data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
+      data.put(MessageConstants.URL, content.getString(MessageConstants.URL));
+      String taxonomyString = content.getString(MessageConstants.TAXONOMY);
+      JsonObject taxonomy = (taxonomyString == null || taxonomyString.isEmpty()) ? new JsonObject()
+          : new JsonObject(taxonomyString);
+      data.put(MessageConstants.TAXONOMY, taxonomy);
+      classContentOtherData.put(content.getString(MessageConstants.ID), data);
+    });
+    List<Map> collectionContentCount =
+        Base.findAll(AJEntityContent.SELECT_CONTENT_COUNT_BY_COLLECTION, collectionArrayString);
+    collectionContentCount.forEach(data -> {
+      final String key = ((String) data.get(AJEntityContent.CONTENT_FORMAT))
+          .equalsIgnoreCase(AJEntityContent.QUESTION_FORMAT) ? AJEntityContent.QUESTION_COUNT
+          : AJEntityContent.RESOURCE_COUNT;
+      classContentOtherData.getJsonObject(data.get(AJEntityContent.COLLECTION_ID).toString())
+          .put(key,
+              data.get(AJEntityContent.CONTENT_COUNT));
+    });
+    List<Map> oeQuestionCountFromDB =
+        Base.findAll(AJEntityContent.SELECT_OE_QUESTION_COUNT, collectionArrayString);
+    oeQuestionCountFromDB.forEach(data -> {
+      classContentOtherData
+          .getJsonObject(data.get(AJEntityContent.COLLECTION_ID).toString())
+          .put(AJEntityContent.OE_QUESTION_COUNT, data.get(AJEntityContent.OE_QUESTION_COUNT));
+    });
+  }
+
+  private void enrichContentInfo() {
+    String contentArrayString = DbHelperUtil.toPostgresArrayString(contentIds);
+    LazyList<AJEntityContent> contents =
+        AJEntityContent.findBySQL(AJEntityContent.SELECT_CONTENTS, contentArrayString);
+    contents.forEach(content -> {
+      JsonObject data = new JsonObject();
+      data.put(MessageConstants.TITLE, content.getString(MessageConstants.TITLE));
+      data.put(MessageConstants.THUMBNAIL, content.getString(MessageConstants.THUMBNAIL));
+      String taxonomyString = content.getString(MessageConstants.TAXONOMY);
+      JsonObject taxonomy = (taxonomyString == null || taxonomyString.isEmpty()) ? new JsonObject()
+          : new JsonObject(taxonomyString);
+      data.put(MessageConstants.TAXONOMY, taxonomy);
+      classContentOtherData.put(content.getString(MessageConstants.ID), data);
+    });
+  }
+
+  private void initializeCollectionIdsAndContentIds(JsonArray results) {
+    contentIds = new ArrayList<>();
+    collectionIds = new ArrayList<>();
+    results.forEach(content -> {
+      JsonObject classContent = (JsonObject) content;
+      if (checkContentTypeIsCollection(
+          classContent.getString(AJEntityClassContents.CONTENT_TYPE))) {
+        collectionIds.add(classContent.getString(AJEntityClassContents.CONTENT_ID));
+      } else if (checkContentTypeIsContent(
+          classContent.getString(AJEntityClassContents.CONTENT_TYPE))) {
+        contentIds.add(classContent.getString(AJEntityClassContents.CONTENT_ID));
+      }
+    });
+  }
+
+  private LazyList<AJEntityClassContents> getClassContentsByContentType() {
+    if (isStudent) {
+      return AJEntityClassContents
+          .fetchClassContentsByContentTypeForStudent(context.classId(), contentType, forMonth,
+              forYear, context.userId());
+    } else {
+      return AJEntityClassContents
+          .fetchClassContentsByContentTypeForTeacher(context.classId(), contentType, forMonth,
+              forYear);
+    }
+  }
+
+  private LazyList<AJEntityClassContents> getAllClassContents() {
+    if (isStudent) {
+      return AJEntityClassContents
+          .fetchAllContentsForStudent(context.classId(), forMonth, forYear, context.userId());
+    } else {
+      return AJEntityClassContents.fetchAllContentsForTeacher(context.classId(), forMonth, forYear);
+    }
   }
 
   @Override
@@ -204,6 +259,7 @@ class ListClassContentHandler implements DBHandler {
   private boolean checkContentTypeIsCollection(String contentType) {
     return (contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT)
         || contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT_EXTERNAL)
+        || contentType.equalsIgnoreCase(AJEntityClassContents.COLLECTION_EXTERNAL)
         || contentType.equalsIgnoreCase(AJEntityClassContents.COLLECTION));
   }
 

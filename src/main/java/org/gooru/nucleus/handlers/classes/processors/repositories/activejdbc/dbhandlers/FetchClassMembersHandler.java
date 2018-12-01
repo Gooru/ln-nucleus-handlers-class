@@ -3,7 +3,9 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -38,6 +40,8 @@ class FetchClassMembersHandler implements DBHandler {
   private static final String RESPONSE_BUCKET_MEMBER_BOUNDS = "member_grade_bounds";
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+  private final Map<String, Boolean> classMemberToIsActiveMap = new HashMap<>();
+
 
   public FetchClassMembersHandler(ProcessorContext context) {
     this.context = context;
@@ -112,8 +116,19 @@ class FetchClassMembersHandler implements DBHandler {
     JsonArray userDemographics = new JsonArray(JsonFormatterBuilder
         .buildSimpleJsonFormatter(false, AJEntityUser.GET_SUMMARY_QUERY_FIELD_LIST)
         .toJson(demographics));
+    enrichIsActiveInformation(userDemographics);
     result.put(RESPONSE_BUCKET_MEMBER_DETAILS, userDemographics);
   }
+
+  private void enrichIsActiveInformation(JsonArray usersDemographics) {
+    for (Object userDemographicObject : usersDemographics) {
+      JsonObject userDemographic = (JsonObject) userDemographicObject;
+      String userId = userDemographic.getString(AJEntityUser.ID);
+      Boolean isActive = classMemberToIsActiveMap.get(userId);
+      userDemographic.put(AJClassMember.IS_ACTIVE, isActive);
+    }
+  }
+
 
   private void populateMembersInfo(JsonObject result, List<String> memberIdList,
       LazyList<AJClassMember> members) {
@@ -134,6 +149,7 @@ class FetchClassMembersHandler implements DBHandler {
           memberBoundsValue.put(GRADE_UPPER_BOUND, ajClassMember.getGradeUpperBound());
           memberBounds.put(ajClassMemberIdString, memberBoundsValue);
           membersBoundArray.add(memberBounds);
+          classMemberToIsActiveMap.put(ajClassMemberIdString, ajClassMember.getIsActive());
         } else {
           final String ajClassMemberEmailString = ajClassMember.getString(AJClassMember.EMAIL);
           if (ajClassMemberEmailString != null && !ajClassMemberEmailString.isEmpty()) {

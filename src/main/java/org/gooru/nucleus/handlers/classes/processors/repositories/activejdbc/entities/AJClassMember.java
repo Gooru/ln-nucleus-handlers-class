@@ -1,7 +1,10 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
+import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.CompositePK;
 import org.javalite.activejdbc.annotations.Table;
@@ -20,8 +23,9 @@ public class AJClassMember extends Model {
   private static final Logger LOGGER = LoggerFactory.getLogger(AJClassMember.class);
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+  public static final String IS_ACTIVE = "is_active";
 
-  public static final String CLASS_ID = "class_id";
+  private static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
   public static final String EMAIL = "email";
   public static final String CREATOR_ID = "creator_id";
@@ -30,9 +34,9 @@ public class AJClassMember extends Model {
   public static final String CREATOR_SYSTEM = "creator_system";
   public static final String ROSTER_ID = "roster_id";
   public static final String CLASS_MEMBER_STATUS = "class_member_status";
-  public static final String CLASS_MEMBER_STATUS_TYPE = "class_member_status_type";
+  private static final String CLASS_MEMBER_STATUS_TYPE = "class_member_status_type";
   public static final String CLASS_MEMBER_STATUS_TYPE_INVITED = "invited";
-  public static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
+  private static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
   public static final String TABLE_CLASS_MEMBER = "class_member";
 
   public static final String INVITE_STUDENT_QUERY =
@@ -44,9 +48,13 @@ public class AJClassMember extends Model {
   public static final String FETCH_FOR_MULTIPLE_EMAILS_QUERY_FILTER =
       "class_id = ?::uuid and email = ANY(?::text[])";
   public static final String FETCH_ALL_QUERY_FILTER = "class_id = ?::uuid";
+  public static final String FETCH_SPECIFIC_USERS_QUERY_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[])";
+  public static final String FETCH_ALL_JOINED_USERS_FILTER =
+      "class_member_status = 'joined'::class_member_status_type and class_id = ?::uuid";
   public static final String DELETE_MEMBERSHIP_FOR_CLASS_QUERY = "delete from class_member where class_id = ?::uuid";
-  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING = "update class_member set grade_lower_bound = ?, grade_upper_bound = ? "
-      + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
+  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING =
+      "update class_member set grade_lower_bound = ?, grade_upper_bound = ?, updated_at = now() "
+          + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String FETCH_USER_MEMBERSHIP_QUERY =
       "select class_id from class_member cm, class c where cm.user_id = ?::uuid and cm.class_member_status = "
           + "'joined'::class_member_status_type and cm.class_id = c.id and c.is_deleted = false order by "
@@ -55,13 +63,18 @@ public class AJClassMember extends Model {
       "select class_id, count(class_id) from class_member where "
           + "class_member_status = 'joined'::class_member_status_type and class_id = ANY"
           + "(?::uuid[]) group by class_id";
-  public static final String STUDENT_COUNT_FROM_SET_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[])";
+  public static final String STUDENT_COUNT_FROM_SET_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[]) and is_active = true";
+  public static final String STUDENT_COUNT_FROM_SET_IGNORE_STATUS_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String FETCH_MEMBERSHIP_COUNT_FOR_CLASS_QUERY =
       "class_member_status = 'joined'::class_member_status_type and class_id = ?::uuid";
   public static final String DELETE_INVITE_QUERY_FILTER =
       "class_id = ?::uuid and email = ? and class_member_status = 'invited'::class_member_status_type";
   public static final String REMOVE_STUDENT_QUERY_FILTER =
       "class_id = ?::uuid and user_id = ?::uuid and class_member_status = 'joined'::class_member_status_type";
+  public static final String CLASS_MEMBERS_STATUS_UPDATE_QUERY =
+      "update class_member set is_active = ?, updated_at = now() "
+          + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
+
 
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
@@ -87,6 +100,14 @@ public class AJClassMember extends Model {
       }
 
     }
+  }
+
+  public String getUserId() {
+    return this.getString(USER_ID);
+  }
+
+  public Boolean getIsActive() {
+    return this.getBoolean(IS_ACTIVE);
   }
 
   public void setStatusJoined() {
@@ -125,6 +146,16 @@ public class AJClassMember extends Model {
     if (rosterId != null) {
       this.setString(ROSTER_ID, rosterId);
     }
+  }
+
+  public static void markMembersAsActive(String classId, List<String> users) {
+    Base.exec(CLASS_MEMBERS_STATUS_UPDATE_QUERY, true, classId,
+        DbHelperUtil.toPostgresArrayString(users));
+  }
+
+  public static void markMembersAsInactive(String classId, List<String> users) {
+    Base.exec(CLASS_MEMBERS_STATUS_UPDATE_QUERY, false, classId,
+        DbHelperUtil.toPostgresArrayString(users));
   }
 
   public Long getGradeLowerBound() {

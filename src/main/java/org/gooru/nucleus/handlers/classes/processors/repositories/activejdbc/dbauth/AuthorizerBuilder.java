@@ -4,6 +4,9 @@ import io.vertx.core.json.JsonArray;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 
 /**
@@ -43,7 +46,7 @@ public final class AuthorizerBuilder {
   }
 
   public static Authorizer<AJEntityClass> buildFetchClassAuthorizer(ProcessorContext context) {
-    return new TenantReadAuthorizer(context);
+    return new TenantReadClassAuthorizer(context);
   }
 
   public static Authorizer<AJEntityClass> buildFetchClassMembersAuthorizer(
@@ -140,5 +143,41 @@ public final class AuthorizerBuilder {
   public static Authorizer<AJEntityClass> buildClassContentAuthorizer(ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
+
+  public static Authorizer<AJEntityCollection> buildTenantReadCollectionAuthorizer(
+      ProcessorContext context) {
+    return new TenantReadCollectionAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityCourse> buildTenantReadCourseAuthorizer(
+      ProcessorContext context) {
+    return new TenantReadCourseAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityContent> buildTenantReadContentAuthorizer(
+      ProcessorContext context) {
+    return new TenantReadContentAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildListClassContentUsersAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildAddClassContentUsersAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildClassMemberDeactivateAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildClassMemberActivateAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
 
 }

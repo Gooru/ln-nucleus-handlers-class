@@ -25,6 +25,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_DELETE = "class.delete";
   public static final String MSG_OP_CLASS_GET = "class.get";
   public static final String MSG_OP_CLASS_MEMBERS_GET = "class.members.get";
+  public static final String MSG_OP_CLASS_MEMBERS_ACTIVATE = "class.members.activate";
+  public static final String MSG_OP_CLASS_MEMBERS_DEACTIVATE = "class.members.deactivate";
   public static final String MSG_OP_CLASS_COLLABORATORS_UPDATE = "class.collaborators.update";
   public static final String MSG_OP_CLASS_LIST = "class.list";
   public static final String MSG_OP_CLASS_LIST_FOR_COURSE = "class.list.for.course";
@@ -36,6 +38,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
   public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
   public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
+  public static final String MSG_OP_CLASS_CONTENT_USERS_ADD = "class.content.users.add";
+  public static final String MSG_OP_CLASS_CONTENT_USERS_LIST = "class.content.users.list";
   public static final String MSG_OP_CLASS_CONTENT_LIST = "class.content.list";
   public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
   public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
@@ -50,6 +54,7 @@ public final class MessageConstants {
   public static final String RESP_CONTAINER_EVENT = "mb.event";
 
   public static final String CLASS_ID = "classId";
+  public static final String CLASS_CONTENT_ID = "classContentId";
   public static final String COURSE_ID = "courseId";
   public static final String STUDENT_ID = "studentId";
   public static final String CLASS_CODE = "classCode";
@@ -58,12 +63,13 @@ public final class MessageConstants {
   public static final String CLASS_CONTENTS = "class_contents";
   public static final String TITLE = "title";
   public static final String THUMBNAIL = "thumbnail";
+  public static final String TAXONOMY = "taxonomy";
   public static final String URL = "url";
   public static final String ID = "id";
   public static final String REQ_PARAM_OFFSET = "offset";
   public static final String REQ_PARAM_LIMIT = "limit";
-  public static final String DATE_FROM = "date_from";
-  public static final String DATE_TO = "date_to";
+  public static final String FOR_MONTH = "for_month";
+  public static final String FOR_YEAR = "for_year";
 
   private MessageConstants() {
     throw new AssertionError();

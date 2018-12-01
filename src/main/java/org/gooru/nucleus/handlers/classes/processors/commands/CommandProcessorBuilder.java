@@ -94,6 +94,18 @@ public enum CommandProcessorBuilder {
       return new ClassMembersGetProcessor(context);
     }
   },
+  CLASS_MEMBERS_ACTIVATE(MessageConstants.MSG_OP_CLASS_MEMBERS_ACTIVATE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassMembersActivateProcessor(context);
+    }
+  },
+  CLASS_MEMBERS_DEACTIVATE(MessageConstants.MSG_OP_CLASS_MEMBERS_DEACTIVATE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassMembersDeactivateProcessor(context);
+    }
+  },
   CLASS_SET_CONTENT_VISIBILITY(MessageConstants.MSG_OP_CLASS_SET_CONTENT_VISIBILITY) {
     @Override
     public Processor build(ProcessorContext context) {
@@ -124,11 +136,22 @@ public enum CommandProcessorBuilder {
       return new ClassContentAddProcessor(context);
     }
   },
-
+  CLASS_CONTENT_USERS_ADD(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_ADD) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentUsersAddProcessor(context);
+    }
+  },
   CLASS_CONTENT_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_LIST) {
     @Override
     public Processor build(ProcessorContext context) {
       return new ClassContentListProcessor(context);
+    }
+  },
+  CLASS_CONTENT_USERS_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_LIST) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentUsersListProcessor(context);
     }
   },
   CLASS_CONTENT_ENABLE(MessageConstants.MSG_OP_CLASS_CONTENT_ENABLE) {
