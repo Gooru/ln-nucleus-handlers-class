@@ -5,6 +5,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbh
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activitylistusers.ListClassContentUsersHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classmembersactivate.ClassMembersActivateHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classmembersdeactivate.ClassMembersDeactivateHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.fetchclassmembers.FetchClassMembersHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting.UpdateClassMembersRerouteSettingHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.profilebaseline.UpdateProfileBaselineForSpecifiedStudentsHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.UpdateClassRerouteSettingHandler;

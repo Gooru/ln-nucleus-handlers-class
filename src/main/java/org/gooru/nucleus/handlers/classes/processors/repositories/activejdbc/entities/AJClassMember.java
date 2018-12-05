@@ -24,6 +24,7 @@ public class AJClassMember extends Model {
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
   public static final String IS_ACTIVE = "is_active";
+  public static final String PROFILE_BASELINE_DONE = "profile_baseline_done";
 
   private static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
@@ -108,6 +109,10 @@ public class AJClassMember extends Model {
 
   public Boolean getIsActive() {
     return this.getBoolean(IS_ACTIVE);
+  }
+
+  public Boolean getProfileBaselineDone() {
+    return this.getBoolean(PROFILE_BASELINE_DONE);
   }
 
   public void setStatusJoined() {
