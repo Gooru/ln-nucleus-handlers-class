@@ -52,6 +52,8 @@ public class AJClassMember extends Model {
   public static final String FETCH_SPECIFIC_USERS_QUERY_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String FETCH_ALL_JOINED_USERS_FILTER =
       "class_member_status = 'joined'::class_member_status_type and class_id = ?::uuid";
+  public static final String FETCH_ALL_JOINED_ACTIVE_USERS_FILTER =
+      "class_member_status = 'joined'::class_member_status_type and is_active = true and class_id = ?::uuid";
   public static final String DELETE_MEMBERSHIP_FOR_CLASS_QUERY = "delete from class_member where class_id = ?::uuid";
   public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING =
       "update class_member set grade_lower_bound = ?, grade_upper_bound = ?, updated_at = now() "

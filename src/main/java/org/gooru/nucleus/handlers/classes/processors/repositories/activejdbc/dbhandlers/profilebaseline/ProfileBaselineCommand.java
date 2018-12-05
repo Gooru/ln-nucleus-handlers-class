@@ -18,22 +18,32 @@ class ProfileBaselineCommand {
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final List<String> usersList;
+  private final boolean doBaselineForAll;
 
   ProfileBaselineCommand(List<String> usersList) {
     this.usersList = Collections.unmodifiableList(usersList);
+    doBaselineForAll = this.usersList.isEmpty();
   }
 
   List<String> getUsersList() {
     return usersList;
   }
 
+  boolean doingBaselineForAll() {
+    return doBaselineForAll;
+  }
+
   static ProfileBaselineCommand build(ProcessorContext context) {
+    List<String> usersList;
     JsonArray users = context.request().getJsonArray(RequestAttributes.USERS);
-    if (users == null || users.isEmpty()) {
+    if (users == null) {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")));
+    } else if (users.isEmpty()) {
+      usersList = Collections.emptyList();
+    } else {
+      usersList = validateForBeingUuidAndFetchUsers(users);
     }
-    List<String> usersList = validateForBeingUuidAndFetchUsers(users);
     return new ProfileBaselineCommand(usersList);
   }
 
