@@ -24,6 +24,7 @@ public class AJClassMember extends Model {
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
   public static final String IS_ACTIVE = "is_active";
+  public static final String PROFILE_BASELINE_DONE = "profile_baseline_done";
 
   private static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
@@ -51,6 +52,8 @@ public class AJClassMember extends Model {
   public static final String FETCH_SPECIFIC_USERS_QUERY_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String FETCH_ALL_JOINED_USERS_FILTER =
       "class_member_status = 'joined'::class_member_status_type and class_id = ?::uuid";
+  public static final String FETCH_ALL_JOINED_ACTIVE_USERS_FILTER =
+      "class_member_status = 'joined'::class_member_status_type and is_active = true and class_id = ?::uuid";
   public static final String DELETE_MEMBERSHIP_FOR_CLASS_QUERY = "delete from class_member where class_id = ?::uuid";
   public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING =
       "update class_member set grade_lower_bound = ?, grade_upper_bound = ?, updated_at = now() "
@@ -108,6 +111,10 @@ public class AJClassMember extends Model {
 
   public Boolean getIsActive() {
     return this.getBoolean(IS_ACTIVE);
+  }
+
+  public Boolean getProfileBaselineDone() {
+    return this.getBoolean(PROFILE_BASELINE_DONE);
   }
 
   public void setStatusJoined() {

@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.fetchclassmembers;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -11,6 +11,7 @@ import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Utils;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUser;
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ashish on 8/2/16.
  */
-class FetchClassMembersHandler implements DBHandler {
+public class FetchClassMembersHandler implements DBHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FetchClassMembersHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
@@ -40,7 +41,7 @@ class FetchClassMembersHandler implements DBHandler {
   private static final String RESPONSE_BUCKET_MEMBER_BOUNDS = "member_grade_bounds";
   private static final String GRADE_LOWER_BOUND = "grade_lower_bound";
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
-  private final Map<String, Boolean> classMemberToIsActiveMap = new HashMap<>();
+  private final Map<String, MembershipInfo> classMemberToMembershipInfoMap = new HashMap<>();
 
 
   public FetchClassMembersHandler(ProcessorContext context) {
@@ -124,8 +125,16 @@ class FetchClassMembersHandler implements DBHandler {
     for (Object userDemographicObject : usersDemographics) {
       JsonObject userDemographic = (JsonObject) userDemographicObject;
       String userId = userDemographic.getString(AJEntityUser.ID);
-      Boolean isActive = classMemberToIsActiveMap.get(userId);
-      userDemographic.put(AJClassMember.IS_ACTIVE, isActive);
+      MembershipInfo membershipInfo = classMemberToMembershipInfoMap.get(userId);
+      if (membershipInfo != null) {
+        userDemographic.put(AJClassMember.IS_ACTIVE, membershipInfo.isActive());
+        userDemographic
+            .put(AJClassMember.PROFILE_BASELINE_DONE, membershipInfo.isProfile_baseline_done());
+      } else {
+        userDemographic.put(AJClassMember.IS_ACTIVE, (Boolean) null);
+        userDemographic
+            .put(AJClassMember.PROFILE_BASELINE_DONE, (Boolean)null);
+      }
     }
   }
 
@@ -149,7 +158,8 @@ class FetchClassMembersHandler implements DBHandler {
           memberBoundsValue.put(GRADE_UPPER_BOUND, ajClassMember.getGradeUpperBound());
           memberBounds.put(ajClassMemberIdString, memberBoundsValue);
           membersBoundArray.add(memberBounds);
-          classMemberToIsActiveMap.put(ajClassMemberIdString, ajClassMember.getIsActive());
+          classMemberToMembershipInfoMap
+              .put(ajClassMemberIdString, MembershipInfo.build(ajClassMember));
         } else {
           final String ajClassMemberEmailString = ajClassMember.getString(AJClassMember.EMAIL);
           if (ajClassMemberEmailString != null && !ajClassMemberEmailString.isEmpty()) {
