@@ -55,11 +55,15 @@ class ResponseBuilder {
     if (members.isEmpty()) {
       return noClassMembersResponse();
     }
+    initializeUsersInClass();
+    return createResponseForSpecifiedMembers();
+  }
+
+  private void initializeUsersInClass() {
     for (AJClassMember classMember : members) {
       usersInClass.add(classMember.getUserId());
       usersInClassIsActiveMap.put(classMember.getUserId(), classMember.getIsActive());
     }
-    return createResponseForSpecifiedMembers();
   }
 
   private ExecutionResult<MessageResponse> createResponseForSpecifiedMembers() {
@@ -93,6 +97,7 @@ class ResponseBuilder {
     if (members.isEmpty()) {
       return noClassMembersResponse();
     }
+    initializeUsersInClass();
     return createResponseForSpecifiedMembers();
   }
 
