@@ -170,12 +170,12 @@ class AJClassRepo implements ClassRepo {
   @Override
   public MessageResponse classMembersDeactivate() {
     return TransactionExecutor
-        .executeTransaction(DBHandlerBuilder.buildClassMembersActivateHandler(context));
+        .executeTransaction(DBHandlerBuilder.buildClassMembersDeactivateHandler(context));
   }
 
   @Override
   public MessageResponse classMembersActivate() {
     return TransactionExecutor
-        .executeTransaction(DBHandlerBuilder.buildClassMembersDectivateHandler(context));
+        .executeTransaction(DBHandlerBuilder.buildClassMembersActivateHandler(context));
   }
 }
