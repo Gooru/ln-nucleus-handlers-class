@@ -4,6 +4,7 @@ import io.vertx.core.json.JsonObject;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -29,7 +30,8 @@ class EnableContentInClassHandler implements DBHandler {
   private final ProcessorContext context;
   private AJEntityClassContents classContents;
   private String contentId;
-  private String activationDate;
+  private String activationDateAsString;
+  private LocalDate activationDate;
 
   EnableContentInClassHandler(ProcessorContext context) {
     this.context = context;
@@ -42,7 +44,7 @@ class EnableContentInClassHandler implements DBHandler {
       validateClassId();
       validateAndInitializeContentId();
       validateContextRequestFields();
-      activationDate = context.request().getString(AJEntityClassContents.ACTIVATION_DATE);
+      activationDateAsString = context.request().getString(AJEntityClassContents.ACTIVATION_DATE);
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
           ExecutionResult.ExecutionStatus.FAILED);
@@ -71,18 +73,18 @@ class EnableContentInClassHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
     try {
-      validateActivationDate();
+      validateAndInitializeActivationDate();
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
           ExecutionResult.ExecutionStatus.FAILED);
     }
     LazyList<AJEntityClassContents> ajClassContents = AJEntityClassContents
         .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE, context.classId(),
-            this.classContents.getContentId(), activationDate);
+            this.classContents.getContentId(), activationDateAsString);
     if (!ajClassContents.isEmpty()) {
       LOGGER.warn("For this calss {} same content {} already activated for this date {}",
           context.classId(),
-          this.classContents.getContentId(), activationDate);
+          this.classContents.getContentId(), activationDateAsString);
       return new ExecutionResult<>(MessageResponseFactory
           .createInvalidRequestResponse(
               RESOURCE_BUNDLE.getString("same.content.already.activated")),
@@ -98,7 +100,6 @@ class EnableContentInClassHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
     AJEntityClass entityClass = classes.get(0);
-    // Class should be of current version and Class should not be archived
     if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
       LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
       return new ExecutionResult<>(MessageResponseFactory
@@ -112,9 +113,10 @@ class EnableContentInClassHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    new DefaultAJEntityClassContentsBuilder()
-        .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
-    this.classContents.setDefaultActivationDateIfNotPresent();
+    this.classContents.setActivationDateIfNotPresent(activationDate);
+    if (this.classContents.getDcaAddedDate() == null) {
+      this.classContents.setDcaAddedDateIfNotPresent(activationDate);
+    }
     boolean result = this.classContents.save();
     if (!result) {
       if (classContents.hasErrors()) {
@@ -180,31 +182,39 @@ class EnableContentInClassHandler implements DBHandler {
     }
   }
 
-  private void validateActivationDate() {
+  private void validateAndInitializeActivationDate() {
     try {
-      if (activationDate != null) {
-        activationDate = LocalDate.parse(activationDate).toString();
+      if (activationDateAsString != null) {
+        activationDate = LocalDate.parse(activationDateAsString);
+        activationDateAsString = activationDate.toString();
       } else {
         // setting default value of today's date, if activation date is
         // not set.
-        activationDate = LocalDate.now().toString();
+        activationDate = LocalDate.now();
+        activationDateAsString = activationDate.toString();
+      }
+      // toString() method will extract the date only (yyyy-mm-dd)
+      final String dcaAddedDate = Objects.toString(this.classContents.getDcaAddedDate(), null);
+      if (dcaAddedDate != null && !activationDateAsString.equals(dcaAddedDate)) {
+        LOGGER.warn("Activation date {} should be same as class content creation date {}",
+            activationDateAsString, dcaAddedDate);
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(
+                RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")));
+
+      } else if (dcaAddedDate == null) {
+        if (activationDate.getMonthValue() != this.classContents.getForMonth()
+            || activationDate.getYear() != this.classContents.getForYear()) {
+          throw new MessageResponseWrapperException(MessageResponseFactory
+              .createInvalidRequestResponse(
+                  RESOURCE_BUNDLE.getString("activation.date.not.same.as.monthyear")));
+        }
       }
     } catch (DateTimeParseException e) {
-      LOGGER.warn("Invalid activation date format {}", activationDate);
+      LOGGER.warn("Invalid activation date format {}", activationDateAsString);
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(
               RESOURCE_BUNDLE.getString("invalid.activation.date.format")));
-    }
-    // toString() method will extract the date only (yyyy-mm-dd)
-    final String dcaAddedDate = this.classContents.getDcaAddedDate().toString();
-    if (!activationDate.equals(dcaAddedDate)) {
-      LOGGER.warn("Activation date {} should be same as class content creation date {}",
-          activationDate,
-          dcaAddedDate);
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(
-              RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")));
-
     }
   }
 

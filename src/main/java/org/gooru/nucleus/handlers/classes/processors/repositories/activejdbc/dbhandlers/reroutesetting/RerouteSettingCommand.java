@@ -64,12 +64,26 @@ class RerouteSettingCommand {
     return gradeCurrent;
   }
 
+  public int validGradesCount() {
+    int result = 0;
+    if (gradeCurrent != null) {
+      result++;
+    }
+    if (gradeLowerBound != null) {
+      result++;
+    }
+    if (gradeUpperBound != null) {
+      result++;
+    }
+    return result;
+  }
+
   static class RerouteSettingRequestAttributes {
 
-    static String GRADE_LOWER_BOUND = "grade_lower_bound";
-    static String GRADE_UPPER_BOUND = "grade_upper_bound";
-    static String GRADE_CURRENT = "grade_current";
-    static String ROUTE0 = "route0";
+    static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+    static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+    static final String GRADE_CURRENT = "grade_current";
+    static final String ROUTE0 = "route0";
 
     private RerouteSettingRequestAttributes() {
       throw new AssertionError();

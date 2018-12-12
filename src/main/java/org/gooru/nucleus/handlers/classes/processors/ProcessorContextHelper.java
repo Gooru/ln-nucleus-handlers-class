@@ -95,8 +95,6 @@ public final class ProcessorContextHelper {
     try {
       UUID.fromString(uuidString);
       return true;
-    } catch (IllegalArgumentException e) {
-      return false;
     } catch (Exception e) {
       return false;
     }

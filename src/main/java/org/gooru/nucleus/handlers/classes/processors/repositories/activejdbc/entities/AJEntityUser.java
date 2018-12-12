@@ -20,7 +20,7 @@ public class AJEntityUser extends Model {
       "select id, first_name, last_name, thumbnail from users where id = ANY(select creator_id from "
           + "class where id = ANY(?::uuid[]))";
 
-  private static final String ID = "id";
+  public static final String ID = "id";
   private static final String FIRST_NAME = "first_name";
   private static final String LAST_NAME = "last_name";
   private static final String THUMBNAIL = "thumbnail";

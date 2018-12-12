@@ -7,8 +7,8 @@ import org.javalite.activejdbc.annotations.Table;
 public class AJEntityCourse extends Model {
 
   public static final String TABLE_COURSE = "course";
-  public static final String TENANT = "tenant";
-  public static final String TENANT_ROOT = "tenant_root";
+  private static final String TENANT = "tenant";
+  private static final String TENANT_ROOT = "tenant_root";
   private static final String PUBLISH_STATUS_TYPE_PUBLISHED = "published";
   private static final String PUBLISH_STATUS = "publish_status";
   public static final String ID = "id";
@@ -18,7 +18,7 @@ public class AJEntityCourse extends Model {
   public static final String COURSE_VERSION = "course_version";
 
   public static final String SELECT_COURSE_TO_AUTHORIZE =
-      "SELECT id, owner_id, collaborator, tenant, tenant_root FROM course WHERE id = ?::uuid AND is_deleted = false";
+      "SELECT id, owner_id, collaborator, tenant, tenant_root, publish_status FROM course WHERE id = ?::uuid AND is_deleted = false";
   public static final String COURSE_VERSION_FETCH_QUERY =
       "select version from course where id = ?::uuid and is_deleted = false";
   public static final String COURSE_SUBJECT_BUCKET_FETCH_QUERY =

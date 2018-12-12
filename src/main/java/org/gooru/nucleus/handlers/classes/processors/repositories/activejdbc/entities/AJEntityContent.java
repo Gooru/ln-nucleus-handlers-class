@@ -23,7 +23,7 @@ public class AJEntityContent extends Model {
   public static final String SELECT_CONTENT_TO_VALIDATE =
       "select id FROM content WHERE id = ?::uuid  AND content_format = ?::content_format_type AND is_deleted = false";
 
-  public static final String SELECT_CONTENTS = "select id, title, thumbnail from content where id = ANY(?::uuid[])";
+  public static final String SELECT_CONTENTS = "select id, title, thumbnail, taxonomy from content where id = ANY(?::uuid[])";
 
   public static final String SELECT_CONTENT_COUNT_BY_COLLECTION =
       "SELECT count(id) as content_count, content_format, collection_id FROM content WHERE"
@@ -34,5 +34,28 @@ public class AJEntityContent extends Model {
       "SELECT count(id) as oe_question_count, collection_id FROM content WHERE collection_id = ANY(?::uuid[]) AND"
           + " is_deleted = false AND content_format = 'question' AND"
           + " content_subformat = 'open_ended_question' GROUP BY collection_id";
+  public static final String SELECT_CONTENT_TO_AUTHORIZE =
+      "select id, collection_id, course_id, creator_id, tenant, "
+          + " tenant_root, publish_status from content where id = ?::uuid and is_deleted = false";
 
+  public String getTenant() {
+    return this.getString("tenant");
+  }
+
+  public String getTenantRoot() {
+    return this.getString("tenant_root");
+  }
+
+  public boolean isPublished() {
+    String publishStatus = this.getString("publish_status");
+    return "published".equalsIgnoreCase(publishStatus);
+  }
+
+  public String getCourseId() {
+    return this.getString("course_id");
+  }
+
+  public String getCollectionId() {
+    return this.getString("collection_id");
+  }
 }

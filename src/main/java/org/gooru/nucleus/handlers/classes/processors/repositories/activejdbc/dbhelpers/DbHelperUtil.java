@@ -2,19 +2,22 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import io.vertx.core.json.JsonArray;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldValidator;
+import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
+import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 
 public final class DbHelperUtil {
 
   private DbHelperUtil() {
     throw new AssertionError();
   }
+
+  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
   public static String toPostgresArrayString(Collection<String> input) {
     int approxSize = ((input.size() + 1) * 36); // Length of UUID is around
@@ -69,26 +72,30 @@ public final class DbHelperUtil {
     return (value != null && !value.isEmpty()) ? value : null;
   }
 
-  public static String getDateRangeFrom(ProcessorContext context) {
-    String dateFrom = readRequestParam(MessageConstants.DATE_FROM, context);
-    if (dateFrom != null
-        && FieldValidator
-        .validateDateWithFormat(dateFrom, DateTimeFormatter.ISO_LOCAL_DATE, true, true)) {
-      return dateFrom;
+  public static int getForMonth(ProcessorContext context) {
+    String forMonth = readRequestParam(MessageConstants.FOR_MONTH, context);
+    if (forMonth != null) {
+      try {
+        return Integer.valueOf(forMonth);
+      } catch (NumberFormatException nme) {
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.formonth")));
+      }
     }
-    return LocalDate.now().toString();
+    return LocalDate.now().getMonthValue();
   }
 
-  public static String getDateRangeTo(ProcessorContext context) {
-    String dateTo = readRequestParam(MessageConstants.DATE_TO, context);
-    if (dateTo != null
-        && FieldValidator
-        .validateDateWithFormat(dateTo, DateTimeFormatter.ISO_LOCAL_DATE, true, true)) {
-      return dateTo;
+  public static int getForYear(ProcessorContext context) {
+    String forYear = readRequestParam(MessageConstants.FOR_YEAR, context);
+    if (forYear != null) {
+      try {
+        return Integer.valueOf(forYear);
+      } catch (NumberFormatException e) {
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.foryear")));
+      }
     }
-
-    return LocalDate.now().plusDays(AppConfiguration.getInstance().getDateRangeToInterval())
-        .toString();
+    return LocalDate.now().getYear();
   }
 
 }

@@ -20,7 +20,6 @@ public final class AppConfiguration implements Initializer {
   private static final String DUMMY_EMAIL_DOMAIN_KEY = "dummy.email.domain";
   private static final String LIMIT_DEFAULT = "limit.default";
   private static final String LIMIT_MAX = "limit.max";
-  private static final String DATE_RANGE_INTERVAL = "date.range.interval";
   private static final String COURSE_VERSION_FOR_ALTERNATE_VISIBILITY = "course.version.for.alternate.visibility";
   private static final String COURSE_VERSION_FOR_PREMIUM_CONTENT = "course.version.for.premium.content";
 
@@ -68,10 +67,6 @@ public final class AppConfiguration implements Initializer {
 
   public int getMaxLimit() {
     return configuration.getJsonObject(KEY).getInteger(LIMIT_MAX, 50);
-  }
-
-  public long getDateRangeToInterval() {
-    return configuration.getJsonObject(KEY).getLong(DATE_RANGE_INTERVAL, 2L);
   }
 
   public String getCourseVersionForAlternateVisibility() {

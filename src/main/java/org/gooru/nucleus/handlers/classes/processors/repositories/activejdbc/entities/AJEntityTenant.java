@@ -7,7 +7,7 @@ import org.javalite.activejdbc.annotations.Table;
 @Table("tenant")
 public class AJEntityTenant extends Model {
 
-  public static final String CONTENT_VISIBILITY = "content_visibility";
+  private static final String CONTENT_VISIBILITY = "content_visibility";
 
   public static final String SELECT_TENANT = "id = ?::uuid and status = 'active'";
 

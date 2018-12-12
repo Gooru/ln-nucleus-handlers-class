@@ -1,8 +1,8 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -14,9 +14,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityLesson;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTenant;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUnit;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
@@ -24,7 +21,6 @@ import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.E
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.LazyList;
-import org.javalite.activejdbc.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +30,11 @@ class AddContentInClassHandler implements DBHandler {
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private AJEntityClassContents classContents;
-  private String ctxCourseId;
-  private String ctxUnitId;
-  private String ctxLessonId;
-  private String ctxCollectionId;
   private String contentType;
   private String contentId;
+  private int forYear;
+  private int forMonth;
+  private String dcaDateString;
 
   AddContentInClassHandler(ProcessorContext context) {
     this.context = context;
@@ -50,15 +45,9 @@ class AddContentInClassHandler implements DBHandler {
     try {
       validateUser();
       validateClassId();
-      contentType = context.request().getString(AJEntityClassContents.CONTENT_TYPE);
-      contentId = context.request().getString(AJEntityClassContents.CONTENT_ID);
-      ctxCourseId = context.request().getString(AJEntityClassContents.CTX_COURSE_ID);
-      ctxUnitId = context.request().getString(AJEntityClassContents.CTX_UNIT_ID);
-      ctxLessonId = context.request().getString(AJEntityClassContents.CTX_LESSON_ID);
-      ctxCollectionId = context.request().getString(AJEntityClassContents.CTX_COLLECTION_ID);
+      initializeFields();
       validateContextRequest();
       validateContextRequestFields();
-      validateCtxULCIdsIfCtxCourseIdExists();
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
           ExecutionResult.ExecutionStatus.FAILED);
@@ -78,7 +67,6 @@ class AddContentInClassHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
     AJEntityClass entityClass = classes.get(0);
-    // Class should be of current version and Class should not be archived
     if (!entityClass.isCurrentVersion() || entityClass.isArchived()) {
       LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
       return new ExecutionResult<>(MessageResponseFactory
@@ -87,136 +75,18 @@ class AddContentInClassHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
-    ExecutionResult<MessageResponse> classAuthorize =
+    ExecutionResult<MessageResponse> classAuthorizationResult =
         AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
-    if (classAuthorize.continueProcessing()) {
-      if (ctxCourseId != null) {
-        LazyList<AJEntityCourse> ajEntityCourse = AJEntityCourse.findBySQL(
-            AJEntityCourse.SELECT_COURSE_TO_AUTHORIZE, ctxCourseId);
-        AJEntityCourse entityCourse = null;
-        if (!ajEntityCourse.isEmpty()) {
-          entityCourse = ajEntityCourse.get(0);
-        }
-        if (ajEntityCourse.isEmpty()
-            || !(entityCourse != null && (isOwner(entityCourse, ctxCourseId) || isCollaborator(
-            entityCourse, ctxCourseId)
-            || isAccessibleToUserTenant(entityCourse, ctxCourseId)))) {
-          LOGGER
-              .warn(
-                  "user is not owner or collaborator of context course to create class contents. aborting");
-          return new ExecutionResult<>(MessageResponseFactory.createForbiddenResponse(
-              RESOURCE_BUNDLE.getString("course.not.found.or.not.available")),
-              ExecutionStatus.FAILED);
-        }
-        LazyList<AJEntityUnit> ajEntityUnit =
-            AJEntityUnit.findBySQL(AJEntityUnit.SELECT_UNIT_TO_VALIDATE, ctxUnitId, ctxCourseId);
-        if (ajEntityUnit.isEmpty()) {
-          LOGGER.warn("Context unit {} not found, aborting", ctxUnitId);
-          return new ExecutionResult<>(
-              MessageResponseFactory
-                  .createNotFoundResponse(RESOURCE_BUNDLE.getString("ctxunit.not.found")),
-              ExecutionStatus.FAILED);
-        }
-        LazyList<AJEntityLesson> ajEntityLesson = AJEntityLesson
-            .findBySQL(AJEntityLesson.SELECT_LESSON_TO_VALIDATE, ctxLessonId, ctxUnitId,
-                ctxCourseId);
-        if (ajEntityLesson.isEmpty()) {
-          LOGGER.warn("Context lesson {} not found, aborting", ctxLessonId);
-          return new ExecutionResult<>(
-              MessageResponseFactory
-                  .createNotFoundResponse(RESOURCE_BUNDLE.getString("ctxlesson.not.found")),
-              ExecutionStatus.FAILED);
-        }
-        if (isContentTypeEntityIsCollection()) {
-          LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
-              .findBySQL(AJEntityCollection.SELECT_CUL_COLLECTION_TO_VALIDATE, contentId,
-                  ctxLessonId,
-                  ctxUnitId, ctxCourseId, contentType);
-          if (ajEntityCollection.isEmpty()) {
-            LOGGER.warn("Content type collection {} not found, aborting", contentId);
-            return new ExecutionResult<>(MessageResponseFactory
-                .createNotFoundResponse(RESOURCE_BUNDLE.getString("collection.not.found")),
-                ExecutionStatus.FAILED);
-          }
-        }
-        if (isContentTypeEntityIsContent()) {
-          LazyList<AJEntityContent> ajEntityContent = AJEntityContent
-              .findBySQL(AJEntityContent.SELECT_CULC_CONTENT_TO_VALIDATE, contentId,
-                  ctxCollectionId,
-                  ctxLessonId, ctxUnitId, ctxCourseId, contentType);
-          if (ajEntityContent.isEmpty()) {
-            LOGGER.warn("Context collection {} not found, aborting", ctxCollectionId);
-            return new ExecutionResult<>(MessageResponseFactory
-                .createNotFoundResponse(RESOURCE_BUNDLE.getString("content.not.found")),
-                ExecutionStatus.FAILED);
-          }
-        }
-
-      } else if (isContentTypeEntityIsCollection()) {
-        LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
-            .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, contentId);
-        AJEntityCollection entityCollection = null;
-        if (!ajEntityCollection.isEmpty()) {
-          entityCollection = ajEntityCollection.get(0);
-        }
-        if (ajEntityCollection.isEmpty()
-            || !(entityCollection != null && (isOwner(entityCollection, contentId)
-            || isCollaborator(entityCollection, contentId)
-            || isAccessibleToUserTenant(entityCollection, contentId)))) {
-          LOGGER
-              .warn(
-                  "user is not owner or collaborator of content type collection to create class contents. "
-                      + "aborting", contentId);
-          return new ExecutionResult<>(MessageResponseFactory.createNotFoundResponse(
-              RESOURCE_BUNDLE.getString("collection.not.found")), ExecutionStatus.FAILED);
-        }
-      } else if (isContentTypeEntityIsContent() && ctxCollectionId != null) {
-        LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
-            .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, ctxCollectionId);
-        AJEntityCollection entityCollection = null;
-        if (!ajEntityCollection.isEmpty()) {
-          entityCollection = ajEntityCollection.get(0);
-        }
-        if (ajEntityCollection.isEmpty()
-            || !(entityCollection != null && (isOwner(entityCollection, ctxCollectionId)
-            || isCollaborator(entityCollection, ctxCollectionId)
-            || isAccessibleToUserTenant(entityCollection, ctxCollectionId)))) {
-          LOGGER.warn(
-              "user is not owner or collaborator of context collection to create class contents. aborting",
-              ctxCollectionId);
-          return new ExecutionResult<>(MessageResponseFactory
-              .createNotFoundResponse(RESOURCE_BUNDLE.getString("ctxcollection.not.found")),
-              ExecutionStatus.FAILED);
-        }
-        LazyList<AJEntityContent> ajEntityContent = AJEntityContent
-            .findBySQL(AJEntityContent.SELECT_COLLECTION_CONTENT_TO_VALIDATE, contentId,
-                ctxCollectionId,
-                contentType);
-        if (ajEntityContent.isEmpty()) {
-          LOGGER.warn("content {} not found, aborting", contentId);
-          return new ExecutionResult<>(
-              MessageResponseFactory
-                  .createNotFoundResponse(RESOURCE_BUNDLE.getString("content.not.found")),
-              ExecutionStatus.FAILED);
-        }
-
-      } else if (isContentTypeEntityIsContent() && ctxCollectionId == null) {
-        LazyList<AJEntityContent> ajEntityContent =
-            AJEntityContent
-                .findBySQL(AJEntityContent.SELECT_CONTENT_TO_VALIDATE, contentId, contentType);
-        if (ajEntityContent.isEmpty()) {
-          LOGGER.warn("content {} not found, aborting", contentId);
-          return new ExecutionResult<>(
-              MessageResponseFactory
-                  .createNotFoundResponse(RESOURCE_BUNDLE.getString("content.not.found")),
-              ExecutionStatus.FAILED);
-        }
+    if (classAuthorizationResult.continueProcessing()) {
+      if (isContentTypeEntityIsCollection()) {
+        return collectionDrivenAuthorization();
+      } else if (isContentTypeEntityIsContent()) {
+        return contentDrivenAuthorization();
       }
     } else {
-      return classAuthorize;
+      return classAuthorizationResult;
     }
     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
-
   }
 
   @Override
@@ -225,6 +95,7 @@ class AddContentInClassHandler implements DBHandler {
     new DefaultAJEntityClassContentsBuilder()
         .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
     classContents.setClassId(context.classId());
+    classContents.setInitialUsersCount();
 
     AJEntityClassContents content = findAlreadyAddedContentForToday();
     if (content != null) {
@@ -239,6 +110,52 @@ class AddContentInClassHandler implements DBHandler {
   @Override
   public boolean handlerReadOnly() {
     return false;
+  }
+
+  private ExecutionResult<MessageResponse> contentDrivenAuthorization() {
+    LazyList<AJEntityContent> entityContents = AJEntityContent
+        .findBySQL(AJEntityContent.SELECT_CONTENT_TO_AUTHORIZE, contentId);
+    AJEntityContent entityContent;
+    if (entityContents.isEmpty()) {
+      return new ExecutionResult<>(MessageResponseFactory.createNotFoundResponse(
+          RESOURCE_BUNDLE.getString("content.not.found")), ExecutionStatus.FAILED);
+    }
+    entityContent = entityContents.get(0);
+    if (entityContent.getCourseId() != null) {
+      LazyList<AJEntityCourse> entityCourses = AJEntityCourse
+          .findBySQL(AJEntityCourse.SELECT_COURSE_TO_AUTHORIZE, entityContent.getCourseId());
+      return AuthorizerBuilder.buildTenantReadCourseAuthorizer(context)
+          .authorize(entityCourses.get(0));
+    } else if (entityContent.getCollectionId() != null) {
+      LazyList<AJEntityCollection> ajEntityCollections = AJEntityCollection
+          .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE,
+              entityContent.getCollectionId());
+      return AuthorizerBuilder.buildTenantReadCollectionAuthorizer(context)
+          .authorize(ajEntityCollections.get(0));
+    } else {
+      return AuthorizerBuilder.buildTenantReadContentAuthorizer(context).authorize(entityContent);
+    }
+  }
+
+  private ExecutionResult<MessageResponse> collectionDrivenAuthorization() {
+    LazyList<AJEntityCollection> ajEntityCollection = AJEntityCollection
+        .findBySQL(AJEntityCollection.SELECT_COLLECTION_TO_AUTHORIZE, contentId);
+    AJEntityCollection entityCollection;
+    if (ajEntityCollection.isEmpty()) {
+      return new ExecutionResult<>(MessageResponseFactory.createNotFoundResponse(
+          RESOURCE_BUNDLE.getString("collection.not.found")), ExecutionStatus.FAILED);
+    }
+    entityCollection = ajEntityCollection.get(0);
+    String courseId = entityCollection.getCourseId();
+    if (courseId == null) {
+      return AuthorizerBuilder.buildTenantReadCollectionAuthorizer(context)
+          .authorize(entityCollection);
+    } else {
+      LazyList<AJEntityCourse> entityCourses = AJEntityCourse
+          .findBySQL(AJEntityCourse.SELECT_COURSE_TO_AUTHORIZE, courseId);
+      return AuthorizerBuilder.buildTenantReadCourseAuthorizer(context)
+          .authorize(entityCourses.get(0));
+    }
   }
 
   private ExecutionResult<MessageResponse> pretendToAddContentToClass(
@@ -300,34 +217,6 @@ class AddContentInClassHandler implements DBHandler {
     }
   }
 
-  private void validateCtxULCIdsIfCtxCourseIdExists() {
-    if (ctxCourseId != null) {
-      if (ctxUnitId == null || ctxUnitId.isEmpty()) {
-        throw new MessageResponseWrapperException(
-            MessageResponseFactory
-                .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.ctx.unit.id")));
-      }
-      if (ctxLessonId == null || ctxLessonId.isEmpty()) {
-        throw new MessageResponseWrapperException(
-            MessageResponseFactory
-                .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.ctx.lesson.id")));
-      }
-      if (isContentTypeEntityIsCollection()) {
-        if (ctxCollectionId != null) {
-          throw new MessageResponseWrapperException(
-              MessageResponseFactory.createInvalidRequestResponse(
-                  "Context collection id exists in request for content type resource/question"));
-        }
-      }
-      if (isContentTypeEntityIsContent()) {
-        if (ctxCollectionId == null || ctxCollectionId.isEmpty()) {
-          throw new MessageResponseWrapperException(MessageResponseFactory
-              .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.ctx.collection.id")));
-        }
-      }
-    }
-  }
-
   private boolean isContentTypeEntityIsCollection() {
     return (contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT) || contentType
         .equalsIgnoreCase(AJEntityClassContents.COLLECTION));
@@ -347,45 +236,39 @@ class AddContentInClassHandler implements DBHandler {
       throw new MessageResponseWrapperException(
           MessageResponseFactory.createValidationErrorResponse(errors));
     }
+    validateDependentFields();
   }
 
-  private boolean isOwner(Model model, String contentId) {
-    String creatorId = model.getString(AJEntityClass.OWNER_ID);
-    if (!Objects.equals(context.userId(), creatorId)) {
-      LOGGER.warn("User '{}' is not owner of content '{}'", context.userId(), contentId);
-      return false;
+  private void validateDependentFields() {
+
+    LocalDate firstOfThisMonth = LocalDate.now().withDayOfMonth(1);
+    LocalDate firstOfSpecifiedMonthYear = LocalDate.of(forYear, forMonth, 1);
+
+    // Do not allow past month-year
+    if (firstOfThisMonth.isAfter(firstOfSpecifiedMonthYear)) {
+      throw new MessageResponseWrapperException(
+          MessageResponseFactory
+              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("dca.past.monthyear")));
     }
-    return true;
-  }
 
-  private boolean isCollaborator(Model model, String contentId) {
-    String collaboratorString = model.getString(AJEntityClass.COLLABORATOR);
-    if (collaboratorString != null && !collaboratorString.isEmpty()) {
-      JsonArray collaborators = new JsonArray(collaboratorString);
-      if (collaborators.contains(context.userId())) {
-        return true;
+    if (dcaDateString != null) {
+      // Parsing won't fail as validator registry has done the job
+      LocalDate date = LocalDate.parse(dcaDateString, DateTimeFormatter.ISO_LOCAL_DATE);
+      if (date.getMonthValue() != forMonth || date.getYear() != forYear) {
+        throw new MessageResponseWrapperException(
+            MessageResponseFactory
+                .createInvalidRequestResponse(
+                    RESOURCE_BUNDLE.getString("dca.monthyear.addeddate.mismatch")));
       }
     }
-    LOGGER.warn("User '{}' is not collaborator of content '{}'", context.userId(), contentId);
-    return false;
   }
 
-  private boolean isAccessibleToUserTenant(Model model, String contentId) {
-    String tenantId = model.getString(AJEntityClass.TENANT);
-    if (Objects.equals(context.tenant(), tenantId)) {
-      return true;
-    }
-    final AJEntityTenant contentTenant = AJEntityTenant
-        .findFirst(AJEntityTenant.SELECT_TENANT, tenantId);
-    if (contentTenant != null
-        && ((contentTenant.isContentVisibilityTenant() && Objects
-        .equals(context.tenantRoot(), tenantId))
-        || contentTenant.isContentVisibilityGlobal())) {
-      return true;
-    }
-    LOGGER
-        .warn("User '{}' is not accessible to tenant of content '{}'", context.userId(), contentId);
-    return false;
+  private void initializeFields() {
+    dcaDateString = context.request().getString(AJEntityClassContents.DCA_ADDED_DATE);
+    contentType = context.request().getString(AJEntityClassContents.CONTENT_TYPE);
+    contentId = context.request().getString(AJEntityClassContents.CONTENT_ID);
+    forMonth = context.request().getInteger(AJEntityClassContents.FOR_MONTH);
+    forYear = context.request().getInteger(AJEntityClassContents.FOR_YEAR);
   }
 
   private JsonObject getModelErrors() {

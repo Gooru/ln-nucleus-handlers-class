@@ -10,7 +10,7 @@ import org.javalite.activejdbc.annotations.Table;
 public class AJEntityCollection extends Model {
 
   public static final String ID = "id";
-  public static final String COURSE_ID = "course_id";
+  private static final String COURSE_ID = "course_id";
   public static final String UNIT_ID = "unit_id";
   public static final String LESSON_ID = "lesson_id";
   public static final String CA_COUNT = "count";
@@ -43,18 +43,16 @@ public class AJEntityCollection extends Model {
   public static final String FETCH_COLLECTIONS_CLASS_VISIBILITY_ALL =
       "SELECT id, class_visibility, format FROM collection WHERE course_id = ?::uuid AND is_deleted = false";
   public static final String TABLE_COLLECTION = "collection";
-  public static final String FORMAT_TYPE = "format";
-  public static final String FORMAT_TYPE_COLLECTION = "collection";
-  public static final String FORMAT_TYPE_ASSESSMENT = "assessment";
-  public static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
+  private static final String FORMAT_TYPE = "format";
+  private static final String FORMAT_TYPE_COLLECTION = "collection";
+  private static final String FORMAT_TYPE_ASSESSMENT = "assessment";
+  private static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
+  private static final String FORMAT_TYPE_COLLECTION_EXT = "collection-external";
   public static final String VISIBILITY_DML =
       "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
-  public static final String SELECT_CUL_COLLECTION_TO_VALIDATE =
-      "SELECT id FROM collection where id = ?::uuid AND is_deleted = false AND lesson_id = ?::uuid AND unit_id = ?::uuid AND course_id = ?::uuid AND format = ?::content_container_type";
-
   public static final String SELECT_COLLECTION_TO_AUTHORIZE =
-      "SELECT id, owner_id, collaborator, tenant  FROM collection where id = ?::uuid AND is_deleted = false";
-  public static final String SELECT_COLLECTION = "SELECT id, title, thumbnail, url from collection where id = ANY(?::uuid[])";
+      "SELECT id, course_id, owner_id, collaborator, publish_status, tenant, tenant_root FROM collection where id = ?::uuid AND is_deleted = false";
+  public static final String SELECT_COLLECTION = "SELECT id, title, thumbnail, url, taxonomy from collection where id = ANY(?::uuid[])";
 
   public static final String JSON_KEY_VISIBLE = "visible";
   public static final String VISIBLE_ON = "on";
@@ -75,4 +73,24 @@ public class AJEntityCollection extends Model {
     return FORMAT_TYPE_ASSESSMENT_EXT.equalsIgnoreCase(this.getString(FORMAT_TYPE));
   }
 
+  public boolean isCollectionExternal() {
+    return FORMAT_TYPE_COLLECTION_EXT.equalsIgnoreCase(this.getString(FORMAT_TYPE));
+  }
+
+  public String getTenant() {
+    return this.getString("tenant");
+  }
+
+  public String getTenantRoot() {
+    return this.getString("tenant_root");
+  }
+
+  public boolean isPublished() {
+    String publishStatus = this.getString("publish_status");
+    return "published".equalsIgnoreCase(publishStatus);
+  }
+
+  public String getCourseId() {
+    return this.getString(COURSE_ID);
+  }
 }

@@ -35,6 +35,7 @@ class RequestDbValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(RequestDbValidator.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private int validGradesCount = 0;
+  private Map<Long, Integer> gradeSeqMap;
 
   RequestDbValidator(String classId, AJEntityClass entityClass, RerouteSettingCommand command) {
     this.classId = classId;
@@ -45,11 +46,41 @@ class RequestDbValidator {
   void validate() {
     validateClassNotArchivedAndCorrectVersion();
     validateCourse();
-    validateGradeValues();
+    populateGradeSequenceMap();
+    validateGradeValuesPresentInCommand();
     if (validGradesCount > 0) {
       validateGradesSequence();
     }
     validateRoute0();
+  }
+
+  private void populateGradeSequenceMap() {
+    Set<Long> gradeIds = new HashSet<>();
+    if (command.getGradeLowerBound() != null) {
+      gradeIds.add(command.getGradeLowerBound());
+    }
+    if (command.getGradeCurrent() != null) {
+      gradeIds.add(command.getGradeCurrent());
+    }
+    if (command.getGradeUpperBound() != null) {
+      gradeIds.add(command.getGradeUpperBound());
+    }
+    if (entityClass.getGradeLowerBound() != null) {
+      gradeIds.add(entityClass.getGradeLowerBound());
+    }
+    if (entityClass.getGradeUpperBound() != null) {
+      gradeIds.add(entityClass.getGradeUpperBound());
+    }
+    if (entityClass.getGradeCurrent() != null) {
+      gradeIds.add(entityClass.getGradeCurrent());
+    }
+    List<AJEntityGradeMaster> gradeEffectiveList = AJEntityGradeMaster
+        .getAllByIds(new ArrayList<>(gradeIds));
+
+    gradeSeqMap = new HashMap<>();
+    for (AJEntityGradeMaster ajEntityGradeMaster : gradeEffectiveList) {
+      gradeSeqMap.put(ajEntityGradeMaster.getId(), ajEntityGradeMaster.getGradeSeq());
+    }
   }
 
   private void validateCourse() {
@@ -92,24 +123,8 @@ class RequestDbValidator {
         : entityClass.getGradeUpperBound();
     Long effectiveCurrentGrade = command.getGradeCurrent() != null ? command.getGradeCurrent()
         : entityClass.getGradeCurrent();
-    Set<Long> idsSet = new HashSet<>();
-    if (effectiveLowerGrade != null) {
-      idsSet.add(effectiveLowerGrade);
-    }
-    if (effectiveCurrentGrade != null) {
-      idsSet.add(effectiveCurrentGrade);
-    }
-    if (effectiveUpperGrade != null) {
-      idsSet.add(effectiveUpperGrade);
-    }
-    List<Long> idsList = new ArrayList<>(idsSet);
 
-    List<AJEntityGradeMaster> gradeEffectiveList = AJEntityGradeMaster.getAllByIds(idsList);
-
-    Map<Long, Integer> gradeSeqMap = new HashMap<>();
-    for (AJEntityGradeMaster ajEntityGradeMaster : gradeEffectiveList) {
-      gradeSeqMap.put(ajEntityGradeMaster.getId(), ajEntityGradeMaster.getGradeSeq());
-    }
+    validateRangeIsNotShrinking();
 
     if (effectiveLowerGrade != null && effectiveCurrentGrade != null) {
       if (gradeSeqMap.get(effectiveLowerGrade) > gradeSeqMap.get(effectiveCurrentGrade)) {
@@ -137,22 +152,44 @@ class RequestDbValidator {
 
   }
 
-  private void validateGradeValues() {
-    Set<Long> idsSet = new HashSet<>();
+  private void validateRangeIsNotShrinking() {
+    if (command.getGradeUpperBound() != null && entityClass.getGradeUpperBound() != null) {
+      if (gradeSeqMap.get(command.getGradeUpperBound()) < gradeSeqMap
+          .get(entityClass.getGradeUpperBound())) {
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(
+                RESOURCE_BUNDLE.getString("grades.range.shrink.not.allowed")));
+      }
+    }
+
+    if (command.getGradeLowerBound() != null && entityClass.getGradeLowerBound() != null) {
+      if (gradeSeqMap.get(command.getGradeLowerBound()) > gradeSeqMap
+          .get(entityClass.getGradeLowerBound())) {
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(
+                RESOURCE_BUNDLE.getString("grades.range.shrink.not.allowed")));
+      }
+    }
+  }
+
+  private void validateGradeValuesPresentInCommand() {
+    validGradesCount = 0;
     if (command.getGradeCurrent() != null) {
-      idsSet.add(command.getGradeCurrent());
+      if (gradeSeqMap.containsKey(command.getGradeCurrent())) {
+        validGradesCount++;
+      }
     }
     if (command.getGradeLowerBound() != null) {
-      idsSet.add(command.getGradeLowerBound());
+      if (gradeSeqMap.containsKey(command.getGradeLowerBound())) {
+        validGradesCount++;
+      }
     }
     if (command.getGradeUpperBound() != null) {
-      idsSet.add(command.getGradeUpperBound());
+      if (gradeSeqMap.containsKey(command.getGradeUpperBound())) {
+        validGradesCount++;
+      }
     }
-    validGradesCount = idsSet.size();
-    List<Long> idsList = new ArrayList<>(idsSet);
-
-    List<AJEntityGradeMaster> gradeMasterList = AJEntityGradeMaster.getAllByIds(idsList);
-    if ((gradeMasterList == null || gradeMasterList.isEmpty()) && validGradesCount != 0) {
+    if (validGradesCount != command.validGradesCount()) {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(
               RESOURCE_BUNDLE.getString("grades.incorrect")));

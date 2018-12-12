@@ -44,15 +44,17 @@ class RequestDbValidator {
   }
 
   private void validateMembershipForSpecifiedUsers() {
-    Set<String> uniqueUsers = new HashSet<>(command.getUsersList());
+    if (!command.getUsersList().isEmpty()) {
+      Set<String> uniqueUsers = new HashSet<>(command.getUsersList());
 
-    Long countOfStudents = AJClassMember
-        .count(AJClassMember.STUDENT_COUNT_FROM_SET_FILTER, classId,
-            Utils.convertListToPostgresArrayStringRepresentation(command.getUsersList()));
-    if (countOfStudents == null || countOfStudents != uniqueUsers.size()) {
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(
-              RESOURCE_BUNDLE.getString("users.not.members")));
+      Long countOfStudents = AJClassMember
+          .count(AJClassMember.STUDENT_COUNT_FROM_SET_FILTER, classId,
+              Utils.convertListToPostgresArrayStringRepresentation(command.getUsersList()));
+      if (countOfStudents == null || countOfStudents != uniqueUsers.size()) {
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(
+                RESOURCE_BUNDLE.getString("users.not.members")));
+      }
     }
   }
 

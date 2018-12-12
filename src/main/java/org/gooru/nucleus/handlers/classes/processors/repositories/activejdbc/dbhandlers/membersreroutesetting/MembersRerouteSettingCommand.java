@@ -88,9 +88,9 @@ class MembersRerouteSettingCommand {
 
   static class MembersRerouteSettingRequestAttributes {
 
-    static String GRADE_LOWER_BOUND = "grade_lower_bound";
-    static String GRADE_UPPER_BOUND = "grade_upper_bound";
-    static String USERS = "users";
+    static final String GRADE_LOWER_BOUND = "grade_lower_bound";
+    static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+    static final String USERS = "users";
 
     private MembersRerouteSettingRequestAttributes() {
       throw new AssertionError();

@@ -85,10 +85,7 @@ class DeleteClassContentHandler implements DBHandler {
     EventBuilder deleteEventBuilder =
         EventBuilderFactory
             .getDeleteClassContentEventBuilder(classContents.getId(), this.context.classId(),
-                classContents.getContentId(), classContents.getContentType(),
-                classContents.getCtxCourseId(),
-                classContents.getCtxUnitId(), classContents.getCtxLessonId(),
-                classContents.getCtxCollectionId());
+                classContents.getContentId(), classContents.getContentType());
     boolean result = this.classContents.delete();
     if (!result) {
       if (classContents.hasErrors()) {

@@ -56,7 +56,7 @@ public final class VisibleContentHelper {
         unitLessonMap.put(unitId, lessons);
       }
 
-      String visibility = null;
+      String visibility;
       String strClassVisibility = collection.getString(AJEntityCollection.CLASS_VISIBILITY);
       JsonObject classVisibility = strClassVisibility != null && !strClassVisibility.isEmpty()
           ? new JsonObject(strClassVisibility) : new JsonObject();
@@ -86,7 +86,7 @@ public final class VisibleContentHelper {
           assessmentsArray.add(visibilityJson);
           assessmentsByLesson.put(lessonId, assessmentsArray);
         }
-      } else if (collection.isCollection()) {
+      } else if (collection.isCollection() || collection.isCollectionExternal()) {
         if (collectionsByLesson.containsKey(lessonId)) {
           collectionsByLesson.get(lessonId).add(visibilityJson);
         } else {
