@@ -56,6 +56,7 @@ public class AJEntityClass extends Model {
   private static final String GRADE_CURRENT = "grade_current";
   private static final String ROUTE0 = "route0_applicable";
   public static final String SETTING = "setting";
+  public static final String PREFERENCE = "preference";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
   private static final String IS_OFFLINE = "is_offline";
@@ -386,6 +387,10 @@ public class AJEntityClass extends Model {
 
   public void setClassSettings(JsonObject classSettings) {
     this.set(SETTING, FieldConverter.convertFieldToJson(classSettings));
+  }
+  
+  public void setClassPreference(JsonObject classPreference) {
+	this.set(PREFERENCE, FieldConverter.convertFieldToJson(classPreference));
   }
 
   private void setFieldUsingConverter(String fieldName, Object fieldValue) {
