@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -171,5 +172,9 @@ public class AJClassMember extends Model {
 
   public Long getGradeUpperBound() {
     return this.getLong(GRADE_UPPER_BOUND);
+  }
+
+  public long getCreatedAtAsLong() {
+    return this.getDate(CREATED_AT).getTime();
   }
 }

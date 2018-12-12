@@ -10,19 +10,25 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 class MembershipInfo {
 
   private final boolean isActive;
-  private final boolean profile_baseline_done;
+  private final boolean profileBaselineDone;
+  private final long createdAt;
 
-  private MembershipInfo(boolean isActive, boolean profile_baseline_done) {
+  private MembershipInfo(boolean isActive, boolean profileBaselineDone, long createdAt) {
     this.isActive = isActive;
-    this.profile_baseline_done = profile_baseline_done;
+    this.profileBaselineDone = profileBaselineDone;
+    this.createdAt = createdAt;
   }
 
   boolean isActive() {
     return isActive;
   }
 
-  boolean isProfile_baseline_done() {
-    return profile_baseline_done;
+  boolean isProfileBaselineDone() {
+    return profileBaselineDone;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
   }
 
   @Override
@@ -35,15 +41,17 @@ class MembershipInfo {
     }
     MembershipInfo that = (MembershipInfo) o;
     return isActive == that.isActive &&
-        profile_baseline_done == that.profile_baseline_done;
+        profileBaselineDone == that.profileBaselineDone &&
+        createdAt == that.createdAt;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isActive, profile_baseline_done);
+    return Objects.hash(isActive, profileBaselineDone);
   }
 
   static MembershipInfo build(AJClassMember member) {
-    return new MembershipInfo(member.getIsActive(), member.getProfileBaselineDone());
+    return new MembershipInfo(member.getIsActive(), member.getProfileBaselineDone(),
+        member.getCreatedAtAsLong());
   }
 }

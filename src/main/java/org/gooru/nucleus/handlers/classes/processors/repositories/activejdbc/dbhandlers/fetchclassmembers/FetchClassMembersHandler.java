@@ -129,11 +129,13 @@ public class FetchClassMembersHandler implements DBHandler {
       if (membershipInfo != null) {
         userDemographic.put(AJClassMember.IS_ACTIVE, membershipInfo.isActive());
         userDemographic
-            .put(AJClassMember.PROFILE_BASELINE_DONE, membershipInfo.isProfile_baseline_done());
+            .put(AJClassMember.PROFILE_BASELINE_DONE, membershipInfo.isProfileBaselineDone());
+        userDemographic.put(AJClassMember.CREATED_AT, membershipInfo.getCreatedAt());
       } else {
         userDemographic.put(AJClassMember.IS_ACTIVE, (Boolean) null);
         userDemographic
             .put(AJClassMember.PROFILE_BASELINE_DONE, (Boolean)null);
+        userDemographic.put(AJClassMember.CREATED_AT, (Long) null);
       }
     }
   }
