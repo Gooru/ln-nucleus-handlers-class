@@ -104,9 +104,7 @@ public class UpdateClassMembersRerouteSettingHandler implements DBHandler {
         }
       }
 
-      Base.exec(AJClassMember.UPDATE_MEMBERSHIP_REROUTE_SETTING, command.getGradeLowerBound(),
-          command.getGradeUpperBound(), context.classId(),
-          Utils.convertListToPostgresArrayStringRepresentation(command.getUsers()));
+      new ClassMemberUpdater(command).update();
 
       // NOTE: We are not generating any events here right now
       return new ExecutionResult<>(

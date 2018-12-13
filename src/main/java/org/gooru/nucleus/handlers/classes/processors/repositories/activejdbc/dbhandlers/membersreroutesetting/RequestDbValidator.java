@@ -78,6 +78,11 @@ class RequestDbValidator {
     List<Long> idsList = new ArrayList<>(idsSet);
     List<AJEntityGradeMaster> gradeEffectiveList = AJEntityGradeMaster.getAllByIds(idsList);
 
+    if (idsList.size() != gradeEffectiveList.size()) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("grades.incorrect")));
+    }
+
     Map<Long, Integer> gradeSeqMap = new HashMap<>();
     for (AJEntityGradeMaster ajEntityGradeMaster : gradeEffectiveList) {
       gradeSeqMap.put(ajEntityGradeMaster.getId(), ajEntityGradeMaster.getGradeSeq());

@@ -1,6 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -56,8 +55,14 @@ public class AJClassMember extends Model {
   public static final String FETCH_ALL_JOINED_ACTIVE_USERS_FILTER =
       "class_member_status = 'joined'::class_member_status_type and is_active = true and class_id = ?::uuid";
   public static final String DELETE_MEMBERSHIP_FOR_CLASS_QUERY = "delete from class_member where class_id = ?::uuid";
-  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING =
+  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER_UPPER =
       "update class_member set grade_lower_bound = ?, grade_upper_bound = ?, updated_at = now() "
+          + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
+  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER =
+      "update class_member set grade_lower_bound = ?, updated_at = now() "
+          + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
+  public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING_UPPER =
+      "update class_member set grade_upper_bound = ?, updated_at = now() "
           + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String FETCH_USER_MEMBERSHIP_QUERY =
       "select class_id from class_member cm, class c where cm.user_id = ?::uuid and cm.class_member_status = "
@@ -81,7 +86,7 @@ public class AJClassMember extends Model {
   private static final String UPDATE_CLASS_MEMBER_LOWER_BOUND_AS_DEFAULT =
       "update class_member set grade_lower_bound = ? where class_id = ?::uuid and grade_lower_bound is null";
   private static final String UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT =
-      "update class_member set grade_upper_bound = ? where class_id = ?::uuid and grade_lower_bound is null";
+      "update class_member set grade_upper_bound = ? where class_id = ?::uuid and grade_upper_bound is null";
 
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
@@ -183,6 +188,22 @@ public class AJClassMember extends Model {
 
   public static void updateClassMemberUpperBoundAsDefault(String classId, Long upperBound) {
     Base.exec(UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT, upperBound, classId);
+  }
+
+  public static void updateClassMemberUpperBoundForSpecifiedUsers(String classId,
+      Long upperBound, String users) {
+    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_UPPER, upperBound, classId, users);
+  }
+
+  public static void updateClassMemberLowerBoundForSpecifiedUsers(String classId,
+      Long lowerBound, String users) {
+    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER, lowerBound, classId, users);
+  }
+
+  public static void updateClassMemberLowerUpperBoundForSpecifiedUsers(String classId,
+      Long upperBound, Long lowerBound, String users) {
+    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER_UPPER, lowerBound, upperBound, classId,
+        users);
   }
 
   public Long getGradeLowerBound() {
