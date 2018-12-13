@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 class RequestDbValidator {
   /*
   - class is valid - not deleted, not archived
-  - validations for grade low < grade high, grade id from grade master, route0 only if course is assigned and is premium
+  - validations for grade low <= grade current, grade id from grade master, route0 only if course is assigned and is premium
    */
 
 
@@ -46,12 +46,22 @@ class RequestDbValidator {
   void validate() {
     validateClassNotArchivedAndCorrectVersion();
     validateCourse();
+    validateGradeCurrentNotGettingOverwritten();
     populateGradeSequenceMap();
     validateGradeValuesPresentInCommand();
     if (validGradesCount > 0) {
       validateGradesSequence();
     }
     validateRoute0();
+  }
+
+  private void validateGradeCurrentNotGettingOverwritten() {
+    if (entityClass.getGradeCurrent() != null && command.getGradeCurrent() != null
+        && entityClass.getGradeCurrent().longValue() != command.getGradeCurrent().longValue()) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("reroute.settings.grade.set.not.allowed")));
+    }
   }
 
   private void populateGradeSequenceMap() {
@@ -62,14 +72,8 @@ class RequestDbValidator {
     if (command.getGradeCurrent() != null) {
       gradeIds.add(command.getGradeCurrent());
     }
-    if (command.getGradeUpperBound() != null) {
-      gradeIds.add(command.getGradeUpperBound());
-    }
     if (entityClass.getGradeLowerBound() != null) {
       gradeIds.add(entityClass.getGradeLowerBound());
-    }
-    if (entityClass.getGradeUpperBound() != null) {
-      gradeIds.add(entityClass.getGradeUpperBound());
     }
     if (entityClass.getGradeCurrent() != null) {
       gradeIds.add(entityClass.getGradeCurrent());
@@ -119,8 +123,6 @@ class RequestDbValidator {
   private void validateGradesSequence() {
     Long effectiveLowerGrade = command.getGradeLowerBound() != null ? command.getGradeLowerBound()
         : entityClass.getGradeLowerBound();
-    Long effectiveUpperGrade = command.getGradeUpperBound() != null ? command.getGradeUpperBound()
-        : entityClass.getGradeUpperBound();
     Long effectiveCurrentGrade = command.getGradeCurrent() != null ? command.getGradeCurrent()
         : entityClass.getGradeCurrent();
 
@@ -133,35 +135,9 @@ class RequestDbValidator {
                 RESOURCE_BUNDLE.getString("grades.incorrect.sequence")));
       }
     }
-
-    if (effectiveCurrentGrade != null && effectiveUpperGrade != null) {
-      if (gradeSeqMap.get(effectiveCurrentGrade) > gradeSeqMap.get(effectiveUpperGrade)) {
-        throw new MessageResponseWrapperException(MessageResponseFactory
-            .createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("grades.incorrect.sequence")));
-      }
-    }
-
-    if (effectiveUpperGrade != null && effectiveLowerGrade != null) {
-      if (gradeSeqMap.get(effectiveLowerGrade) > gradeSeqMap.get(effectiveUpperGrade)) {
-        throw new MessageResponseWrapperException(MessageResponseFactory
-            .createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("grades.incorrect.sequence")));
-      }
-    }
-
   }
 
   private void validateRangeIsNotShrinking() {
-    if (command.getGradeUpperBound() != null && entityClass.getGradeUpperBound() != null) {
-      if (gradeSeqMap.get(command.getGradeUpperBound()) < gradeSeqMap
-          .get(entityClass.getGradeUpperBound())) {
-        throw new MessageResponseWrapperException(MessageResponseFactory
-            .createInvalidRequestResponse(
-                RESOURCE_BUNDLE.getString("grades.range.shrink.not.allowed")));
-      }
-    }
-
     if (command.getGradeLowerBound() != null && entityClass.getGradeLowerBound() != null) {
       if (gradeSeqMap.get(command.getGradeLowerBound()) > gradeSeqMap
           .get(entityClass.getGradeLowerBound())) {
@@ -181,11 +157,6 @@ class RequestDbValidator {
     }
     if (command.getGradeLowerBound() != null) {
       if (gradeSeqMap.containsKey(command.getGradeLowerBound())) {
-        validGradesCount++;
-      }
-    }
-    if (command.getGradeUpperBound() != null) {
-      if (gradeSeqMap.containsKey(command.getGradeUpperBound())) {
         validGradesCount++;
       }
     }

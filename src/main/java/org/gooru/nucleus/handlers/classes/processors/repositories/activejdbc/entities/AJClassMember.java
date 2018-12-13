@@ -78,7 +78,10 @@ public class AJClassMember extends Model {
   public static final String CLASS_MEMBERS_STATUS_UPDATE_QUERY =
       "update class_member set is_active = ?, updated_at = now() "
           + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
-
+  private static final String UPDATE_CLASS_MEMBER_LOWER_BOUND_AS_DEFAULT =
+      "update class_member set grade_lower_bound = ? where class_id = ?::uuid and grade_lower_bound is null";
+  private static final String UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT =
+      "update class_member set grade_upper_bound = ? where class_id = ?::uuid and grade_lower_bound is null";
 
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
@@ -156,6 +159,14 @@ public class AJClassMember extends Model {
     }
   }
 
+  public void setGradeLowerBound(Long gradeLowerBound) {
+    this.setLong(GRADE_LOWER_BOUND, gradeLowerBound);
+  }
+
+  public void setGradeUpperBound(Long gradeUpperBound) {
+    this.setLong(GRADE_UPPER_BOUND, gradeUpperBound);
+  }
+
   public static void markMembersAsActive(String classId, List<String> users) {
     Base.exec(CLASS_MEMBERS_STATUS_UPDATE_QUERY, true, classId,
         DbHelperUtil.toPostgresArrayString(users));
@@ -164,6 +175,14 @@ public class AJClassMember extends Model {
   public static void markMembersAsInactive(String classId, List<String> users) {
     Base.exec(CLASS_MEMBERS_STATUS_UPDATE_QUERY, false, classId,
         DbHelperUtil.toPostgresArrayString(users));
+  }
+
+  public static void updateClassMemberLowerBoundAsDefault(String classId, Long lowerBound) {
+    Base.exec(UPDATE_CLASS_MEMBER_LOWER_BOUND_AS_DEFAULT, lowerBound, classId);
+  }
+
+  public static void updateClassMemberUpperBoundAsDefault(String classId, Long upperBound) {
+    Base.exec(UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT, upperBound, classId);
   }
 
   public Long getGradeLowerBound() {
