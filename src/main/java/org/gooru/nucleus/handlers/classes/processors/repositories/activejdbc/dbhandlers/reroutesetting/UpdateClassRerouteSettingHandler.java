@@ -40,6 +40,8 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
       .getLogger(UpdateClassRerouteSettingHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private AJEntityClass entityClass;
+  private boolean lowerBoundUpdated = false;
+  private boolean gradeWasSet = false;
 
   public UpdateClassRerouteSettingHandler(ProcessorContext context) {
     this.context = context;
@@ -90,8 +92,17 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
         map.forEach(errors::put);
         return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
             ExecutionResult.ExecutionStatus.FAILED);
+      } else {
+        return new ExecutionResult<>(MessageResponseFactory.createInternalErrorResponse(),
+            ExecutionResult.ExecutionStatus.FAILED);
       }
     }
+    return handleClassMembersUpdate();
+  }
+
+  private ExecutionResult<MessageResponse> handleClassMembersUpdate() {
+    new ClassMemberUpdater(command, lowerBoundUpdated, gradeWasSet).update();
+
     return new ExecutionResult<>(
         MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
             EventBuilderFactory.getUpdateClassEventBuilder(context.classId())),
@@ -99,14 +110,14 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
   }
 
   private void updateSettings() {
-    if (command.getGradeUpperBound() != null) {
-      entityClass.setGradeUpperBound(command.getGradeUpperBound());
-    }
     if (command.getGradeLowerBound() != null) {
       entityClass.setGradeLowerBound(command.getGradeLowerBound());
+      lowerBoundUpdated = true;
     }
-    if (command.getGradeCurrent() != null) {
+    if (command.getGradeCurrent() != null && entityClass.getGradeCurrent() == null) {
       entityClass.setGradeCurrent(command.getGradeCurrent());
+      entityClass.setGradeUpperBound(command.getGradeCurrent());
+      gradeWasSet = true;
     }
     if (command.getRoute0() != null) {
       entityClass.setRoute0(command.getRoute0());

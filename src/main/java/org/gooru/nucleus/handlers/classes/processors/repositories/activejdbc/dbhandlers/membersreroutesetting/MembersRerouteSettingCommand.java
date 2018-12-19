@@ -23,6 +23,7 @@ class MembersRerouteSettingCommand {
   private final Long gradeLowerBound;
   private final Long gradeUpperBound;
   private final List<String> users;
+  private boolean classUpperBoundUpdateNeeded;
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
   static MembersRerouteSettingCommand build(ProcessorContext context) {
@@ -84,6 +85,14 @@ class MembersRerouteSettingCommand {
 
   public List<String> getUsers() {
     return users;
+  }
+
+  public boolean isClassUpperBoundUpdateNeeded() {
+    return classUpperBoundUpdateNeeded;
+  }
+
+  public void setClassUpperBoundUpdateNeeded(boolean classUpperBoundUpdateNeeded) {
+    this.classUpperBoundUpdateNeeded = classUpperBoundUpdateNeeded;
   }
 
   static class MembersRerouteSettingRequestAttributes {

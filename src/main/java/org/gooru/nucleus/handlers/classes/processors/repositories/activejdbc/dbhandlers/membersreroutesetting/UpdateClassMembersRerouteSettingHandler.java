@@ -1,5 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
+import io.vertx.core.json.JsonObject;
+import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
@@ -82,9 +84,27 @@ public class UpdateClassMembersRerouteSettingHandler implements DBHandler {
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
     try {
-      Base.exec(AJClassMember.UPDATE_MEMBERSHIP_REROUTE_SETTING, command.getGradeLowerBound(),
-          command.getGradeUpperBound(), context.classId(),
-          Utils.convertListToPostgresArrayStringRepresentation(command.getUsers()));
+      // NOTE: To avoid any race conditions first update the class, if needed
+      if (command.isClassUpperBoundUpdateNeeded()) {
+        entityClass.setGradeUpperBound(command.getGradeUpperBound());
+        boolean result = entityClass.save();
+        if (!result) {
+          LOGGER.error("Class with id '{}' failed to save", context.classId());
+          if (this.entityClass.hasErrors()) {
+            Map<String, String> map = this.entityClass.errors();
+            JsonObject errors = new JsonObject();
+            map.forEach(errors::put);
+            return new ExecutionResult<>(
+                MessageResponseFactory.createValidationErrorResponse(errors),
+                ExecutionResult.ExecutionStatus.FAILED);
+          } else {
+            return new ExecutionResult<>(MessageResponseFactory.createInternalErrorResponse(),
+                ExecutionResult.ExecutionStatus.FAILED);
+          }
+        }
+      }
+
+      new ClassMemberUpdater(command).update();
 
       // NOTE: We are not generating any events here right now
       return new ExecutionResult<>(

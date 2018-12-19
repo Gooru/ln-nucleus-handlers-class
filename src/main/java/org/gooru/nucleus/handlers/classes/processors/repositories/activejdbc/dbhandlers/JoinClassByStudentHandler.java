@@ -140,6 +140,8 @@ class JoinClassByStudentHandler implements DBHandler {
       this.membership
           .setCreatorSystem(this.context.request().getString(AJClassMember.CREATOR_SYSTEM));
       this.membership.setStatusJoined();
+      this.membership.setGradeLowerBound(entityClass.getGradeLowerBound());
+      this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
       if (this.membership.hasErrors()) {
         return membershipErrors();
       }
@@ -149,6 +151,8 @@ class JoinClassByStudentHandler implements DBHandler {
           .equalsIgnoreCase(this.membership.getString(AJClassMember.CLASS_MEMBER_STATUS))) {
         this.membership.setUserId(this.context.userId());
         this.membership.setStatusJoined();
+        this.membership.setGradeLowerBound(entityClass.getGradeLowerBound());
+        this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
       } else {
         // User is already joined, so nothing to do; just return successfully
         return new ExecutionResult<>(

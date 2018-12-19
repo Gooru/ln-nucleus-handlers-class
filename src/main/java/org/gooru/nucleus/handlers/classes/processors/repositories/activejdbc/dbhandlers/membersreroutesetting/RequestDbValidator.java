@@ -56,6 +56,7 @@ class RequestDbValidator {
     Long classHigher = entityClass.getGradeUpperBound();
     Long memberLower = command.getGradeLowerBound();
     Long memberHigher = command.getGradeUpperBound();
+    Long classCurrent = entityClass.getGradeCurrent();
 
     Set<Long> idsSet = new HashSet<>();
     if (classLower != null) {
@@ -70,9 +71,17 @@ class RequestDbValidator {
     if (memberHigher != null) {
       idsSet.add(memberHigher);
     }
+    if (classCurrent != null) {
+      idsSet.add(classCurrent);
+    }
 
     List<Long> idsList = new ArrayList<>(idsSet);
     List<AJEntityGradeMaster> gradeEffectiveList = AJEntityGradeMaster.getAllByIds(idsList);
+
+    if (idsList.size() != gradeEffectiveList.size()) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("grades.incorrect")));
+    }
 
     Map<Long, Integer> gradeSeqMap = new HashMap<>();
     for (AJEntityGradeMaster ajEntityGradeMaster : gradeEffectiveList) {
@@ -87,9 +96,13 @@ class RequestDbValidator {
     }
 
     if (memberHigher != null) {
-      if (gradeSeqMap.get(memberHigher) > gradeSeqMap.get(classHigher)) {
+      if (gradeSeqMap.get(memberHigher) < gradeSeqMap.get(classCurrent)) {
         throw new MessageResponseWrapperException(MessageResponseFactory
             .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("grades.incorrect.sequence")));
+      }
+      if (gradeSeqMap.get(memberHigher) > gradeSeqMap.get(classHigher)) {
+        // save state to update class high bound
+        command.setClassUpperBoundUpdateNeeded(true);
       }
     }
 
@@ -104,7 +117,7 @@ class RequestDbValidator {
 
   private void validateGradeValues() {
     if ((entityClass.getGradeLowerBound() == null && command.getGradeLowerBound() != null) ||
-        (entityClass.getGradeUpperBound() == null && command.getGradeUpperBound() != null)) {
+        (entityClass.getGradeCurrent() == null && command.getGradeUpperBound() != null)) {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(
               RESOURCE_BUNDLE.getString("class.bounds.not.set")));

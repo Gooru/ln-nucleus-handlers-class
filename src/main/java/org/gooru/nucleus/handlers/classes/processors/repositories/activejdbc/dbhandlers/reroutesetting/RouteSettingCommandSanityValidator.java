@@ -16,18 +16,16 @@ class RouteSettingCommandSanityValidator {
   private final UUID classId;
   private final Boolean route0;
   private final Long gradeLowerBound;
-  private final Long gradeUpperBound;
   private final Long gradeCurrent;
   private static final Logger LOGGER = LoggerFactory
       .getLogger(RouteSettingCommandSanityValidator.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
   RouteSettingCommandSanityValidator(UUID classId, Boolean route0, Long gradeLowerBound,
-      Long gradeUpperBound, Long gradeCurrent) {
+      Long gradeCurrent) {
     this.classId = classId;
     this.route0 = route0;
     this.gradeLowerBound = gradeLowerBound;
-    this.gradeUpperBound = gradeUpperBound;
     this.gradeCurrent = gradeCurrent;
   }
 
@@ -37,8 +35,7 @@ class RouteSettingCommandSanityValidator {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class")));
     }
-    if (route0 == null && gradeCurrent == null && gradeLowerBound == null
-        && gradeUpperBound == null) {
+    if (route0 == null && gradeCurrent == null && gradeLowerBound == null) {
       LOGGER.warn("All null values in payload");
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")));
