@@ -83,6 +83,10 @@ public class AJEntityClassContents extends Model {
   public static final String SELECT_DUPLICATED_ADDED_CONTENT =
       "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE = ?::DATE";
 
+  public static final String SELECT_DUPLICATED_ADDED_CONTENT_FOR_MONTH =
+      "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE is null "
+          + " and for_month = ? and for_year = ?";
+
   private static final String SELECT_CLASS_CONTENTS =
       "class_id = ?::uuid AND for_year = ? AND for_month = ?";
 
