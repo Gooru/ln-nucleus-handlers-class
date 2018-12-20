@@ -97,7 +97,7 @@ class AddContentInClassHandler implements DBHandler {
     classContents.setClassId(context.classId());
     classContents.setInitialUsersCount();
 
-    AJEntityClassContents content = findAlreadyAddedContentForToday();
+    AJEntityClassContents content = findAlreadyAddedContent();
     if (content != null) {
       LOGGER.debug("Pretending to add content, id: {}, type: {}", contentId, contentType);
       return pretendToAddContentToClass(content);
@@ -165,11 +165,17 @@ class AddContentInClassHandler implements DBHandler {
         ExecutionStatus.SUCCESSFUL);
   }
 
-  private AJEntityClassContents findAlreadyAddedContentForToday() {
-    return AJEntityClassContents
-        .findFirst(AJEntityClassContents.SELECT_DUPLICATED_ADDED_CONTENT, context.classId(),
-            contentId, contentType,
-            classContents.getDcaAddedDate());
+  private AJEntityClassContents findAlreadyAddedContent() {
+    if (classContents.getDcaAddedDate() != null) {
+      return AJEntityClassContents
+          .findFirst(AJEntityClassContents.SELECT_DUPLICATED_ADDED_CONTENT, context.classId(),
+              contentId, contentType,
+              classContents.getDcaAddedDate());
+    } else {
+      return AJEntityClassContents
+          .findFirst(AJEntityClassContents.SELECT_DUPLICATED_ADDED_CONTENT_FOR_MONTH,
+              context.classId(), contentId, contentType, forMonth, forYear);
+    }
   }
 
   private ExecutionResult<MessageResponse> reallyAddContentToClass() {
