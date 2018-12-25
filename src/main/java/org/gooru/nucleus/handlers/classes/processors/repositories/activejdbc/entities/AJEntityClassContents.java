@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.regex.Pattern;
+
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.ConverterRegistry;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -54,6 +56,8 @@ public class AJEntityClassContents extends Model {
   public static final String USERS_COUNT = "users_count";
   public static final String ID = "id";
   private static final String COMMA_SEPARATOR = ",";
+  public static final Pattern ASSESSMENT_TYPES = Pattern.compile("assessment|assessment-external");
+  public static final Pattern COLLECTION_TYPES = Pattern.compile("collection|collection-external");
 
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,

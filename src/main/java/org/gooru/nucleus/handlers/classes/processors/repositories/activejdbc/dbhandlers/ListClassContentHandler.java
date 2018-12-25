@@ -257,10 +257,8 @@ class ListClassContentHandler implements DBHandler {
   }
 
   private boolean checkContentTypeIsCollection(String contentType) {
-    return (contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT)
-        || contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT_EXTERNAL)
-        || contentType.equalsIgnoreCase(AJEntityClassContents.COLLECTION_EXTERNAL)
-        || contentType.equalsIgnoreCase(AJEntityClassContents.COLLECTION));
+    return (AJEntityClassContents.ASSESSMENT_TYPES.matcher(contentType).matches() 
+        || AJEntityClassContents.COLLECTION_TYPES.matcher(contentType).matches());
   }
 
   private boolean checkContentTypeIsContent(String contentType) {
