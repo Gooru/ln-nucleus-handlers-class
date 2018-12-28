@@ -127,4 +127,8 @@ public final class DBHandlerBuilder {
   public static DBHandler buildClassMembersDeactivateHandler(ProcessorContext context) {
     return new ClassMembersDeactivateHandler(context);
   }
+
+  public static DBHandler buildClassPreferenceUpdateHandler(ProcessorContext context) {
+    return new ClassPreferenceUpdateHandler(context);
+  }
 }

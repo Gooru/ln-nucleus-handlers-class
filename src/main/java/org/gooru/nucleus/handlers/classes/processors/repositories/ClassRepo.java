@@ -60,4 +60,6 @@ public interface ClassRepo {
   MessageResponse classMembersDeactivate();
 
   MessageResponse classMembersActivate();
+
+  MessageResponse updateClassPreference();
 }

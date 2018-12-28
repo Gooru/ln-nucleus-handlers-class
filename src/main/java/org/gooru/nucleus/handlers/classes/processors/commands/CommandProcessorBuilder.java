@@ -190,6 +190,12 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ClassMembersRerouteSettingsUpdateProcessor(context);
     }
+  },
+  MSG_OP_CLASS_PREFERENCE_UPDATE(MessageConstants.MSG_OP_CLASS_PREFERENCE_UPDATE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassPreferenceUpdateProcessor(context);
+    }
   };
   private String name;
 
