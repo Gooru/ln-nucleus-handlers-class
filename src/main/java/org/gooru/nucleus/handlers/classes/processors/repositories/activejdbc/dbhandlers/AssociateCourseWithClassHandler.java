@@ -31,7 +31,6 @@ class AssociateCourseWithClassHandler implements DBHandler {
   private final ProcessorContext context;
   private AJEntityClass entityClass;
   private String courseVersion;
-  private static final String ASSIGN_COURSE_TO_CLASS = "assign.course.to.class";
 
   AssociateCourseWithClassHandler(ProcessorContext context) {
     this.context = context;
