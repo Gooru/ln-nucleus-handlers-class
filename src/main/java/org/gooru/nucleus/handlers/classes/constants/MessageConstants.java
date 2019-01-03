@@ -50,7 +50,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_MEMBERS_REROUTE_SETTINGS_UPDATE = "class.members.reroute.settings.update";
   
   public static final String MSG_OP_CLASS_PREFERENCE_UPDATE = "class.preference.update";
-
+  public static final String MSG_OP_CLASS_LANGUAGE_UPDATE = "class.language.update";
+  
   // Containers for different responses
   public static final String RESP_CONTAINER_MBUS = "mb.container";
   public static final String RESP_CONTAINER_EVENT = "mb.event";

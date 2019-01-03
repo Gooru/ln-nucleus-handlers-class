@@ -62,4 +62,6 @@ public interface ClassRepo {
   MessageResponse classMembersActivate();
 
   MessageResponse updateClassPreference();
+
+  MessageResponse updateClassLanguage();
 }

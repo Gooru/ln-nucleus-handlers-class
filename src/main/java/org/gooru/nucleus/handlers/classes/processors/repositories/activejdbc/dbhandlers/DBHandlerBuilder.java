@@ -131,4 +131,8 @@ public final class DBHandlerBuilder {
   public static DBHandler buildClassPreferenceUpdateHandler(ProcessorContext context) {
     return new ClassPreferenceUpdateHandler(context);
   }
+
+  public static DBHandler buildClassLanguageUpdateHandler(ProcessorContext context) {
+    return new UpdateClassLanguageHandler(context);
+  }
 }

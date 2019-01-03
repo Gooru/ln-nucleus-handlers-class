@@ -60,7 +60,7 @@ public class AJEntityClass extends Model {
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
   private static final String IS_OFFLINE = "is_offline";
-
+  public static final String PRIMARY_LANGUAGE = "primary_language";
 
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
@@ -112,12 +112,15 @@ public class AJEntityClass extends Model {
       .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE,
           MIN_SCORE, END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY,
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
-          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE, PREFERENCE);
+          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE, PREFERENCE, PRIMARY_LANGUAGE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
   
   private static final Set<String> CLASS_PREFERENCE_FIELDS =
       new HashSet<>(Arrays.asList(PREFERENCE));
+  
+  private static final Set<String> CLASS_LANGUAGE_FIELDS =
+      new HashSet<>(Arrays.asList(PRIMARY_LANGUAGE));
 
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
@@ -184,6 +187,7 @@ public class AJEntityClass extends Model {
     validatorMap.put(TENANT, (FieldValidator::validateUuid));
     validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
     validatorMap.put(PREFERENCE, (FieldValidator::validateJsonIfPresent));
+    validatorMap.put(PRIMARY_LANGUAGE, FieldValidator::validateLanguageIfPresent);
     return Collections.unmodifiableMap(validatorMap);
   }
 
@@ -225,6 +229,10 @@ public class AJEntityClass extends Model {
   
   public static FieldSelector updateClassPreferenceFieldSelector() {
     return () -> Collections.unmodifiableSet(CLASS_PREFERENCE_FIELDS);
+  }
+  
+  public static FieldSelector updateClassLanguageFieldSelector() {
+    return () -> Collections.unmodifiableSet(CLASS_LANGUAGE_FIELDS);
   }
 
   public static FieldSelector updateCollaboratorFieldSelector() {
