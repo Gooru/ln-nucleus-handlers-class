@@ -224,8 +224,8 @@ class AddContentInClassHandler implements DBHandler {
   }
 
   private boolean isContentTypeEntityIsCollection() {
-    return (contentType.equalsIgnoreCase(AJEntityClassContents.ASSESSMENT) || contentType
-        .equalsIgnoreCase(AJEntityClassContents.COLLECTION));
+    return (AJEntityClassContents.ASSESSMENT_TYPES.matcher(contentType).matches() || 
+        AJEntityClassContents.COLLECTION_TYPES.matcher(contentType).matches());
   }
 
   private boolean isContentTypeEntityIsContent() {

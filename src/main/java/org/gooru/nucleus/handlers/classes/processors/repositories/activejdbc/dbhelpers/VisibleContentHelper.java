@@ -68,8 +68,8 @@ public final class VisibleContentHelper {
         } else if (AJEntityClass.CONTENT_VISIBILITY_TYPE_VISIBLE_COLLECTION
             .equalsIgnoreCase(defaultVisibility)) {
           visibility =
-              (collection.isCollection() ? AJEntityCollection.VISIBLE_ON
-                  : AJEntityCollection.VISIBLE_OFF);
+              ((collection.isCollection() || collection.isCollectionExternal())
+                  ? AJEntityCollection.VISIBLE_ON : AJEntityCollection.VISIBLE_OFF);
         } else {
           visibility = AJEntityCollection.VISIBLE_OFF;
         }

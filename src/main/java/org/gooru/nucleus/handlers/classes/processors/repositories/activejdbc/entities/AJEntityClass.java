@@ -112,9 +112,12 @@ public class AJEntityClass extends Model {
       .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE,
           MIN_SCORE, END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY,
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
-          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE);
+          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE, PREFERENCE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
+  
+  private static final Set<String> CLASS_PREFERENCE_FIELDS =
+      new HashSet<>(Arrays.asList(PREFERENCE));
 
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
@@ -148,6 +151,7 @@ public class AJEntityClass extends Model {
         .put(TENANT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
     converterMap
         .put(TENANT_ROOT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+    converterMap.put(PREFERENCE, (FieldConverter::convertFieldToJson));
     return Collections.unmodifiableMap(converterMap);
   }
 
@@ -179,6 +183,7 @@ public class AJEntityClass extends Model {
     validatorMap.put(CV_COLLECTIONS, FieldValidator::validateJsonArrayIfPresent);
     validatorMap.put(TENANT, (FieldValidator::validateUuid));
     validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
+    validatorMap.put(PREFERENCE, (FieldValidator::validateJsonIfPresent));
     return Collections.unmodifiableMap(validatorMap);
   }
 
@@ -216,6 +221,10 @@ public class AJEntityClass extends Model {
 
   public static FieldSelector updateClassFieldSelector() {
     return () -> Collections.unmodifiableSet(EDITABLE_FIELDS);
+  }
+  
+  public static FieldSelector updateClassPreferenceFieldSelector() {
+    return () -> Collections.unmodifiableSet(CLASS_PREFERENCE_FIELDS);
   }
 
   public static FieldSelector updateCollaboratorFieldSelector() {
@@ -356,6 +365,10 @@ public class AJEntityClass extends Model {
 
   public void setTenantRoot(String tenantRoot) {
     setFieldUsingConverter(TENANT_ROOT, tenantRoot);
+  }
+  
+  public void setPreference(String preference) {
+    setFieldUsingConverter(PREFERENCE, preference);
   }
 
   public String getTenant() {
