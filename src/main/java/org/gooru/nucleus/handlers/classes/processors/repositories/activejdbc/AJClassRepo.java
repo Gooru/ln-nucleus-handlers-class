@@ -181,6 +181,13 @@ class AJClassRepo implements ClassRepo {
 
   @Override
   public MessageResponse updateClassPreference() {
-    return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildClassPreferenceUpdateHandler(context));
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassPreferenceUpdateHandler(context));
+  }
+
+  @Override
+  public MessageResponse updateClassLanguage() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassLanguageUpdateHandler(context));
   }
 }

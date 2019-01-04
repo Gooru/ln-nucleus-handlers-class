@@ -1,10 +1,11 @@
 package org.gooru.nucleus.handlers.classes.app.components;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import org.gooru.nucleus.handlers.classes.bootstrap.shutdown.Finalizer;
 import org.gooru.nucleus.handlers.classes.bootstrap.startup.Initializer;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.LanguageValidator;
 import org.gooru.nucleus.libs.tenant.bootstrap.TenantInitializer;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 public class UtilityManager implements Initializer, Finalizer {
 
@@ -25,6 +26,7 @@ public class UtilityManager implements Initializer, Finalizer {
   @Override
   public void initializeComponent(Vertx vertx, JsonObject config) {
     TenantInitializer.initialize(DataSourceRegistry.getInstance().getDefaultDataSource());
+    LanguageValidator.initialize();
   }
 
 }

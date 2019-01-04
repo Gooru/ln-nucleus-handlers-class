@@ -1,6 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
-import io.vertx.core.json.JsonObject;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +15,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
+import io.vertx.core.json.JsonObject;
 
 
 /**
@@ -60,7 +60,7 @@ public class AJEntityClass extends Model {
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
   private static final String IS_OFFLINE = "is_offline";
-
+  public static final String PRIMARY_LANGUAGE = "primary_language";
 
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
@@ -112,13 +112,13 @@ public class AJEntityClass extends Model {
       .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE,
           MIN_SCORE, END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY,
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
-          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE, PREFERENCE);
+          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE, PREFERENCE, PRIMARY_LANGUAGE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
   
   private static final Set<String> CLASS_PREFERENCE_FIELDS =
       new HashSet<>(Arrays.asList(PREFERENCE));
-
+  
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
@@ -327,6 +327,10 @@ public class AJEntityClass extends Model {
 
   public void setVersion() {
     this.set(GOORU_VERSION, CURRENT_VERSION);
+  }
+  
+  public void setPrimaryLanguage(Integer languageId) {
+    this.setInteger(PRIMARY_LANGUAGE, languageId);
   }
 
   public boolean isPublished() {

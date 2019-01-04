@@ -107,7 +107,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
     this.courseVersion = getCourseVersion();
     setContentVisibilityBasedOnCourse();
     setClassSettingsBasedOnCourse();
-    setClassPreferenceBasedOnCourse();
+    setClassPreferenceAndPrimaryLangBasedOnCourse();
 
     boolean result = this.entityClass.save();
     if (!result) {
@@ -169,36 +169,47 @@ class AssociateCourseWithClassHandler implements DBHandler {
     this.entityClass.setClassSettings(classSettings);
   }
   
-	// Set the preference (subject and framework) of the class based on the course
-	// getting associated with it
-	private void setClassPreferenceBasedOnCourse() {
-		final Object subjectBucket = Base.firstCell(AJEntityCourse.COURSE_SUBJECT_BUCKET_FETCH_QUERY,
-				this.context.courseId());
-		if (subjectBucket != null && !String.valueOf(subjectBucket).trim().isEmpty()) {
-			String subjectCode = String.valueOf(subjectBucket);
-			Long count = Base.count(AJEntityTaxonomySubject.TABLE, AJEntityTaxonomySubject.FETCH_SUBJECT_BY_ID,
-					subjectCode);
-			if (count == 1) {
-				long countDots = subjectCode.chars().filter(ch -> ch == '.').count();
-				JsonObject preference = new JsonObject();
-				if (countDots > 1) {
-					preference.put(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK,
-							subjectCode.substring(0, subjectCode.indexOf('.')));
-					preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT,
-							subjectCode.substring(subjectCode.indexOf('.') + 1));
-				} else {
-					preference.putNull(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK);
-					preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, subjectCode);
-				}
-				this.entityClass.setClassPreference(preference);
-			} else {
-				LOGGER.warn(
-						"subject associated with course does not exists in database, skipping preference setting of course");
-			}
-		} else {
-			LOGGER.debug("no subject associated with the course, skipping preference setting of course");
-		}
-	}
+  // Set the preference (subject and framework) and primary language of the class based on the
+  // course getting associated with it
+  private void setClassPreferenceAndPrimaryLangBasedOnCourse() {
+
+    // Assuming that the course existance is validated authorizer, not checking the size of the
+    // list.
+    LazyList<AJEntityCourse> courses = AJEntityCourse
+        .findBySQL(AJEntityCourse.SELECT_SUBJECT_PRIMARY_LANG, this.context.courseId());
+    AJEntityCourse course = courses.get(0);
+
+    String subjectBucket = course.getString(AJEntityCourse.SUBJECT_BUCKET);
+    if (subjectBucket != null && !subjectBucket.trim().isEmpty()) {
+      String subjectCode = String.valueOf(subjectBucket);
+      Long count = Base.count(AJEntityTaxonomySubject.TABLE,
+          AJEntityTaxonomySubject.FETCH_SUBJECT_BY_ID, subjectCode);
+      if (count == 1) {
+        long countDots = subjectCode.chars().filter(ch -> ch == '.').count();
+        JsonObject preference = new JsonObject();
+        if (countDots > 1) {
+          preference.put(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK,
+              subjectCode.substring(0, subjectCode.indexOf('.')));
+          preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT,
+              subjectCode.substring(subjectCode.indexOf('.') + 1));
+        } else {
+          preference.putNull(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK);
+          preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, subjectCode);
+        }
+        this.entityClass.setClassPreference(preference);
+      } else {
+        LOGGER.warn(
+            "subject associated with course does not exists in database, skipping preference setting of course");
+      }
+    } else {
+      LOGGER.debug("no subject associated with the course, skipping preference setting of course");
+    }
+
+    Integer primaryLanguage = course.getInteger(AJEntityCourse.PRIMARY_LANGUAGE);
+    if (primaryLanguage != null) {
+      this.entityClass.setInteger(AJEntityClass.PRIMARY_LANGUAGE, primaryLanguage);
+    }
+  }
 
   private String getCourseVersion() {
     final Object versionObject = Base
