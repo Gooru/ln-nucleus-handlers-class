@@ -12,7 +12,7 @@ public class AJEntityTaxonomySubject extends Model {
 
 	public static final String TABLE = "taxonomy_subject";
 	
-	public static final String FETCH_SUBJECT_BY_ID =  "id = ?";
+	public static final String FETCH_SUBJECT_BY_ID =  "id = ? AND default_taxonomy_subject_id IS NULL";
 	public static final String FETCH_SUBJECT_BY_ID_FW = "default_taxonomy_subject_id = ? AND standard_framework_id = ?";
 	
 	public static final String RESP_KEY_FRAMEWORK = "framework";

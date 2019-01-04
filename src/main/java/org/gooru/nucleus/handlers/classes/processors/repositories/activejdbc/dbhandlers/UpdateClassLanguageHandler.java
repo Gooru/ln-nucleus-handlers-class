@@ -7,6 +7,7 @@ import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.LanguageValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
@@ -27,6 +28,7 @@ public class UpdateClassLanguageHandler implements DBHandler {
   private final static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private AJEntityClass entityClass;
+  private Integer languageId;
 
   public UpdateClassLanguageHandler(ProcessorContext context) {
     this.context = context;
@@ -52,22 +54,24 @@ public class UpdateClassLanguageHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
-    // Payload should not be empty
-    if (context.request() == null || context.request().isEmpty()) {
-      LOGGER.warn("Empty payload supplied to edit class");
-      return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-          RESOURCE_BUNDLE.getString("empty.payload")), ExecutionResult.ExecutionStatus.FAILED);
-    }
-
-    // Our validators should certify this
-    JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
-        AJEntityClass.updateClassLanguageFieldSelector(), AJEntityClass.getValidatorRegistry());
-    if (errors != null && !errors.isEmpty()) {
-      LOGGER.warn("Validation errors for request");
-      return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
+    String languageParam = this.context.languageId();
+    if (languageParam == null || languageParam.isEmpty()) {
+      LOGGER.warn("invalid language passed in request");
+      return new ExecutionResult<>(
+          MessageResponseFactory
+              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.language")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
+    try {
+      this.languageId = Integer.parseInt(languageParam);
+    } catch (NumberFormatException nfe) {
+      LOGGER.warn("Invalid format of the language passed");
+      return new ExecutionResult<>(
+          MessageResponseFactory
+              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.language")),
+          ExecutionResult.ExecutionStatus.FAILED);
+    }
     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
   }
 
@@ -91,6 +95,13 @@ public class UpdateClassLanguageHandler implements DBHandler {
               RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
+    
+    if (!validateLanguageIfPresent(this.languageId)) {
+      LOGGER.warn("language with id {} not found", this.languageId);
+      return new ExecutionResult<>(
+          MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("language.not.found")),
+          ExecutionResult.ExecutionStatus.FAILED);
+    }
 
     return AuthorizerBuilder.buildUpdateClassAuthorizer(this.context).authorize(this.entityClass);
   }
@@ -98,8 +109,7 @@ public class UpdateClassLanguageHandler implements DBHandler {
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
     this.entityClass.setModifierId(this.context.userId());
-    new DefaultAJEntityClassBuilder().build(this.entityClass, context.request(),
-        AJEntityClass.getConverterRegistry());
+    this.entityClass.setPrimaryLanguage(this.languageId);
 
     boolean result = this.entityClass.save();
     if (!result) {
@@ -112,7 +122,7 @@ public class UpdateClassLanguageHandler implements DBHandler {
             ExecutionResult.ExecutionStatus.FAILED);
       }
     }
-    
+
     return new ExecutionResult<>(
         MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
             EventBuilderFactory.getUpdateClassEventBuilder(context.classId())),
@@ -125,9 +135,7 @@ public class UpdateClassLanguageHandler implements DBHandler {
     return false;
   }
 
-  private static class DefaultPayloadValidator implements PayloadValidator {
-  }
-
-  private static class DefaultAJEntityClassBuilder implements EntityBuilder<AJEntityClass> {
+  private boolean validateLanguageIfPresent(Integer o) {
+    return LanguageValidator.isValidLanguage(o);
   }
 }

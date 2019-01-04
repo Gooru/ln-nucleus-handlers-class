@@ -1,6 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
-import io.vertx.core.json.JsonObject;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +15,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
+import io.vertx.core.json.JsonObject;
 
 
 /**
@@ -119,9 +119,6 @@ public class AJEntityClass extends Model {
   private static final Set<String> CLASS_PREFERENCE_FIELDS =
       new HashSet<>(Arrays.asList(PREFERENCE));
   
-  private static final Set<String> CLASS_LANGUAGE_FIELDS =
-      new HashSet<>(Arrays.asList(PRIMARY_LANGUAGE));
-
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
@@ -187,7 +184,6 @@ public class AJEntityClass extends Model {
     validatorMap.put(TENANT, (FieldValidator::validateUuid));
     validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
     validatorMap.put(PREFERENCE, (FieldValidator::validateJsonIfPresent));
-    validatorMap.put(PRIMARY_LANGUAGE, FieldValidator::validateLanguageIfPresent);
     return Collections.unmodifiableMap(validatorMap);
   }
 
@@ -229,10 +225,6 @@ public class AJEntityClass extends Model {
   
   public static FieldSelector updateClassPreferenceFieldSelector() {
     return () -> Collections.unmodifiableSet(CLASS_PREFERENCE_FIELDS);
-  }
-  
-  public static FieldSelector updateClassLanguageFieldSelector() {
-    return () -> Collections.unmodifiableSet(CLASS_LANGUAGE_FIELDS);
   }
 
   public static FieldSelector updateCollaboratorFieldSelector() {
@@ -335,6 +327,10 @@ public class AJEntityClass extends Model {
 
   public void setVersion() {
     this.set(GOORU_VERSION, CURRENT_VERSION);
+  }
+  
+  public void setPrimaryLanguage(Integer languageId) {
+    this.setInteger(PRIMARY_LANGUAGE, languageId);
   }
 
   public boolean isPublished() {

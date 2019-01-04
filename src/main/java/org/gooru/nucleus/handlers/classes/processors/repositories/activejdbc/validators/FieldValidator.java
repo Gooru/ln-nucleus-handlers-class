@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.LanguageValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
@@ -213,13 +212,4 @@ public interface FieldValidator {
       return false;
     }
   }
-
-  static boolean validateLanguageIfPresent(Object o) {
-    try {
-      return o == null || LanguageValidator.isValidLanguage((Integer) o);
-    } catch (ClassCastException e) {
-      LOGGER.warn("Passed language id is not of Long type");
-      return false;
-    }
-}
 }

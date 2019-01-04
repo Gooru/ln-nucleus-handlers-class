@@ -59,6 +59,7 @@ public final class MessageConstants {
   public static final String CLASS_ID = "classId";
   public static final String CLASS_CONTENT_ID = "classContentId";
   public static final String COURSE_ID = "courseId";
+  public static final String LANGUAGE_ID = "languageId";
   public static final String STUDENT_ID = "studentId";
   public static final String CLASS_CODE = "classCode";
   public static final String USER_ID = "userId";
