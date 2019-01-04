@@ -1,15 +1,17 @@
 
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.preference;
 
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
-import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
+import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
+import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.LazyList;
@@ -26,6 +28,8 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private AJEntityClass entityClass;
+
+  private ClassPreferenceCommand command;
 
   public ClassPreferenceUpdateHandler(ProcessorContext context) {
     this.context = context;
@@ -67,6 +71,11 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
+    try {
+      command = ClassPreferenceCommand.build(context);
+    } catch (MessageResponseWrapperException mwe) {
+      return new ExecutionResult<>(mwe.getMessageResponse(), ExecutionStatus.FAILED);
+    }
     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
   }
 
@@ -80,6 +89,7 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
           MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
+
     this.entityClass = classes.get(0);
     // Class should be of current version and Class should not be archived
     if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
@@ -90,38 +100,37 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
+    try {
+      new RequestDataDBValidator(command).validate();
+    } catch (MessageResponseWrapperException mwe) {
+      return new ExecutionResult<>(mwe.getMessageResponse(), ExecutionStatus.FAILED);
+    }
+
     return AuthorizerBuilder.buildUpdateClassAuthorizer(this.context).authorize(this.entityClass);
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    
-    JsonObject preference = this.context.request().getJsonObject("preference");
-    if (preference != null && !preference.isEmpty()) {
-      this.entityClass.setModifierId(this.context.userId());
-      this.entityClass.setPreference(preference.toString());
 
-      boolean result = this.entityClass.save();
-      if (!result) {
-        LOGGER.error("Class with id '{}' failed to save", context.classId());
-        if (this.entityClass.hasErrors()) {
-          Map<String, String> map = this.entityClass.errors();
-          JsonObject errors = new JsonObject();
-          map.forEach(errors::put);
-          return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
-              ExecutionResult.ExecutionStatus.FAILED);
-        }
+    this.entityClass.setModifierId(this.context.userId());
+    this.entityClass.setPreference(command.toJson().toString());
+
+    boolean result = this.entityClass.save();
+    if (!result) {
+      LOGGER.error("Class with id '{}' failed to save", context.classId());
+      if (this.entityClass.hasErrors()) {
+        Map<String, String> map = this.entityClass.errors();
+        JsonObject errors = new JsonObject();
+        map.forEach(errors::put);
+        return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
+            ExecutionResult.ExecutionStatus.FAILED);
       }
-
-      return new ExecutionResult<>(
-          MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated")),
-          ExecutionResult.ExecutionStatus.SUCCESSFUL);
-    } else {
-      return new ExecutionResult<>(
-          MessageResponseFactory
-              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.preference")),
-          ExecutionResult.ExecutionStatus.FAILED);
     }
+
+    return new ExecutionResult<>(
+        MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated")),
+        ExecutionResult.ExecutionStatus.SUCCESSFUL);
+
   }
 
   @Override
@@ -130,6 +139,5 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
   }
 
   private static class DefaultPayloadValidator implements PayloadValidator {
-
   }
 }
