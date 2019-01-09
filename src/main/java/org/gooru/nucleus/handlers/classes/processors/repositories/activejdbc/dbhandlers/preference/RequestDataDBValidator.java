@@ -40,7 +40,7 @@ public class RequestDataDBValidator {
 
   private void validateSubject() {
     Long count =
-        AJEntityTaxonomySubject.count(AJEntityTaxonomySubject.FETCH_SUBJECT_BY_ID, subject);
+        AJEntityTaxonomySubject.count(AJEntityTaxonomySubject.FETCH_SUBJECT_BY_GUT, subject);
     if (count == null || count < 1) {
       throw new MessageResponseWrapperException(MessageResponseFactory.createInvalidRequestResponse(
           RESOURCE_BUNDLE.getString("invalid.class.preference.subject")));
