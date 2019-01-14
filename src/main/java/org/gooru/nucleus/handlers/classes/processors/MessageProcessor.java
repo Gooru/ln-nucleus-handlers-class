@@ -54,10 +54,11 @@ class MessageProcessor implements Processor {
     String courseId = headers.get(MessageConstants.COURSE_ID);
     String studentId = message.headers().get(MessageConstants.USER_ID);
     String studentEmail = message.headers().get(MessageConstants.EMAIL);
+    String languageId = message.headers().get(MessageConstants.LANGUAGE_ID);
     return new ProcessorContext.ProcessorContextBuilder(userId, session, request, classId,
         classCode, headers)
         .setCourseId(courseId).setStudentId(studentId).setStudentEmail(studentEmail)
-        .setAccessToken(accessToken).build();
+        .setAccessToken(accessToken).setLanguageId(languageId).build();
   }
 
   private ExecutionResult<MessageResponse> validateAndInitialize() {

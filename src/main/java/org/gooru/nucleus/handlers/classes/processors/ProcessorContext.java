@@ -13,6 +13,7 @@ public final class ProcessorContext {
   private final JsonObject request;
   private final String classId;
   private final String courseId;
+  private final String languageId;
   private final String classCode;
   private final String studentId;
   private final String studentEmail;
@@ -23,7 +24,7 @@ public final class ProcessorContext {
   private ProcessorContext(String userId, JsonObject session, JsonObject request, String classId,
       String courseId,
       String classCode, String studentId, String studentEmail, MultiMap headers,
-      String accessToken) {
+      String accessToken, String languageId) {
     if (session == null || userId == null || session.isEmpty() || headers == null || headers
         .isEmpty()) {
       throw new IllegalStateException(
@@ -34,6 +35,7 @@ public final class ProcessorContext {
     this.session = session.copy();
     this.request = request != null ? request.copy() : null;
     this.classId = classId;
+    this.languageId = languageId;
     this.classCode = classCode;
     this.studentEmail = studentEmail;
     this.studentId = studentId;
@@ -62,6 +64,10 @@ public final class ProcessorContext {
     return this.courseId;
   }
 
+  public String languageId() {
+    return this.languageId;
+  }
+  
   public String classCode() {
     return this.classCode;
   }
@@ -97,6 +103,7 @@ public final class ProcessorContext {
     private final JsonObject session;
     private final JsonObject request;
     private final String classId;
+    private String languageId;
     private final MultiMap requestHeaders;
     private String courseId;
     private String studentId;
@@ -140,6 +147,11 @@ public final class ProcessorContext {
       this.accessToken = accessToken;
       return this;
     }
+    
+    ProcessorContextBuilder setLanguageId (String languageId) {
+      this.languageId = languageId;
+      return this;
+    }
 
     ProcessorContext build() {
       if (this.built) {
@@ -148,7 +160,7 @@ public final class ProcessorContext {
         this.built = true;
         return new ProcessorContext(userId, session, request, classId, courseId, classCode,
             studentId,
-            studentEmail, requestHeaders, accessToken);
+            studentEmail, requestHeaders, accessToken, languageId);
       }
     }
   }

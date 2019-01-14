@@ -7,7 +7,9 @@ import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.LanguageValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -18,16 +20,17 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 
 /**
- * @author szgooru Created On 28-Dec-2018
+ * @author szgooru Created On 03-Jan-2019
  */
-public class ClassPreferenceUpdateHandler implements DBHandler {
+public class UpdateClassLanguageHandler implements DBHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ClassPreferenceUpdateHandler.class);
-  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
+  private final static Logger LOGGER = LoggerFactory.getLogger(UpdateClassLanguageHandler.class);
+  private final static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private AJEntityClass entityClass;
+  private Integer languageId;
 
-  public ClassPreferenceUpdateHandler(ProcessorContext context) {
+  public UpdateClassLanguageHandler(ProcessorContext context) {
     this.context = context;
   }
 
@@ -51,22 +54,24 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
-    // Payload should not be empty
-    if (context.request() == null || context.request().isEmpty()) {
-      LOGGER.warn("Empty payload supplied to edit class");
-      return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
-          RESOURCE_BUNDLE.getString("empty.payload")), ExecutionResult.ExecutionStatus.FAILED);
-    }
-
-    // Our validators should certify this
-    JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
-        AJEntityClass.updateClassPreferenceFieldSelector(), AJEntityClass.getValidatorRegistry());
-    if (errors != null && !errors.isEmpty()) {
-      LOGGER.warn("Validation errors for request");
-      return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
+    String languageParam = this.context.languageId();
+    if (languageParam == null || languageParam.isEmpty()) {
+      LOGGER.warn("invalid language passed in request");
+      return new ExecutionResult<>(
+          MessageResponseFactory
+              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.language")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
+    try {
+      this.languageId = Integer.parseInt(languageParam);
+    } catch (NumberFormatException nfe) {
+      LOGGER.warn("Invalid format of the language passed");
+      return new ExecutionResult<>(
+          MessageResponseFactory
+              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.language")),
+          ExecutionResult.ExecutionStatus.FAILED);
+    }
     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
   }
 
@@ -80,6 +85,7 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
           MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
+
     this.entityClass = classes.get(0);
     // Class should be of current version and Class should not be archived
     if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
@@ -89,39 +95,39 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
               RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
+    
+    if (!validateLanguageIfPresent(this.languageId)) {
+      LOGGER.warn("language with id {} not found", this.languageId);
+      return new ExecutionResult<>(
+          MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("language.not.found")),
+          ExecutionResult.ExecutionStatus.FAILED);
+    }
 
     return AuthorizerBuilder.buildUpdateClassAuthorizer(this.context).authorize(this.entityClass);
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    
-    JsonObject preference = this.context.request().getJsonObject("preference");
-    if (preference != null && !preference.isEmpty()) {
-      this.entityClass.setModifierId(this.context.userId());
-      this.entityClass.setPreference(preference.toString());
+    this.entityClass.setModifierId(this.context.userId());
+    this.entityClass.setPrimaryLanguage(this.languageId);
 
-      boolean result = this.entityClass.save();
-      if (!result) {
-        LOGGER.error("Class with id '{}' failed to save", context.classId());
-        if (this.entityClass.hasErrors()) {
-          Map<String, String> map = this.entityClass.errors();
-          JsonObject errors = new JsonObject();
-          map.forEach(errors::put);
-          return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
-              ExecutionResult.ExecutionStatus.FAILED);
-        }
+    boolean result = this.entityClass.save();
+    if (!result) {
+      LOGGER.error("Class with id '{}' failed to save", context.classId());
+      if (this.entityClass.hasErrors()) {
+        Map<String, String> map = this.entityClass.errors();
+        JsonObject errors = new JsonObject();
+        map.forEach(errors::put);
+        return new ExecutionResult<>(MessageResponseFactory.createValidationErrorResponse(errors),
+            ExecutionResult.ExecutionStatus.FAILED);
       }
-
-      return new ExecutionResult<>(
-          MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated")),
-          ExecutionResult.ExecutionStatus.SUCCESSFUL);
-    } else {
-      return new ExecutionResult<>(
-          MessageResponseFactory
-              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class.preference")),
-          ExecutionResult.ExecutionStatus.FAILED);
     }
+
+    return new ExecutionResult<>(
+        MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
+            EventBuilderFactory.getUpdateClassEventBuilder(context.classId())),
+        ExecutionResult.ExecutionStatus.SUCCESSFUL);
+
   }
 
   @Override
@@ -129,7 +135,7 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
     return false;
   }
 
-  private static class DefaultPayloadValidator implements PayloadValidator {
-
+  private boolean validateLanguageIfPresent(Integer o) {
+    return LanguageValidator.isValidLanguage(o);
   }
 }

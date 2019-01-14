@@ -16,6 +16,8 @@ public class AJEntityCourse extends Model {
   public static final String VERSION = "version";
   public static final String COURSE_TITLE = "course_title";
   public static final String COURSE_VERSION = "course_version";
+  public static final String SUBJECT_BUCKET = "subject_bucket";
+  public static final String PRIMARY_LANGUAGE = "primary_language";
 
   public static final String SELECT_COURSE_TO_AUTHORIZE =
       "SELECT id, owner_id, collaborator, tenant, tenant_root, publish_status FROM course WHERE id = ?::uuid AND is_deleted = false";
@@ -27,7 +29,10 @@ public class AJEntityCourse extends Model {
 
   public static final String SELECT_COURSE_TITLE_VERSION =
       "SELECT id, title, version FROM course where id = ANY(?::uuid[]) AND is_deleted = false";
-
+  
+  public static final String SELECT_SUBJECT_PRIMARY_LANG = 
+      "SELECT subject_bucket, primary_language FROM course WHERE id = ?::uuid AND is_deleted = false";
+  
   public String getTenant() {
     return this.getString(TENANT);
   }
