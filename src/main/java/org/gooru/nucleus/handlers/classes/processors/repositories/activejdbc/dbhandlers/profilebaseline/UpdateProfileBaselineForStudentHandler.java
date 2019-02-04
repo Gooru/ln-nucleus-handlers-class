@@ -1,3 +1,4 @@
+
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.profilebaseline;
 
 import java.util.ResourceBundle;
@@ -7,45 +8,34 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dba
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
-import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author ashish.
+ * @author szgooru Created On 04-Feb-2019
  */
-
-public class UpdateProfileBaselineForSpecifiedStudentsHandler implements DBHandler {
-
-  /*
-  - users are provided as list
-  - class is valid and not deleted
-  - class should have course
-  - course should have subject bucket
-  - specified users are members of class
-  - POST request
-  - after validation, fire baseline trigger
-  - all validations have to be successful for update, else everything fails
-   */
-
+public class UpdateProfileBaselineForStudentHandler implements DBHandler {
+  
   private final ProcessorContext context;
   private ProfileBaselineCommand command;
   private static final Logger LOGGER = LoggerFactory
-      .getLogger(UpdateProfileBaselineForSpecifiedStudentsHandler.class);
+      .getLogger(UpdateProfileBaselineForStudentHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private AJEntityClass entityClass;
-
-  public UpdateProfileBaselineForSpecifiedStudentsHandler(ProcessorContext context) {
+  
+  public UpdateProfileBaselineForStudentHandler(ProcessorContext context) {
     this.context = context;
   }
-
+  
   @Override
   public ExecutionResult<MessageResponse> checkSanity() {
+    LOGGER.debug("request for profile baseline of student");
     try {
-      command = ProfileBaselineCommand.build(context, false);
+      command = ProfileBaselineCommand.build(context, true);
     } catch (MessageResponseWrapperException mwe) {
       return new ExecutionResult<>(mwe.getMessageResponse(), ExecutionStatus.FAILED);
     }
@@ -67,7 +57,7 @@ public class UpdateProfileBaselineForSpecifiedStudentsHandler implements DBHandl
 
       new RequestDbValidator(context.classId(), entityClass, command).validate();
 
-      return AuthorizerBuilder.buildUpdateProfileBaselineAuthorizer(this.context)
+      return AuthorizerBuilder.buildClassStudentAuthorizer(this.context)
           .authorize(this.entityClass);
 
     } catch (MessageResponseWrapperException mwe) {
@@ -85,4 +75,5 @@ public class UpdateProfileBaselineForSpecifiedStudentsHandler implements DBHandl
   public boolean handlerReadOnly() {
     return false;
   }
+
 }

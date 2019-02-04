@@ -9,6 +9,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbh
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting.UpdateClassMembersRerouteSettingHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.preference.ClassPreferenceUpdateHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.profilebaseline.UpdateProfileBaselineForSpecifiedStudentsHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.profilebaseline.UpdateProfileBaselineForStudentHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.UpdateClassRerouteSettingHandler;
 
 /**
@@ -135,5 +136,9 @@ public final class DBHandlerBuilder {
 
   public static DBHandler buildClassLanguageUpdateHandler(ProcessorContext context) {
     return new UpdateClassLanguageHandler(context);
+  }
+  
+  public static DBHandler buildUpdateProfileBaselineForStudentHandler(ProcessorContext context) {
+    return new UpdateProfileBaselineForStudentHandler(context);
   }
 }
