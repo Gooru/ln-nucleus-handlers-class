@@ -190,4 +190,9 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassLanguageUpdateHandler(context));
   }
+
+  @Override
+  public MessageResponse updateProfileBaselineForStudent() {
+    return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildUpdateProfileBaselineForStudentHandler(context));
+  }
 }

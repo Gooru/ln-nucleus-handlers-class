@@ -61,6 +61,10 @@ public final class AuthorizerBuilder {
     // student of that class.
     return new ClassMemberAuthorizer(context);
   }
+  
+  public static Authorizer<AJEntityClass> buildClassStudentAuthorizer(ProcessorContext context) {
+    return new ClassStudentAuthorizer(context);
+  }
 
   public static Authorizer<AJEntityClass> buildInviteStudentToClassAuthorizer(
       ProcessorContext context) {
