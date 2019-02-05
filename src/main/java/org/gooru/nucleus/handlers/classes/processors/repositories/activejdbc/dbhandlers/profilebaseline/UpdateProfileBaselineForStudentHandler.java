@@ -35,7 +35,7 @@ public class UpdateProfileBaselineForStudentHandler implements DBHandler {
   public ExecutionResult<MessageResponse> checkSanity() {
     LOGGER.debug("request for profile baseline of student");
     try {
-      command = ProfileBaselineCommand.build(context, true);
+      command = ProfileBaselineCommand.build(context.userId());
     } catch (MessageResponseWrapperException mwe) {
       return new ExecutionResult<>(mwe.getMessageResponse(), ExecutionStatus.FAILED);
     }

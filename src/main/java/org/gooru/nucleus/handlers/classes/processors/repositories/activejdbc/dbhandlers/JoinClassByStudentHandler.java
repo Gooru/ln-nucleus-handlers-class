@@ -140,8 +140,6 @@ class JoinClassByStudentHandler implements DBHandler {
       this.membership
           .setCreatorSystem(this.context.request().getString(AJClassMember.CREATOR_SYSTEM));
       this.membership.setStatusJoined();
-      // Update: 04-Feb-2019:
-      // Class origin should not be copied to student, destination should still be copied
       this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
       if (this.membership.hasErrors()) {
         return membershipErrors();

@@ -45,7 +45,7 @@ public class UpdateProfileBaselineForSpecifiedStudentsHandler implements DBHandl
   @Override
   public ExecutionResult<MessageResponse> checkSanity() {
     try {
-      command = ProfileBaselineCommand.build(context, false);
+      command = ProfileBaselineCommand.build(context);
     } catch (MessageResponseWrapperException mwe) {
       return new ExecutionResult<>(mwe.getMessageResponse(), ExecutionStatus.FAILED);
     }
