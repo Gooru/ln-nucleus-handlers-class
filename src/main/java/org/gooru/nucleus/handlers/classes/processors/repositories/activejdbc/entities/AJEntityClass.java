@@ -336,6 +336,10 @@ public class AJEntityClass extends Model {
   public boolean isPublished() {
     return getBoolean(IS_PUBLISHED);
   }
+  
+  public boolean isOffline() {
+    return getBoolean(IS_OFFLINE);
+  }
 
   public void adjustEndDate(String defaultEndDate) {
     java.sql.Date payloadDate = this.getDate(END_DATE);
