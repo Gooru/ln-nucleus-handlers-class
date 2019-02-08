@@ -47,7 +47,8 @@ public class AJClassMember extends Model {
 
   public static final String FETCH_FOR_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ?::uuid";
   public static final String FETCH_ALL_ACTIVE_MEMBERS_QUERY = "class_id = ?::uuid and is_active = true";
-  public static final String FETCH_FOR_ACTIVE_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[]) and is_active = true";
+  public static final String FETCH_FOR_ACTIVE_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ?::uuid and is_active = true";
+  public static final String FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[]) and is_active = true";
   public static final String FETCH_FOR_EMAIL_QUERY_FILTER = "class_id = ?::uuid and email = ?";
   public static final String FETCH_FOR_MULTIPLE_EMAILS_QUERY_FILTER =
       "class_id = ?::uuid and email = ANY(?::text[])";
