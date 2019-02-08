@@ -11,11 +11,14 @@ class MembershipInfo {
 
   private final boolean isActive;
   private final boolean profileBaselineDone;
+  private final boolean initialLPDone;
   private final long createdAt;
 
-  private MembershipInfo(boolean isActive, boolean profileBaselineDone, long createdAt) {
+  private MembershipInfo(boolean isActive, boolean profileBaselineDone, boolean initialLPDone,
+      long createdAt) {
     this.isActive = isActive;
     this.profileBaselineDone = profileBaselineDone;
+    this.initialLPDone = initialLPDone;
     this.createdAt = createdAt;
   }
 
@@ -25,6 +28,10 @@ class MembershipInfo {
 
   boolean isProfileBaselineDone() {
     return profileBaselineDone;
+  }
+
+  boolean isInitialLPDone() {
+    return initialLPDone;
   }
 
   public long getCreatedAt() {
@@ -40,9 +47,8 @@ class MembershipInfo {
       return false;
     }
     MembershipInfo that = (MembershipInfo) o;
-    return isActive == that.isActive &&
-        profileBaselineDone == that.profileBaselineDone &&
-        createdAt == that.createdAt;
+    return isActive == that.isActive && profileBaselineDone == that.profileBaselineDone
+        && initialLPDone == that.initialLPDone && createdAt == that.createdAt;
   }
 
   @Override
@@ -52,6 +58,6 @@ class MembershipInfo {
 
   static MembershipInfo build(AJClassMember member) {
     return new MembershipInfo(member.getIsActive(), member.getProfileBaselineDone(),
-        member.getCreatedAtAsLong());
+        member.getInitialLPDone(), member.getCreatedAtAsLong());
   }
 }
