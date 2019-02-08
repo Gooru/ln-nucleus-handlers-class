@@ -106,7 +106,7 @@ public class RerouteSettingPostProcessor {
       members =
           AJClassMember.where(AJClassMember.FETCH_ALL_ACTIVE_MEMBERS_QUERY, command.getClassId());
     } else {
-      members = AJClassMember.where(AJClassMember.FETCH_FOR_ACTIVE_USER_QUERY_FILTER,
+      members = AJClassMember.where(AJClassMember.FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER,
           command.getClassId(), DbHelperUtil.toPostgresArrayString(command.getUsers()));
     }
     return members;
