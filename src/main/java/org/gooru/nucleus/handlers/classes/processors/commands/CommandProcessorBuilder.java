@@ -202,6 +202,12 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ClassLanguageUpdateProcessor(context);
     }
+  },
+  MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER(MessageConstants.MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassProfileBaselineTriggerForStudentProcessor(context);
+    }
   };
   private String name;
 

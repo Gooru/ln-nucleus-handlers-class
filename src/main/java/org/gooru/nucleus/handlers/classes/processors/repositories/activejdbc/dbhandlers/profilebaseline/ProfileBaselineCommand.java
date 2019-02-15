@@ -33,6 +33,13 @@ class ProfileBaselineCommand {
     return doBaselineForAll;
   }
 
+  static ProfileBaselineCommand build(String userId) {
+    // If the request is for student, we want to initiate the list with single student and return
+    List<String> usersList = new ArrayList<>(1);
+    usersList.add(userId);
+    return new ProfileBaselineCommand(usersList);
+  }
+
   static ProfileBaselineCommand build(ProcessorContext context) {
     List<String> usersList;
     JsonArray users = context.request().getJsonArray(RequestAttributes.USERS);

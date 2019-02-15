@@ -25,6 +25,7 @@ public class AJClassMember extends Model {
   private static final String GRADE_UPPER_BOUND = "grade_upper_bound";
   public static final String IS_ACTIVE = "is_active";
   public static final String PROFILE_BASELINE_DONE = "profile_baseline_done";
+  public static final String INITIAL_LP_DONE = "initial_lp_done";
 
   private static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
@@ -45,6 +46,9 @@ public class AJClassMember extends Model {
           + "values (?::uuid, ?, ?::class_member_status_type, ?)";
 
   public static final String FETCH_FOR_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ?::uuid";
+  public static final String FETCH_ALL_ACTIVE_MEMBERS_QUERY = "class_id = ?::uuid and is_active = true";
+  public static final String FETCH_FOR_ACTIVE_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ?::uuid and is_active = true";
+  public static final String FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER = "class_id = ?::uuid and user_id = ANY(?::uuid[]) and is_active = true";
   public static final String FETCH_FOR_EMAIL_QUERY_FILTER = "class_id = ?::uuid and email = ?";
   public static final String FETCH_FOR_MULTIPLE_EMAILS_QUERY_FILTER =
       "class_id = ?::uuid and email = ANY(?::text[])";
@@ -124,6 +128,10 @@ public class AJClassMember extends Model {
 
   public Boolean getProfileBaselineDone() {
     return this.getBoolean(PROFILE_BASELINE_DONE);
+  }
+  
+  public Boolean getInitialLPDone() {
+    return this.getBoolean(INITIAL_LP_DONE);
   }
 
   public void setStatusJoined() {
