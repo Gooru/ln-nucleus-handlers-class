@@ -3,10 +3,6 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
@@ -22,10 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author szgooru Created On 07-Feb-2019
+ * @author szgooru Created On 20-Feb-2019
  */
-public class RerouteSettingPostProcessor {
-
+public class RerouteSettingPostProcessorForClass {
   private final static Logger LOGGER = LoggerFactory.getLogger(RerouteSettingPostProcessor.class);
   private final static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
@@ -35,10 +30,10 @@ public class RerouteSettingPostProcessor {
   private static final int BASELINE_QUEUED_STATUS = 0;
   private static final int DEFAULT_BASELINE_QUEUE_PRIORITY = 4;
 
-  private final RerouteSettingPostProcessorCommand command;
-  private final Map<String, AJClassMember> members;
+  private final RerouteSettingPostProcessorForClassCommand command;
+  private final LazyList<AJClassMember> members;
 
-  public RerouteSettingPostProcessor(RerouteSettingPostProcessorCommand command) {
+  public RerouteSettingPostProcessorForClass(RerouteSettingPostProcessorForClassCommand command) {
     this.command = command;
     this.members = initializeClassMembers();
   }
@@ -55,24 +50,22 @@ public class RerouteSettingPostProcessor {
     if (!entityClass.isOffline()) {
 
       try (PreparedStatement ps = Base.startBatch(PROFILE_BASELINE_ENQUEUE_QUERY)) {
-        command.getUsers().forEach(user -> {
-          String userId = user.getUserId().toString();
-          AJClassMember member = this.members.get(userId);
+        members.forEach(member -> {
+          String userId = member.getString(AJClassMember.USER_ID);
           if (member.getProfileBaselineDone()) {
-            if (user.getGradeLowerBound() != null) {
+            if (command.getGradeLowerBound() != null) {
               // Here we need to set the flags of baseline_override, route0_override and
               // rescope_override and insert into baseline queue table
-              Base.addBatch(ps, userId, entityClass.getCourseId(),
-                  command.getClassId(), DEFAULT_BASELINE_QUEUE_PRIORITY, BASELINE_QUEUED_STATUS,
-                  true, true, true);
+              Base.addBatch(ps, userId, entityClass.getCourseId(), command.getClassId(),
+                  DEFAULT_BASELINE_QUEUE_PRIORITY, BASELINE_QUEUED_STATUS, true, true, true);
             } else {
               // Here we just need to do the rescope
-              Base.addBatch(ps, userId, entityClass.getCourseId(),
-                  command.getClassId(), DEFAULT_BASELINE_QUEUE_PRIORITY, BASELINE_QUEUED_STATUS,
-                  false, false, true);
+              Base.addBatch(ps, userId, entityClass.getCourseId(), command.getClassId(),
+                  DEFAULT_BASELINE_QUEUE_PRIORITY, BASELINE_QUEUED_STATUS, false, false, true);
             }
           } else {
-            LOGGER.debug("there is no baseline done for user '{}' -- nothing to do, skipping", userId);
+            LOGGER.debug("there is no baseline done for user '{}' -- nothing to do, skipping",
+                userId);
           }
         });
 
@@ -105,20 +98,16 @@ public class RerouteSettingPostProcessor {
     return null;
   }
 
-  private Map<String, AJClassMember> initializeClassMembers() {
+  private LazyList<AJClassMember> initializeClassMembers() {
     LazyList<AJClassMember> members = null;
-    List<String> userIds = new ArrayList<>();
-    command.getUsers().forEach(user -> {
-      userIds.add(user.getUserId().toString());
-    });
-
-    Map<String, AJClassMember> classMembers = new HashMap<>();
-    members = AJClassMember.where(AJClassMember.FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER,
-        command.getClassId(), DbHelperUtil.toPostgresArrayString(userIds));
-    members.forEach(member -> {
-      classMembers.put(member.getString(AJClassMember.USER_ID), member);
-    });
-    return classMembers;
+    if (command.getUsers() == null || command.getUsers().isEmpty()) {
+      members =
+          AJClassMember.where(AJClassMember.FETCH_ALL_ACTIVE_MEMBERS_QUERY, command.getClassId());
+    } else {
+      members = AJClassMember.where(AJClassMember.FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER,
+          command.getClassId(), DbHelperUtil.toPostgresArrayString(command.getUsers()));
+    }
+    return members;
   }
 
   private ExecutionResult<MessageResponse> returnSuccess() {
@@ -137,5 +126,4 @@ public class RerouteSettingPostProcessor {
     return new ExecutionResult<>(MessageResponseFactory.createInternalErrorResponse(
         RESOURCE_BUNDLE.getString("error.from.store")), ExecutionResult.ExecutionStatus.FAILED);
   }
-
 }

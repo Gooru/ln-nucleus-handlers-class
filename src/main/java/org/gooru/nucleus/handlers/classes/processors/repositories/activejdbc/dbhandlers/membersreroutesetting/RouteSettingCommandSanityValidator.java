@@ -15,19 +15,13 @@ import org.slf4j.LoggerFactory;
 class RouteSettingCommandSanityValidator {
 
   private final UUID classId;
-  private final Long gradeLowerBound;
-  private final Long gradeUpperBound;
-  private final List<String> users;
-  private static final Logger LOGGER = LoggerFactory
-      .getLogger(
-          RouteSettingCommandSanityValidator.class);
+  private final List<UserSettingCommand> users;
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(RouteSettingCommandSanityValidator.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
-  RouteSettingCommandSanityValidator(UUID classId, Long gradeLowerBound,
-      Long gradeUpperBound, List<String> users) {
+  RouteSettingCommandSanityValidator(UUID classId, List<UserSettingCommand> users) {
     this.classId = classId;
-    this.gradeLowerBound = gradeLowerBound;
-    this.gradeUpperBound = gradeUpperBound;
     this.users = users;
   }
 
@@ -37,15 +31,20 @@ class RouteSettingCommandSanityValidator {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class")));
     }
-    if (gradeLowerBound == null && gradeUpperBound == null) {
-      LOGGER.warn("All null values in payload");
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")));
-    }
+
     if (users == null || users.isEmpty()) {
       LOGGER.warn("No users specified in payload");
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.user")));
     }
+
+    users.forEach(user -> {
+      if (user.getGradeLowerBound() == null && user.getGradeUpperBound() == null) {
+        LOGGER.warn("grade bound values are null in payload for user:'{}'",
+            user.getUserId().toString());
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")));
+      }
+    });
   }
 }

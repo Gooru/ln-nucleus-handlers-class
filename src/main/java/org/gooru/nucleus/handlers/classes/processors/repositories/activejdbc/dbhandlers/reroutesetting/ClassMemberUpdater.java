@@ -1,7 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting;
 
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor.RerouteSettingPostProcessor;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor.RerouteSettingPostProcessorCommand;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor.RerouteSettingPostProcessorForClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor.RerouteSettingPostProcessorForClassCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -38,10 +38,10 @@ class ClassMemberUpdater {
 
     // send for post processing to baseline, route0 and rescope based on the what grades has been
     // updated
-    RerouteSettingPostProcessorCommand postProcessorCommand = RerouteSettingPostProcessorCommand
+    RerouteSettingPostProcessorForClassCommand postProcessorCommand = RerouteSettingPostProcessorForClassCommand
         .build(this.command.getGradeLowerBound(), this.command.getGradeCurrent(), command.getClassId().toString(), null);
     ExecutionResult<MessageResponse> result =
-        new RerouteSettingPostProcessor(postProcessorCommand).process();
+        new RerouteSettingPostProcessorForClass(postProcessorCommand).process();
     if (!result.isSuccessful()) {
       LOGGER.warn("post processing has failed due to: {}", result.result().reply());
     }

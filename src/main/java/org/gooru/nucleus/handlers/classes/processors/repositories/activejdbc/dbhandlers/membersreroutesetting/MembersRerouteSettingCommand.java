@@ -1,17 +1,16 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
-import io.vertx.core.json.JsonArray;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContextHelper;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
  * @author ashish.
@@ -20,71 +19,61 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
 class MembersRerouteSettingCommand {
 
   private final UUID classId;
-  private final Long gradeLowerBound;
-  private final Long gradeUpperBound;
-  private final List<String> users;
+  private final List<UserSettingCommand> userSetting;
   private boolean classUpperBoundUpdateNeeded;
+  private Long classUpperBound;
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
   static MembersRerouteSettingCommand build(ProcessorContext context) {
     UUID classId = UUID.fromString(context.classId());
-    Long gradeLowerBound = context.request()
-        .getLong(MembersRerouteSettingRequestAttributes.GRADE_LOWER_BOUND);
-    Long gradeUpperBound = context.request()
-        .getLong(MembersRerouteSettingRequestAttributes.GRADE_UPPER_BOUND);
 
-    List<String> users = initializeUsers(context);
-    validate(classId, gradeLowerBound, gradeUpperBound, users);
-    return new MembersRerouteSettingCommand(classId, gradeLowerBound, gradeUpperBound, users);
+    List<UserSettingCommand> users = initializeUsers(context);
+    validate(classId, users);
+    return new MembersRerouteSettingCommand(classId, users);
   }
 
-  private static List<String> initializeUsers(ProcessorContext context) {
+  private static List<UserSettingCommand> initializeUsers(ProcessorContext context) {
     JsonArray users = context.request().getJsonArray(MembersRerouteSettingRequestAttributes.USERS);
     if (users == null || users.isEmpty()) {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")));
     }
     int size = users.size();
-    Set<String> uniqueUsers = new HashSet<>(size);
+    List<UserSettingCommand> userSettings = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
-      String user = users.getString(i);
+      JsonObject userJson = users.getJsonObject(i);
+      String user = userJson.getString(MembersRerouteSettingRequestAttributes.USER_ID);
       if (!ProcessorContextHelper.validateUuid(user)) {
         throw new MessageResponseWrapperException(MessageResponseFactory
             .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.user")));
       }
-      uniqueUsers.add(user);
+
+      Long gradeLowerBound =
+          userJson.getLong(MembersRerouteSettingRequestAttributes.GRADE_LOWER_BOUND);
+      Long gradeUpperBound =
+          userJson.getLong(MembersRerouteSettingRequestAttributes.GRADE_UPPER_BOUND);
+      userSettings
+          .add(new UserSettingCommand(UUID.fromString(user), gradeLowerBound, gradeUpperBound));
     }
-    return Collections.unmodifiableList(new ArrayList<>(uniqueUsers));
+    return Collections.unmodifiableList(userSettings);
   }
 
-  private static void validate(UUID classId, Long gradeLowerBound, Long gradeUpperBound,
-      List<String> users) {
-    new RouteSettingCommandSanityValidator(classId, gradeLowerBound, gradeUpperBound, users).validate();
+  private static void validate(UUID classId, List<UserSettingCommand> users) {
+    new RouteSettingCommandSanityValidator(classId, users).validate();
 
   }
 
-  MembersRerouteSettingCommand(UUID classId, Long gradeLowerBound, Long gradeUpperBound,
-      List<String> users) {
+  MembersRerouteSettingCommand(UUID classId, List<UserSettingCommand> users) {
     this.classId = classId;
-    this.gradeLowerBound = gradeLowerBound;
-    this.gradeUpperBound = gradeUpperBound;
-    this.users = users;
+    this.userSetting = users;
   }
 
   public UUID getClassId() {
     return classId;
   }
 
-  public Long getGradeLowerBound() {
-    return gradeLowerBound;
-  }
-
-  public Long getGradeUpperBound() {
-    return gradeUpperBound;
-  }
-
-  public List<String> getUsers() {
-    return users;
+  public List<UserSettingCommand> getUsers() {
+    return userSetting;
   }
 
   public boolean isClassUpperBoundUpdateNeeded() {
@@ -95,10 +84,19 @@ class MembersRerouteSettingCommand {
     this.classUpperBoundUpdateNeeded = classUpperBoundUpdateNeeded;
   }
 
+  public Long getClassUpperBound() {
+    return classUpperBound;
+  }
+
+  public void setClassUpperBound(Long classUpperBound) {
+    this.classUpperBound = classUpperBound;
+  }
+
   static class MembersRerouteSettingRequestAttributes {
 
     static final String GRADE_LOWER_BOUND = "grade_lower_bound";
     static final String GRADE_UPPER_BOUND = "grade_upper_bound";
+    static final String USER_ID = "user_id";
     static final String USERS = "users";
 
     private MembersRerouteSettingRequestAttributes() {

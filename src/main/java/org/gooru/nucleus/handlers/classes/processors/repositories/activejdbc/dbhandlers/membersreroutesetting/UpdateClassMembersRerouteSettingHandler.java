@@ -1,24 +1,21 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
-import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Utils;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.vertx.core.json.JsonObject;
 
 /**
  * @author ashish.
@@ -86,7 +83,7 @@ public class UpdateClassMembersRerouteSettingHandler implements DBHandler {
     try {
       // NOTE: To avoid any race conditions first update the class, if needed
       if (command.isClassUpperBoundUpdateNeeded()) {
-        entityClass.setGradeUpperBound(command.getGradeUpperBound());
+        entityClass.setGradeUpperBound(command.getClassUpperBound());
         boolean result = entityClass.save();
         if (!result) {
           LOGGER.error("Class with id '{}' failed to save", context.classId());
