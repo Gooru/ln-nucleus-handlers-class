@@ -10,10 +10,15 @@ public class UserSettingCommand {
   private final UUID userId;
   private final Long gradeLowerBound;
   private final Long gradeUpperBound;
+  private final Boolean lowerBoundChanged;
+  private final Boolean upperBoundChanged;
 
-  public UserSettingCommand(UUID userId, Long gradeLowerBound, Long gradeUpperBound) {
+  public UserSettingCommand(UUID userId, Long gradeLowerBound, Long gradeUpperBound,
+      Boolean lowerBoundChanged, Boolean upperBoundChanged) {
     this.userId = userId;
+    this.lowerBoundChanged = lowerBoundChanged;
     this.gradeLowerBound = gradeLowerBound;
+    this.upperBoundChanged = upperBoundChanged;
     this.gradeUpperBound = gradeUpperBound;
   }
 
@@ -27,6 +32,14 @@ public class UserSettingCommand {
 
   public Long getGradeUpperBound() {
     return gradeUpperBound;
+  }
+
+  public Boolean isLowerBoundChanged() {
+    return lowerBoundChanged;
+  }
+
+  public Boolean isUpperBoundChanged() {
+    return upperBoundChanged;
   }
 
 }

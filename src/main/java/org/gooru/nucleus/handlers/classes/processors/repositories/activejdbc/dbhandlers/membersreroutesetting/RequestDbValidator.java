@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Utils;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityGradeMaster;
@@ -46,20 +44,22 @@ class RequestDbValidator {
   void validate() {
     validateClassNotArchivedAndCorrectVersion();
     validateCourse();
-    validateMembershipForSpecifiedUsers();
     validateGradesSequence();
   }
 
   private void validateGradesSequence() {
-    // Used to compute the highest grade across all members of the clas
-    Set<Long> studentHighGrades = new HashSet<>();
-
     // Used to hold all grade ids
     Set<Long> idsSet = new HashSet<>();
 
     Long classLower = entityClass.getGradeLowerBound();
     Long classHigher = entityClass.getGradeUpperBound();
     Long classCurrent = entityClass.getGradeCurrent();
+    
+    if (classLower == null || classCurrent == null) {
+      LOGGER.warn("class bounds are set not setup");
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.bounds.not.set")));
+    }
 
     if (classLower != null) {
       idsSet.add(classLower);
@@ -72,17 +72,9 @@ class RequestDbValidator {
     }
 
     // Iterate through all members and populate the grade ids to fetch from DB
-    command.getUsers().forEach(user -> {
+    command.getUserSettings().forEach(user -> {
       Long memberLower = user.getGradeLowerBound();
       Long memberHigher = user.getGradeUpperBound();
-
-      if ((classLower == null && memberLower != null)
-          || (classCurrent == null && memberHigher != null)) {
-        throw new MessageResponseWrapperException(MessageResponseFactory
-            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("class.bounds.not.set")));
-      }
-
-      studentHighGrades.add(memberHigher);
 
       if (memberLower != null) {
         idsSet.add(memberLower);
@@ -93,8 +85,11 @@ class RequestDbValidator {
     });
 
     Map<Long, Integer> gradeSeqMap = fetchGrades(idsSet);
-
-    command.getUsers().forEach(user -> {
+    
+    // Used to compute the highest grade across all members of the class
+    Map<Integer, Long> studentHighGradesSeq = new HashMap<>();
+    
+    command.getUserSettings().forEach(user -> {
       Long memberLower = user.getGradeLowerBound();
       Long memberHigher = user.getGradeUpperBound();
       if (memberLower != null) {
@@ -111,6 +106,7 @@ class RequestDbValidator {
               MessageResponseFactory.createInvalidRequestResponse(
                   RESOURCE_BUNDLE.getString("grades.incorrect.sequence")));
         }
+        studentHighGradesSeq.put(gradeSeqMap.get(memberHigher), memberHigher);
       }
 
       if (memberHigher != null && memberLower != null) {
@@ -124,11 +120,11 @@ class RequestDbValidator {
 
     // Find maximum grade from the all members and if it is greater than class high grade, then
     // update the class upper bound
-    Long maxGrade = Collections.max(studentHighGrades);
-    if (gradeSeqMap.get(maxGrade) > gradeSeqMap.get(classHigher)) {
+    Integer maxGradeSeq = Collections.max(studentHighGradesSeq.keySet());
+    if (maxGradeSeq > gradeSeqMap.get(classHigher)) {
       // save state to update class high bound
       command.setClassUpperBoundUpdateNeeded(true);
-      command.setClassUpperBound(maxGrade);
+      command.setClassUpperBound(studentHighGradesSeq.get(maxGradeSeq));
     }
 
   }
@@ -164,21 +160,6 @@ class RequestDbValidator {
     if (subjectBucket == null || String.valueOf(subjectBucket).trim().isEmpty()) {
       throw new MessageResponseWrapperException(MessageResponseFactory.createInvalidRequestResponse(
           RESOURCE_BUNDLE.getString("reroute.settings.course.subject.needed")));
-    }
-  }
-
-  private void validateMembershipForSpecifiedUsers() {
-    List<String> userIds = new ArrayList<>();
-
-    command.getUsers().forEach(user -> {
-      userIds.add(user.getUserId().toString());
-    });
-
-    Long countOfStudents = AJClassMember.count(AJClassMember.STUDENT_COUNT_FROM_SET_FILTER, classId,
-        Utils.convertListToPostgresArrayStringRepresentation(userIds));
-    if (countOfStudents == null || countOfStudents != command.getUsers().size()) {
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("users.not.members")));
     }
   }
 

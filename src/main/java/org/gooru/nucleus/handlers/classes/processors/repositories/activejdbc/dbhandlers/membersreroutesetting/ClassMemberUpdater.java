@@ -22,22 +22,20 @@ class ClassMemberUpdater {
   }
 
   void update() {
-    this.command.getUsers().forEach(user -> {
-      if (user.getGradeLowerBound() != null && user.getGradeUpperBound() != null) {
+    this.command.getUserSettings().forEach(user -> {
+      if (user.isLowerBoundChanged() && user.isUpperBoundChanged()) {
         updateClassMembersLowerBoundAndUpperBound(user);
-      } else if (user.getGradeLowerBound() != null) {
+      } else if (user.isLowerBoundChanged()) {
         updateClassMembersLowerBound(user);
       } else {
         updateClassMemberUpperBound(user);
       }  
     });
     
-    
-
     // send for post processing to baseline, route0 and rescope based on the what grades has been
     // updated
     RerouteSettingPostProcessorCommand postProcessorCommand =
-        RerouteSettingPostProcessorCommand.build(command.getClassId().toString(), command.getUsers());
+        RerouteSettingPostProcessorCommand.build(command.getClassId().toString(), command.getUserSettings());
     ExecutionResult<MessageResponse> result =
         new RerouteSettingPostProcessor(postProcessorCommand).process();
     if (!result.isSuccessful()) {
