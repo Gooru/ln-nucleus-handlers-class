@@ -40,7 +40,6 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
       .getLogger(UpdateClassRerouteSettingHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private AJEntityClass entityClass;
-  private boolean lowerBoundUpdated = false;
   private boolean gradeWasSet = false;
 
   public UpdateClassRerouteSettingHandler(ProcessorContext context) {
@@ -101,7 +100,7 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
   }
 
   private ExecutionResult<MessageResponse> handleClassMembersUpdate() {
-    new ClassMemberUpdater(command, lowerBoundUpdated, gradeWasSet).update();
+    new ClassMemberUpdater(command, gradeWasSet).update();
 
     return new ExecutionResult<>(
         MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
@@ -112,7 +111,6 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
   private void updateSettings() {
     if (command.getGradeLowerBound() != null) {
       entityClass.setGradeLowerBound(command.getGradeLowerBound());
-      lowerBoundUpdated = true;
     }
     if (command.getGradeCurrent() != null && entityClass.getGradeCurrent() == null) {
       entityClass.setGradeCurrent(command.getGradeCurrent());

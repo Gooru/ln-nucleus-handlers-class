@@ -3,6 +3,10 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
@@ -32,7 +36,7 @@ public class RerouteSettingPostProcessor {
   private static final int DEFAULT_BASELINE_QUEUE_PRIORITY = 4;
 
   private final RerouteSettingPostProcessorCommand command;
-  private final LazyList<AJClassMember> members;
+  private final Map<String, AJClassMember> members;
 
   public RerouteSettingPostProcessor(RerouteSettingPostProcessorCommand command) {
     this.command = command;
@@ -51,10 +55,11 @@ public class RerouteSettingPostProcessor {
     if (!entityClass.isOffline()) {
 
       try (PreparedStatement ps = Base.startBatch(PROFILE_BASELINE_ENQUEUE_QUERY)) {
-        members.forEach(member -> {
-          String userId = member.getString(AJClassMember.USER_ID);
+        command.getUsers().forEach(user -> {
+          String userId = user.getUserId().toString();
+          AJClassMember member = this.members.get(userId);
           if (member.getProfileBaselineDone()) {
-            if (command.getGradeLowerBound() != null) {
+            if (user.getGradeLowerBound() != null) {
               // Here we need to set the flags of baseline_override, route0_override and
               // rescope_override and insert into baseline queue table
               Base.addBatch(ps, userId, entityClass.getCourseId(),
@@ -100,16 +105,20 @@ public class RerouteSettingPostProcessor {
     return null;
   }
 
-  private LazyList<AJClassMember> initializeClassMembers() {
+  private Map<String, AJClassMember> initializeClassMembers() {
     LazyList<AJClassMember> members = null;
-    if (command.getUsers() == null || command.getUsers().isEmpty()) {
-      members =
-          AJClassMember.where(AJClassMember.FETCH_ALL_ACTIVE_MEMBERS_QUERY, command.getClassId());
-    } else {
-      members = AJClassMember.where(AJClassMember.FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER,
-          command.getClassId(), DbHelperUtil.toPostgresArrayString(command.getUsers()));
-    }
-    return members;
+    List<String> userIds = new ArrayList<>();
+    command.getUsers().forEach(user -> {
+      userIds.add(user.getUserId().toString());
+    });
+
+    Map<String, AJClassMember> classMembers = new HashMap<>();
+    members = AJClassMember.where(AJClassMember.FETCH_FOR_MLTIPLE_ACTIVE_USER_QUERY_FILTER,
+        command.getClassId(), DbHelperUtil.toPostgresArrayString(userIds));
+    members.forEach(member -> {
+      classMembers.put(member.getString(AJClassMember.USER_ID), member);
+    });
+    return classMembers;
   }
 
   private ExecutionResult<MessageResponse> returnSuccess() {
