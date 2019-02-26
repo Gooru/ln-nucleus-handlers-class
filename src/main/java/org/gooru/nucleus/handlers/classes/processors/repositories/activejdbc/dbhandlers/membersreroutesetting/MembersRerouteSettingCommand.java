@@ -49,11 +49,11 @@ class MembersRerouteSettingCommand {
       AJClassMember member = existingGrades.get(userId);
       Boolean lowerBoundChanged = false;
       Boolean upperBoundChanged = false;
-      if (gradeLowerBound != member.getGradeLowerBound()) {
+      if (gradeLowerBound != null && gradeLowerBound != member.getGradeLowerBound()) {
         lowerBoundChanged = true;
       }
 
-      if (gradeUpperBound != member.getGradeUpperBound()) {
+      if (gradeUpperBound != null && gradeUpperBound != member.getGradeUpperBound()) {
         upperBoundChanged = true;
       }
 

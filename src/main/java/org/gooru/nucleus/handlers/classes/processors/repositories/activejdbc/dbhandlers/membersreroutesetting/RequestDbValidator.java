@@ -120,13 +120,14 @@ class RequestDbValidator {
 
     // Find maximum grade from the all members and if it is greater than class high grade, then
     // update the class upper bound
-    Integer maxGradeSeq = Collections.max(studentHighGradesSeq.keySet());
-    if (maxGradeSeq > gradeSeqMap.get(classHigher)) {
-      // save state to update class high bound
-      command.setClassUpperBoundUpdateNeeded(true);
-      command.setClassUpperBound(studentHighGradesSeq.get(maxGradeSeq));
+    if (!studentHighGradesSeq.isEmpty()) {
+      Integer maxGradeSeq = Collections.max(studentHighGradesSeq.keySet());
+      if (maxGradeSeq > gradeSeqMap.get(classHigher)) {
+        // save state to update class high bound
+        command.setClassUpperBoundUpdateNeeded(true);
+        command.setClassUpperBound(studentHighGradesSeq.get(maxGradeSeq));
+      }
     }
-
   }
 
   /*

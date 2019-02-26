@@ -56,16 +56,6 @@ class RouteSettingCommandSanityValidator {
         throw new MessageResponseWrapperException(MessageResponseFactory
             .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.user")));
       }
-
-      Long gradeLowerBound =
-          userJson.getLong(MembersRerouteSettingRequestAttributes.GRADE_LOWER_BOUND);
-      Long gradeUpperBound =
-          userJson.getLong(MembersRerouteSettingRequestAttributes.GRADE_UPPER_BOUND);
-      if (gradeLowerBound == null || gradeUpperBound == null) {
-        LOGGER.warn("Invalid grades provided in request");
-        throw new MessageResponseWrapperException(MessageResponseFactory
-            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.grades")));
-      }
     }
   }
 }
