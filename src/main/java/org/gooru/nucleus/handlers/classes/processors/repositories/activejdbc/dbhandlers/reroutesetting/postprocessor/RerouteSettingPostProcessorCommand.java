@@ -2,25 +2,16 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor;
 
 import java.util.List;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting.UserSettingCommand;
 
 /**
  * @author szgooru Created On 07-Feb-2019
  */
 public class RerouteSettingPostProcessorCommand {
   private String classId;
-  private Long gradeLowerBound;
-  private Long gradeUpperBound;
-  private List<String> users;
+  private List<UserSettingCommand> users;
 
-  public Long getGradeLowerBound() {
-    return gradeLowerBound;
-  }
-
-  public Long getGradeUpperBound() {
-    return gradeUpperBound;
-  }
-
-  public List<String> getUsers() {
+  public List<UserSettingCommand> getUsers() {
     return users;
   }
 
@@ -28,11 +19,9 @@ public class RerouteSettingPostProcessorCommand {
     return classId;
   }
 
-  public static RerouteSettingPostProcessorCommand build(Long gradeLowerBound, Long gradeUpperBound,
-      String classId, List<String> users) {
+  public static RerouteSettingPostProcessorCommand build(String classId,
+      List<UserSettingCommand> users) {
     RerouteSettingPostProcessorCommand command = new RerouteSettingPostProcessorCommand();
-    command.gradeLowerBound = gradeLowerBound;
-    command.gradeUpperBound = gradeUpperBound;
     command.users = users;
     command.classId = classId;
 

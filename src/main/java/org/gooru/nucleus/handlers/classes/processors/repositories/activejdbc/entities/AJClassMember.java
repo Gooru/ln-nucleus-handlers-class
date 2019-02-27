@@ -2,6 +2,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.en
 
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.javalite.activejdbc.Base;
@@ -64,10 +65,10 @@ public class AJClassMember extends Model {
           + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
   public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER =
       "update class_member set grade_lower_bound = ?, updated_at = now() "
-          + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
+          + " where class_id = ? and user_id = ?";
   public static final String UPDATE_MEMBERSHIP_REROUTE_SETTING_UPPER =
       "update class_member set grade_upper_bound = ?, updated_at = now() "
-          + " where class_id = ?::uuid and user_id = ANY(?::uuid[])";
+          + " where class_id = ? and user_id = ?";
   public static final String FETCH_USER_MEMBERSHIP_QUERY =
       "select class_id from class_member cm, class c where cm.user_id = ?::uuid and cm.class_member_status = "
           + "'joined'::class_member_status_type and cm.class_id = c.id and cm.is_active = true and "
@@ -198,14 +199,14 @@ public class AJClassMember extends Model {
     Base.exec(UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT, upperBound, classId);
   }
 
-  public static void updateClassMemberUpperBoundForSpecifiedUsers(String classId,
-      Long upperBound, String users) {
-    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_UPPER, upperBound, classId, users);
+  public static void updateClassMemberUpperBoundForSpecifiedUsers(UUID classId,
+      Long upperBound, UUID userId) {
+    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_UPPER, upperBound, classId, userId);
   }
 
-  public static void updateClassMemberLowerBoundForSpecifiedUsers(String classId,
-      Long lowerBound, String users) {
-    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER, lowerBound, classId, users);
+  public static void updateClassMemberLowerBoundForSpecifiedUsers(UUID classId,
+      Long lowerBound, UUID userId) {
+    Base.exec(UPDATE_MEMBERSHIP_REROUTE_SETTING_LOWER, lowerBound, classId, userId);
   }
 
   public static void updateClassMemberLowerUpperBoundForSpecifiedUsers(String classId,

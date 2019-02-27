@@ -1,6 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.Utils;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor.RerouteSettingPostProcessor;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor.RerouteSettingPostProcessorCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
@@ -23,19 +22,20 @@ class ClassMemberUpdater {
   }
 
   void update() {
-    if (command.getGradeLowerBound() != null && command.getGradeUpperBound() != null) {
-      updateClassMembersLowerBoundAndUpperBound();
-    } else if (command.getGradeLowerBound() != null) {
-      updateClassMembersLowerBound();
-    } else {
-      updateClassMemberUpperBound();
-    }
-
+    this.command.getUserSettings().forEach(user -> {
+      if (user.isLowerBoundChanged() && user.isUpperBoundChanged()) {
+        updateClassMembersLowerBoundAndUpperBound(user);
+      } else if (user.isLowerBoundChanged()) {
+        updateClassMembersLowerBound(user);
+      } else {
+        updateClassMemberUpperBound(user);
+      }  
+    });
+    
     // send for post processing to baseline, route0 and rescope based on the what grades has been
     // updated
     RerouteSettingPostProcessorCommand postProcessorCommand =
-        RerouteSettingPostProcessorCommand.build(this.command.getGradeLowerBound(),
-            this.command.getGradeUpperBound(), command.getClassId().toString(), command.getUsers());
+        RerouteSettingPostProcessorCommand.build(command.getClassId().toString(), command.getUserSettings());
     ExecutionResult<MessageResponse> result =
         new RerouteSettingPostProcessor(postProcessorCommand).process();
     if (!result.isSuccessful()) {
@@ -43,21 +43,19 @@ class ClassMemberUpdater {
     }
   }
 
-  private void updateClassMemberUpperBound() {
-    AJClassMember.updateClassMemberUpperBoundForSpecifiedUsers(command.getClassId().toString(),
-        command.getGradeUpperBound(),
-        Utils.convertListToPostgresArrayStringRepresentation(command.getUsers()));
+  private void updateClassMemberUpperBound(UserSettingCommand user) {
+    AJClassMember.updateClassMemberUpperBoundForSpecifiedUsers(command.getClassId(),
+        user.getGradeUpperBound(), user.getUserId());
   }
 
-  private void updateClassMembersLowerBound() {
-    AJClassMember.updateClassMemberLowerBoundForSpecifiedUsers(command.getClassId().toString(),
-        command.getGradeLowerBound(),
-        Utils.convertListToPostgresArrayStringRepresentation(command.getUsers()));
+  private void updateClassMembersLowerBound(UserSettingCommand user) {
+    AJClassMember.updateClassMemberLowerBoundForSpecifiedUsers(command.getClassId(),
+        user.getGradeLowerBound(), user.getUserId());
   }
 
-  private void updateClassMembersLowerBoundAndUpperBound() {
-    updateClassMembersLowerBound();
-    updateClassMemberUpperBound();
+  private void updateClassMembersLowerBoundAndUpperBound(UserSettingCommand user) {
+    updateClassMembersLowerBound(user);
+    updateClassMemberUpperBound(user);
   }
 
 }
