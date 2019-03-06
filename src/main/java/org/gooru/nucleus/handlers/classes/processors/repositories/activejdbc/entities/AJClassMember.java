@@ -27,6 +27,7 @@ public class AJClassMember extends Model {
   public static final String IS_ACTIVE = "is_active";
   public static final String PROFILE_BASELINE_DONE = "profile_baseline_done";
   public static final String INITIAL_LP_DONE = "initial_lp_done";
+  public static final String DIAGNOSTIC_ASSESSMENT_STATE = "diag_asmt_state";
 
   private static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
@@ -133,6 +134,10 @@ public class AJClassMember extends Model {
   
   public Boolean getInitialLPDone() {
     return this.getBoolean(INITIAL_LP_DONE);
+  }
+
+  public Integer getDiagnosticAssessmentState() {
+    return this.getInteger(DIAGNOSTIC_ASSESSMENT_STATE);
   }
 
   public void setStatusJoined() {

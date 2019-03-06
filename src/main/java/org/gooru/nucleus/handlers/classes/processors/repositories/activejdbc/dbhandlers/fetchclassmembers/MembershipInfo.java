@@ -13,13 +13,20 @@ class MembershipInfo {
   private final boolean profileBaselineDone;
   private final boolean initialLPDone;
   private final long createdAt;
+  private final Integer diagnosticAssessmentState;
+
+  public Integer getDiagnosticAssessmentState() {
+    return diagnosticAssessmentState;
+  }
+
 
   private MembershipInfo(boolean isActive, boolean profileBaselineDone, boolean initialLPDone,
-      long createdAt) {
+      long createdAt, Integer diagnosticAssessmentState) {
     this.isActive = isActive;
     this.profileBaselineDone = profileBaselineDone;
     this.initialLPDone = initialLPDone;
     this.createdAt = createdAt;
+    this.diagnosticAssessmentState = diagnosticAssessmentState;
   }
 
   boolean isActive() {
@@ -58,6 +65,7 @@ class MembershipInfo {
 
   static MembershipInfo build(AJClassMember member) {
     return new MembershipInfo(member.getIsActive(), member.getProfileBaselineDone(),
-        member.getInitialLPDone(), member.getCreatedAtAsLong());
+        member.getInitialLPDone(), member.getCreatedAtAsLong(),
+        member.getDiagnosticAssessmentState());
   }
 }
