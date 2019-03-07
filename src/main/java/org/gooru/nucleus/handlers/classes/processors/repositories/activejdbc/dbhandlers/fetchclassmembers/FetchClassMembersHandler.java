@@ -132,6 +132,8 @@ public class FetchClassMembersHandler implements DBHandler {
             .put(AJClassMember.PROFILE_BASELINE_DONE, membershipInfo.isProfileBaselineDone());
         userDemographic.put(AJClassMember.INITIAL_LP_DONE, membershipInfo.isProfileBaselineDone());
         userDemographic.put(AJClassMember.CREATED_AT, membershipInfo.getCreatedAt());
+        userDemographic.put(AJClassMember.DIAGNOSTIC_ASSESSMENT_STATE,
+            membershipInfo.getDiagnosticAssessmentState());
       } else {
         userDemographic.put(AJClassMember.IS_ACTIVE, (Boolean) null);
         userDemographic
@@ -139,6 +141,7 @@ public class FetchClassMembersHandler implements DBHandler {
         userDemographic
         .put(AJClassMember.INITIAL_LP_DONE, (Boolean)null);
         userDemographic.put(AJClassMember.CREATED_AT, (Long) null);
+        userDemographic.put(AJClassMember.DIAGNOSTIC_ASSESSMENT_STATE, (Integer)null);
       }
     }
   }
