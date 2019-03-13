@@ -324,10 +324,6 @@ public class AJEntityClassContents extends Model {
   public void setInitialUsersCount() {
     this.setInteger(USERS_COUNT, -1);
   }
-  
-  public void setMasteryAccrualFlag(Boolean allowMasteryAccrual) {
-      this.set(ALLOW_MASTERY_ACCRUAL, allowMasteryAccrual);
-  }
 
   private static class ClassContentsValidationRegistry implements ValidatorRegistry {
 

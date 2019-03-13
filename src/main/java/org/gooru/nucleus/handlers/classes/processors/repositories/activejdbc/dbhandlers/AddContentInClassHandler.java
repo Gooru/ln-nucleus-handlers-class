@@ -35,7 +35,6 @@ class AddContentInClassHandler implements DBHandler {
   private int forYear;
   private int forMonth;
   private String dcaDateString;
-  private Boolean allowMasteryAccrual;
 
   AddContentInClassHandler(ProcessorContext context) {
     this.context = context;
@@ -97,7 +96,6 @@ class AddContentInClassHandler implements DBHandler {
         .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
     classContents.setClassId(context.classId());
     classContents.setInitialUsersCount();
-    setMasteryAccrual();
     
     AJEntityClassContents content = findAlreadyAddedContent();
     if (content != null) {
@@ -234,23 +232,6 @@ class AddContentInClassHandler implements DBHandler {
     return (contentType.equalsIgnoreCase(AJEntityClassContents.RESOURCE) || contentType
         .equalsIgnoreCase(AJEntityClassContents.QUESTION));
   }
-  
-  private boolean isContentTypeEntityIsAssessmentType() {
-    return AJEntityClassContents.ASSESSMENT_TYPES.matcher(contentType).matches();
-  }
-
-  private void setMasteryAccrual() {
-    // set masteryAccrual flag only for assessments, ignore this flag for collections even if it is
-    // passed in request payload
-    Boolean masteryAccrualFlag = null;
-    if (isContentTypeEntityIsAssessmentType()) {
-      masteryAccrualFlag = allowMasteryAccrual;
-      if (allowMasteryAccrual == null) {
-        masteryAccrualFlag = false;
-      }
-    }
-    classContents.setMasteryAccrualFlag(masteryAccrualFlag);
-  }
 
   private void validateContextRequestFields() {
     JsonObject errors = new DefaultPayloadValidator()
@@ -294,7 +275,6 @@ class AddContentInClassHandler implements DBHandler {
     contentId = context.request().getString(AJEntityClassContents.CONTENT_ID);
     forMonth = context.request().getInteger(AJEntityClassContents.FOR_MONTH);
     forYear = context.request().getInteger(AJEntityClassContents.FOR_YEAR);
-    allowMasteryAccrual = context.request().getBoolean(AJEntityClassContents.ALLOW_MASTERY_ACCRUAL);
   }
 
   private JsonObject getModelErrors() {
