@@ -96,7 +96,7 @@ class AddContentInClassHandler implements DBHandler {
         .build(this.classContents, context.request(), AJEntityClassContents.getConverterRegistry());
     classContents.setClassId(context.classId());
     classContents.setInitialUsersCount();
-
+    
     AJEntityClassContents content = findAlreadyAddedContent();
     if (content != null) {
       LOGGER.debug("Pretending to add content, id: {}, type: {}", contentId, contentType);
