@@ -120,6 +120,9 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
     if (command.getRoute0() != null) {
       entityClass.setRoute0(command.getRoute0());
     }
+    if (command.getForceCalculateILP() != null) {
+      entityClass.setForceCalculateIlp(command.getForceCalculateILP());
+    }
   }
 
   @Override

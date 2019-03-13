@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
+import io.vertx.core.json.JsonObject;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,7 +16,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
-import io.vertx.core.json.JsonObject;
 
 
 /**
@@ -56,11 +56,12 @@ public class AJEntityClass extends Model {
   private static final String GRADE_CURRENT = "grade_current";
   private static final String ROUTE0 = "route0_applicable";
   public static final String SETTING = "setting";
-  public static final String PREFERENCE = "preference";
+  private static final String PREFERENCE = "preference";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
-  private static final String IS_OFFLINE = "is_offline";
   public static final String PRIMARY_LANGUAGE = "primary_language";
+  private static final String FORCE_CALCULATE_ILP = "force_calculate_ilp";
+
 
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
@@ -94,11 +95,11 @@ public class AJEntityClass extends Model {
 
   private static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
-          COLLABORATOR, IS_OFFLINE));
+          COLLABORATOR));
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
-          COLLABORATOR,
-          CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING, IS_OFFLINE));
+          COLLABORATOR, CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING,
+          FORCE_CALCULATE_ILP));
   private static final Set<String> MANDATORY_FIELDS = new HashSet<>(
       Arrays.asList(TITLE, CLASS_SHARING));
   public static final Set<String> FORBIDDEN_FIELDS = new HashSet<>(
@@ -112,13 +113,13 @@ public class AJEntityClass extends Model {
       .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE,
           MIN_SCORE, END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY,
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
-          GRADE_UPPER_BOUND, ROUTE0, IS_OFFLINE, PREFERENCE, PRIMARY_LANGUAGE);
+          GRADE_UPPER_BOUND, ROUTE0, FORCE_CALCULATE_ILP, PREFERENCE, PRIMARY_LANGUAGE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
-  
+
   private static final Set<String> CLASS_PREFERENCE_FIELDS =
       new HashSet<>(Arrays.asList(PREFERENCE));
-  
+
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
@@ -222,7 +223,7 @@ public class AJEntityClass extends Model {
   public static FieldSelector updateClassFieldSelector() {
     return () -> Collections.unmodifiableSet(EDITABLE_FIELDS);
   }
-  
+
   public static FieldSelector updateClassPreferenceFieldSelector() {
     return () -> Collections.unmodifiableSet(CLASS_PREFERENCE_FIELDS);
   }
@@ -328,7 +329,7 @@ public class AJEntityClass extends Model {
   public void setVersion() {
     this.set(GOORU_VERSION, CURRENT_VERSION);
   }
-  
+
   public void setPrimaryLanguage(Integer languageId) {
     this.setInteger(PRIMARY_LANGUAGE, languageId);
   }
@@ -336,9 +337,13 @@ public class AJEntityClass extends Model {
   public boolean isPublished() {
     return getBoolean(IS_PUBLISHED);
   }
-  
-  public boolean isOffline() {
-    return getBoolean(IS_OFFLINE);
+
+  public boolean isForceCalculateILP() {
+    return getBoolean(FORCE_CALCULATE_ILP);
+  }
+
+  public void setForceCalculateIlp(boolean forceCalculateIlp) {
+    this.setBoolean(FORCE_CALCULATE_ILP, forceCalculateIlp);
   }
 
   public void adjustEndDate(String defaultEndDate) {
@@ -374,7 +379,7 @@ public class AJEntityClass extends Model {
   public void setTenantRoot(String tenantRoot) {
     setFieldUsingConverter(TENANT_ROOT, tenantRoot);
   }
-  
+
   public void setPreference(String preference) {
     setFieldUsingConverter(PREFERENCE, preference);
   }
@@ -409,9 +414,9 @@ public class AJEntityClass extends Model {
   public void setClassSettings(JsonObject classSettings) {
     this.set(SETTING, FieldConverter.convertFieldToJson(classSettings));
   }
-  
+
   public void setClassPreference(JsonObject classPreference) {
-	this.set(PREFERENCE, FieldConverter.convertFieldToJson(classPreference));
+    this.set(PREFERENCE, FieldConverter.convertFieldToJson(classPreference));
   }
 
   private void setFieldUsingConverter(String fieldName, Object fieldValue) {
