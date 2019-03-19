@@ -51,8 +51,8 @@ public class RerouteSettingPostProcessor {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
-    // We only need to proceed for post processing if the class is NOT offline.
-    if (!entityClass.isOffline()) {
+    // We only need to proceed for post processing if the class is NOT set to force calculate ILP
+    if (!entityClass.isForceCalculateILP()) {
 
       try (PreparedStatement ps = Base.startBatch(PROFILE_BASELINE_ENQUEUE_QUERY)) {
         command.getUsers().forEach(user -> {
@@ -90,7 +90,7 @@ public class RerouteSettingPostProcessor {
         return handleSqlException(dbe);
       }
     } else {
-      LOGGER.debug("this is offline class, nothing to process here..");
+      LOGGER.debug("Class is set to force calculate ILP, nothing to process here..");
       return returnSuccess();
     }
   }
@@ -106,7 +106,7 @@ public class RerouteSettingPostProcessor {
   }
 
   private Map<String, AJClassMember> initializeClassMembers() {
-    LazyList<AJClassMember> members = null;
+    LazyList<AJClassMember> members;
     List<String> userIds = new ArrayList<>();
     command.getUsers().forEach(user -> {
       userIds.add(user.getUserId().toString());

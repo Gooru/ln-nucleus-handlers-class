@@ -44,6 +44,7 @@ public class AJEntityClassContents extends Model {
   public static final String CONTENT_TYPE = "content_type";
   public static final String ACTIVATION_DATE = "activation_date";
   public static final String DCA_ADDED_DATE = "dca_added_date";
+  public static final String ALLOW_MASTERY_ACCRUAL = "allow_mastery_accrual";
   public static final String ASSESSMENT = "assessment";
   public static final String ASSESSMENT_EXTERNAL = "assessment-external";
   public static final String COLLECTION_EXTERNAL = "collection-external";
@@ -61,7 +62,7 @@ public class AJEntityClassContents extends Model {
 
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
-          DCA_ADDED_DATE));
+          DCA_ADDED_DATE, ALLOW_MASTERY_ACCRUAL));
   private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
       .asList(USERS));
   private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
@@ -73,10 +74,10 @@ public class AJEntityClassContents extends Model {
           QUESTION));
   public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, USERS_COUNT);
+          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL);
   public static final List<String> RESPONSE_FIELDS_FOR_STUDENT = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT);
+          CREATED_AT, ALLOW_MASTERY_ACCRUAL);
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
@@ -142,6 +143,7 @@ public class AJEntityClassContents extends Model {
     validatorMap.put(USERS,
         (value) -> FieldValidator
             .validateDeepJsonArrayIfPresentAllowEmpty(value, FieldValidator::validateUuid));
+    validatorMap.put(ALLOW_MASTERY_ACCRUAL, FieldValidator::validateBooleanIfPresent);
     return Collections.unmodifiableMap(validatorMap);
   }
 
