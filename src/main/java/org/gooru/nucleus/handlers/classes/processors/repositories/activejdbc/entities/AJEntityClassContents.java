@@ -66,7 +66,7 @@ public class AJEntityClassContents extends Model {
   private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
       .asList(USERS));
   private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
-      Arrays.asList(ACTIVATION_DATE, UPDATED_AT));
+      Arrays.asList(ACTIVATION_DATE, DCA_ADDED_DATE, UPDATED_AT));
   private static final Set<String> MANDATORY_FIELDS =
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
   private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
@@ -81,9 +81,13 @@ public class AJEntityClassContents extends Model {
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
-  public static final String SELECT_CLASS_CONTENTS_TO_VALIDATE =
+  public static final String SELECT_CLASS_CONTENTS_TO_VALIDATE_ACTIVATION =
       "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid AND "
           + "activation_date = ?::date";
+
+  public static final String SELECT_CLASS_CONTENTS_TO_VALIDATE_SCHEDULE =
+      "select class_id, content_id from class_contents where class_id = ?::uuid AND content_id = ?::uuid AND "
+          + "dca_added_date = ?::date";
 
   public static final String SELECT_DUPLICATED_ADDED_CONTENT =
       "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE = ?::DATE";
