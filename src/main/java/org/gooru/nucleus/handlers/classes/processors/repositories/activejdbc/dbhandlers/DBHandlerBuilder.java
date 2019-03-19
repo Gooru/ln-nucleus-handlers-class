@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activityaddusers.AddClassContentUsersHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activitylistusers.ListClassContentUsersHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.cacontentactivation.EnableContentInClassHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classmembersactivate.ClassMembersActivateHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classmembersdeactivate.ClassMembersDeactivateHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.fetchclassmembers.FetchClassMembersHandler;
