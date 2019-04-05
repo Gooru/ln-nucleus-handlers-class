@@ -36,7 +36,6 @@ public class AddClassContentUsersHandler implements DBHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(AddClassContentUsersHandler.class);
   private long classContentId;
   private AJEntityClass entityClass;
-  private AJEntityClassContents entityClassContent;
   private List<String> users;
 
   public AddClassContentUsersHandler(ProcessorContext context) {
@@ -101,7 +100,6 @@ public class AddClassContentUsersHandler implements DBHandler {
       throw new MessageResponseWrapperException(
           MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")));
     }
-    this.entityClassContent = classContents.get(0);
 
   }
 

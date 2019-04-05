@@ -66,4 +66,6 @@ public interface ClassRepo {
   MessageResponse updateClassPreference();
 
   MessageResponse updateClassLanguage();
+  
+  MessageResponse updateClassContentMasteryAccrual();
 }

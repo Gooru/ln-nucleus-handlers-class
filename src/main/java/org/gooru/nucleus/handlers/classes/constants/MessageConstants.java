@@ -44,6 +44,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
   public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
   public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
+  public static final String MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE = "class.content.mastery.accrual.update";
+  
 
   public static final String MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE = "class.reroute.settings.update";
   public static final String MSG_OP_CLASS_LPBASELINE_TRIGGER = "class.lb.baseline.trigger";
