@@ -73,7 +73,7 @@ public class UpdateClassContentMasteryAccrualHandler implements DBHandler {
 
         return new ExecutionResult<>(
             MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
-                EventBuilderFactory.getClassContentEnableEventBuilder(classContents.getId(), this.context.classId())),
+                EventBuilderFactory.getClassContentMasteryAccrualEventBuilder(classContents.getId(), this.context.classId())),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
 
