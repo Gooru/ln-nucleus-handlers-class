@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 class ScheduleForDayContentActivator implements ContentActivator {
 
-  private final AJEntityClass entityClass;
   private final AJEntityClassContents classContents;
   private final FlowDeterminer flowDeterminer;
   private final ProcessorContext context;
@@ -28,7 +27,6 @@ class ScheduleForDayContentActivator implements ContentActivator {
   ScheduleForDayContentActivator(AJEntityClass entityClass,
       AJEntityClassContents classContents, FlowDeterminer flowDeterminer,
       ProcessorContext context) {
-    this.entityClass = entityClass;
     this.classContents = classContents;
     this.flowDeterminer = flowDeterminer;
     this.context = context;

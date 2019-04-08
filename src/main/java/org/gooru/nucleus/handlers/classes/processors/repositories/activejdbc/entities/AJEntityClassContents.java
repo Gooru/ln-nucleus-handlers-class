@@ -52,21 +52,21 @@ public class AJEntityClassContents extends Model {
   public static final String RESOURCE = "resource";
   public static final String QUESTION = "question";
   public static final String ID_CONTENT = "contentId";
-  private static final String SORT_DESC = " desc";
   public static final String USERS = "users";
   public static final String USERS_COUNT = "users_count";
   public static final String ID = "id";
-  private static final String COMMA_SEPARATOR = ",";
   public static final Pattern ASSESSMENT_TYPES = Pattern.compile("assessment|assessment-external");
   public static final Pattern COLLECTION_TYPES = Pattern.compile("collection|collection-external");
 
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
-          DCA_ADDED_DATE, ALLOW_MASTERY_ACCRUAL));
+          DCA_ADDED_DATE));
   private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
       .asList(USERS));
   private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
       Arrays.asList(ACTIVATION_DATE, DCA_ADDED_DATE, UPDATED_AT));
+  private static final Set<String> UPDATE_MASTERY_ACCRUAL_FIELDS = new HashSet<>(
+      Arrays.asList(ALLOW_MASTERY_ACCRUAL));
   private static final Set<String> MANDATORY_FIELDS =
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
   private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
@@ -183,6 +183,20 @@ public class AJEntityClassContents extends Model {
   public static FieldSelector updateFieldSelector() {
     return () -> Collections.unmodifiableSet(UPDATEABLE_FIELDS);
   }
+  
+  public static FieldSelector updateMasteryAccrualFieldSelector() {
+      return new FieldSelector() {
+          @Override
+          public Set<String> allowedFields() {
+            return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
+          }
+
+          @Override
+          public Set<String> mandatoryFields() {
+            return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
+          }
+        };
+    }
 
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {

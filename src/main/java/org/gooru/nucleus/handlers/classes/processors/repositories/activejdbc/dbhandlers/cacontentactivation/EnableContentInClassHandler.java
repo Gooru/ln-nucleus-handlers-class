@@ -1,9 +1,8 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.cacontentactivation;
 
-import io.vertx.core.json.JsonObject;
 import java.math.BigInteger;
-import java.time.LocalDate;
 import java.util.ResourceBundle;
+
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
@@ -21,6 +20,8 @@ import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.json.JsonObject;
+
 public class EnableContentInClassHandler implements DBHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EnableContentInClassHandler.class);
@@ -30,7 +31,6 @@ public class EnableContentInClassHandler implements DBHandler {
   private String contentId;
   private FlowDeterminer flowDeterminer;
   private ContentActivator contentActivator;
-  private LocalDate activationDate;
   private AJEntityClass entityClass;
 
   public EnableContentInClassHandler(ProcessorContext context) {

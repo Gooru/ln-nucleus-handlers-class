@@ -41,7 +41,7 @@ class RequestValidator {
   private void validateContentId() {
     String contentId = context.requestHeaders().get(MessageConstants.CLASS_CONTENT_ID);
     try {
-      long classContentId = Long.parseLong(contentId);
+      Long.parseLong(contentId);
     } catch (NumberFormatException nfe) {
       LOGGER.warn("Invalid class activity id: '{}'", contentId);
       throw new MessageResponseWrapperException(MessageResponseFactory
