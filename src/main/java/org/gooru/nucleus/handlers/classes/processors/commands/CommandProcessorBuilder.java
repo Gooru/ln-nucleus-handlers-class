@@ -206,7 +206,7 @@ public enum CommandProcessorBuilder {
   MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER(MessageConstants.MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER) {
     @Override
     public Processor build(ProcessorContext context) {
-      return new ClassContentMasteryAccrualUpdateProcessor(context);
+      return new ClassProfileBaselineTriggerForStudentProcessor(context);
     }
   },
   CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE(MessageConstants.MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE) {
