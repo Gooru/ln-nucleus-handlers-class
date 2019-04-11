@@ -61,6 +61,7 @@ public class AJEntityClass extends Model {
   public static final String OWNER_ID = "owner_id";
   public static final String PRIMARY_LANGUAGE = "primary_language";
   private static final String FORCE_CALCULATE_ILP = "force_calculate_ilp";
+  private static final String MILESTONE_VIEW_APPLICABLE = "milestone_view_applicable";
 
 
   // Dummy field names for Content Visibility
@@ -113,7 +114,8 @@ public class AJEntityClass extends Model {
       .asList(ID, CREATOR_ID, TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, CODE,
           MIN_SCORE, END_DATE, COURSE_ID, COLLABORATOR, GOORU_VERSION, CONTENT_VISIBILITY,
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
-          GRADE_UPPER_BOUND, ROUTE0, FORCE_CALCULATE_ILP, PREFERENCE, PRIMARY_LANGUAGE);
+          GRADE_UPPER_BOUND, ROUTE0, FORCE_CALCULATE_ILP, PREFERENCE, PRIMARY_LANGUAGE,
+          MILESTONE_VIEW_APPLICABLE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
 
