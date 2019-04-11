@@ -106,7 +106,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
     this.entityClass.setCourseId(this.context.courseId());
     this.courseVersion = getCourseVersion();
     setContentVisibilityBasedOnCourse();
-    setClassSettingsBasedOnCourse();
+    setClassAttributesBasedOnCourse();
     setClassPreferenceAndPrimaryLangBasedOnCourse();
 
     boolean result = this.entityClass.save();
@@ -151,11 +151,19 @@ class AssociateCourseWithClassHandler implements DBHandler {
   }
 
   // Set if premium course else reset class settings when user deletes premium course and assigns a non-premium course to class.
-  private void setClassSettingsBasedOnCourse() {
+  private void setClassAttributesBasedOnCourse() {
+    setClassSettingsBasedOnCourseVersion();
+    setClassMilestoneViewApplicabilityBasedOnCourseVersion();
+  }
+
+  private void setClassMilestoneViewApplicabilityBasedOnCourseVersion() {
+    this.entityClass.setMilestoneViewApplicable(isCoursePremium());
+  }
+
+  private void setClassSettingsBasedOnCourseVersion() {
     final String settings = this.entityClass.getString(AJEntityClass.SETTING);
     JsonObject classSettings = settings != null ? new JsonObject(settings) : null;
-    if (Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(),
-        this.courseVersion)) {
+    if (isCoursePremium()) {
       if (classSettings == null) {
         classSettings = new JsonObject();
       }
@@ -168,7 +176,12 @@ class AssociateCourseWithClassHandler implements DBHandler {
     }
     this.entityClass.setClassSettings(classSettings);
   }
-  
+
+  private boolean isCoursePremium() {
+    return Objects.equals(AppConfiguration.getInstance().getCourseVersionForPremiumContent(),
+        this.courseVersion);
+  }
+
   // Set the preference (subject and framework) and primary language of the class based on the
   // course getting associated with it
   private void setClassPreferenceAndPrimaryLangBasedOnCourse() {

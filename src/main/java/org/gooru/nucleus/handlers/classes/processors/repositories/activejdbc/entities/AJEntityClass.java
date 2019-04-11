@@ -421,6 +421,14 @@ public class AJEntityClass extends Model {
     this.set(PREFERENCE, FieldConverter.convertFieldToJson(classPreference));
   }
 
+  public void setMilestoneViewApplicable(Boolean applicability) {
+    this.set(MILESTONE_VIEW_APPLICABLE, applicability);
+  }
+
+  public Boolean getMilestoneViewApplicable() {
+    return this.getBoolean(MILESTONE_VIEW_APPLICABLE);
+  }
+
   private void setFieldUsingConverter(String fieldName, Object fieldValue) {
     FieldConverter fc = converterRegistry.get(fieldName);
     if (fc != null) {
