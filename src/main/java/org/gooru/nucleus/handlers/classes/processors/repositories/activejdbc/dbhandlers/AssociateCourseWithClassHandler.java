@@ -4,11 +4,13 @@ import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.milestone.MilestoneQueuer;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTaxonomySubject;
@@ -32,6 +34,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
   private AJEntityClass entityClass;
   private String courseVersion;
   private AJEntityCourse entityCourse;
+  private String frameworkForCourse;
 
   AssociateCourseWithClassHandler(ProcessorContext context) {
     this.context = context;
@@ -124,12 +127,20 @@ class AssociateCourseWithClassHandler implements DBHandler {
             ExecutionResult.ExecutionStatus.FAILED);
       }
     }
-
+    triggerPostProcess();
     return new ExecutionResult<>(MessageResponseFactory
         .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
             EventBuilderFactory
                 .getCourseAssignedEventBuilder(this.context.classId(), this.context.courseId())),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
+  }
+
+  private void triggerPostProcess() {
+    // If course is premium and class destination is set, trigger the milestone creation
+    if (isCoursePremium() && this.entityClass.getGradeCurrent() != null) {
+      LOGGER.info("Will trigger milestone creation");
+      MilestoneQueuer.build().enqueue(UUID.fromString(this.context.courseId()), frameworkForCourse);
+    }
   }
 
   @Override
@@ -171,7 +182,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
     JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
     if (isCoursePremium()) {
       classSettings.put(AJEntityClass.COURSE_PREMIUM, true);
-    } else if (!classSettings.isEmpty() && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)) {
+    } else if (!classSettings.isEmpty() && classSettings
+        .containsKey(AJEntityClass.COURSE_PREMIUM)) {
       classSettings.remove(AJEntityClass.COURSE_PREMIUM);
     }
     this.entityClass.setClassSettings(!classSettings.isEmpty() ? classSettings : null);
@@ -196,8 +208,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
         long countDots = subjectBucket.chars().filter(ch -> ch == '.').count();
         JsonObject preference = new JsonObject();
         if (countDots > 1) {
-          preference.put(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK,
-              subjectBucket.substring(0, subjectBucket.indexOf('.')));
+          frameworkForCourse = subjectBucket.substring(0, subjectBucket.indexOf('.'));
+          preference.put(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK, frameworkForCourse);
           preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT,
               subjectBucket.substring(subjectBucket.indexOf('.') + 1));
         } else {
