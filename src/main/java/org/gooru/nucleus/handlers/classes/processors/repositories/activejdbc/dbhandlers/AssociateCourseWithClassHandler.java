@@ -31,6 +31,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
   private final ProcessorContext context;
   private AJEntityClass entityClass;
   private String courseVersion;
+  private AJEntityCourse entityCourse;
 
   AssociateCourseWithClassHandler(ProcessorContext context) {
     this.context = context;
@@ -95,7 +96,11 @@ class AssociateCourseWithClassHandler implements DBHandler {
               RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
-    return AuthorizerBuilder.buildAssociateCourseWithClassAuthorizer(this.context)
+    // Downstream authorizer to handle the course validation
+    this.entityCourse =
+        AJEntityCourse.findFirst(AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
+
+    return AuthorizerBuilder.buildAssociateCourseWithClassAuthorizer(this.context, entityCourse)
         .authorize(this.entityClass);
   }
 
@@ -107,7 +112,6 @@ class AssociateCourseWithClassHandler implements DBHandler {
     this.courseVersion = getCourseVersion();
     setContentVisibilityBasedOnCourse();
     setClassAttributesBasedOnCourse();
-    setClassPreferenceAndPrimaryLangBasedOnCourse();
 
     boolean result = this.entityClass.save();
     if (!result) {
@@ -154,6 +158,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
   private void setClassAttributesBasedOnCourse() {
     setClassSettingsBasedOnCourseVersion();
     setClassMilestoneViewApplicabilityBasedOnCourseVersion();
+    setClassPrefsBasedOnCourse();
+    setClassPrimaryLangFromCourse();
   }
 
   private void setClassMilestoneViewApplicabilityBasedOnCourseVersion() {
@@ -162,19 +168,13 @@ class AssociateCourseWithClassHandler implements DBHandler {
 
   private void setClassSettingsBasedOnCourseVersion() {
     final String settings = this.entityClass.getString(AJEntityClass.SETTING);
-    JsonObject classSettings = settings != null ? new JsonObject(settings) : null;
+    JsonObject classSettings = settings != null ? new JsonObject(settings) : new JsonObject();
     if (isCoursePremium()) {
-      if (classSettings == null) {
-        classSettings = new JsonObject();
-      }
       classSettings.put(AJEntityClass.COURSE_PREMIUM, true);
-    } else if (classSettings != null && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)) {
+    } else if (!classSettings.isEmpty() && classSettings.containsKey(AJEntityClass.COURSE_PREMIUM)) {
       classSettings.remove(AJEntityClass.COURSE_PREMIUM);
-      if (classSettings.isEmpty()) {
-        classSettings = null;
-      }
     }
-    this.entityClass.setClassSettings(classSettings);
+    this.entityClass.setClassSettings(!classSettings.isEmpty() ? classSettings : null);
   }
 
   private boolean isCoursePremium() {
@@ -182,32 +182,27 @@ class AssociateCourseWithClassHandler implements DBHandler {
         this.courseVersion);
   }
 
-  // Set the preference (subject and framework) and primary language of the class based on the
-  // course getting associated with it
-  private void setClassPreferenceAndPrimaryLangBasedOnCourse() {
+  private void setClassPrimaryLangFromCourse() {
+    Integer primaryLanguage = this.entityCourse.getPrimaryLanguage();
+    this.entityClass.setInteger(AJEntityClass.PRIMARY_LANGUAGE, primaryLanguage);
+  }
 
-    // Assuming that the course existance is validated authorizer, not checking the size of the
-    // list.
-    LazyList<AJEntityCourse> courses = AJEntityCourse
-        .findBySQL(AJEntityCourse.SELECT_SUBJECT_PRIMARY_LANG, this.context.courseId());
-    AJEntityCourse course = courses.get(0);
-
-    String subjectBucket = course.getString(AJEntityCourse.SUBJECT_BUCKET);
+  private void setClassPrefsBasedOnCourse() {
+    String subjectBucket = this.entityCourse.getSubjectBucket();
     if (subjectBucket != null && !subjectBucket.trim().isEmpty()) {
-      String subjectCode = String.valueOf(subjectBucket);
       Long count = Base.count(AJEntityTaxonomySubject.TABLE,
-          AJEntityTaxonomySubject.FETCH_SUBJECT_BY_ID, subjectCode);
+          AJEntityTaxonomySubject.FETCH_SUBJECT_BY_ID, subjectBucket);
       if (count == 1) {
-        long countDots = subjectCode.chars().filter(ch -> ch == '.').count();
+        long countDots = subjectBucket.chars().filter(ch -> ch == '.').count();
         JsonObject preference = new JsonObject();
         if (countDots > 1) {
           preference.put(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK,
-              subjectCode.substring(0, subjectCode.indexOf('.')));
+              subjectBucket.substring(0, subjectBucket.indexOf('.')));
           preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT,
-              subjectCode.substring(subjectCode.indexOf('.') + 1));
+              subjectBucket.substring(subjectBucket.indexOf('.') + 1));
         } else {
           preference.putNull(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK);
-          preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, subjectCode);
+          preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, subjectBucket);
         }
         this.entityClass.setClassPreference(preference);
       } else {
@@ -217,16 +212,9 @@ class AssociateCourseWithClassHandler implements DBHandler {
     } else {
       LOGGER.debug("no subject associated with the course, skipping preference setting of course");
     }
-
-    Integer primaryLanguage = course.getInteger(AJEntityCourse.PRIMARY_LANGUAGE);
-    if (primaryLanguage != null) {
-      this.entityClass.setInteger(AJEntityClass.PRIMARY_LANGUAGE, primaryLanguage);
-    }
   }
 
   private String getCourseVersion() {
-    final Object versionObject = Base
-        .firstCell(AJEntityCourse.COURSE_VERSION_FETCH_QUERY, this.context.courseId());
-    return versionObject == null ? null : String.valueOf(versionObject);
+    return this.entityCourse.getVersion();
   }
 }
