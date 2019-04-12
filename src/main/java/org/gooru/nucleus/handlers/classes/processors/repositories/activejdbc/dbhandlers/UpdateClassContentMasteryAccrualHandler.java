@@ -151,7 +151,7 @@ public class UpdateClassContentMasteryAccrualHandler implements DBHandler {
         this.classContents = classContents.get(0);
         Date dcaAddedDate = this.classContents.getDcaAddedDate();
         if (!FieldValidator.validateDateWithFormat(dcaAddedDate, DateTimeFormatter.ISO_LOCAL_DATE, false, true)) { 
-            LOGGER.warn("content {} not scheduled or it's scheduled as past activity {}", contentId, context.classId());
+            LOGGER.warn("Content {} either not scheduled or it's scheduled for past class activity {}", contentId, context.classId());
             throw new MessageResponseWrapperException(
                 MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("mastery.accrual.not.allowed")));
             
