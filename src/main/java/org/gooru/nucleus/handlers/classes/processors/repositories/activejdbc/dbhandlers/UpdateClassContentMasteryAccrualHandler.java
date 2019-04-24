@@ -1,6 +1,9 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
 import java.math.BigInteger;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -10,6 +13,7 @@ import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseW
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.FieldValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -145,6 +149,13 @@ public class UpdateClassContentMasteryAccrualHandler implements DBHandler {
                 MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("not.found")));
         }
         this.classContents = classContents.get(0);
+        Date dcaAddedDate = this.classContents.getDcaAddedDate();
+        if (!FieldValidator.validateDateWithFormat(dcaAddedDate, DateTimeFormatter.ISO_LOCAL_DATE, false, true)) { 
+            LOGGER.warn("Content {} either not scheduled or it's scheduled for past class activity {}", contentId, context.classId());
+            throw new MessageResponseWrapperException(
+                MessageResponseFactory.createInvalidRequestResponse(RESOURCE_BUNDLE.getString("mastery.accrual.not.allowed")));
+            
+        }
     }
 
     private static class DefaultPayloadValidator implements PayloadValidator {
