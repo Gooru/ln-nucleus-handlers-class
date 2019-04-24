@@ -19,6 +19,7 @@ public class MilestoneQueuerImpl implements MilestoneQueuer {
   private static final int STATUS_QUEUED = 0;
   private final boolean override;
   private UUID courseId;
+  private Long gradeCurrent;
   private String fwCode;
   private static final Logger LOGGER = LoggerFactory.getLogger(MilestoneQueuer.class);
   private static String MILESTONE_QUEUE_QUERY = "insert into milestone_queue(course_id, fw_code, override, status) values (?::uuid, ?, ?, ?)";
@@ -30,38 +31,15 @@ public class MilestoneQueuerImpl implements MilestoneQueuer {
   }
 
   @Override
-  public void enqueue(UUID courseId, String fwCode) {
-
+  public void enqueue(UUID courseId, Long gradeCurrent) {
     this.courseId = courseId;
-    this.fwCode = fwCode;
+    this.gradeCurrent = gradeCurrent;
     doQueue();
   }
 
-  @Override
-  public void enqueue(UUID courseId) {
-    this.courseId = courseId;
-    if (courseValidatedForMilestone()) {
-      doQueue();
-    }
-  }
-
-  private boolean courseValidatedForMilestone() {
-    AJEntityCourse entityCourse = AJEntityCourse
-        .findFirst(AJEntityCourse.COURSE_ASSOCIATION_FILTER, courseId);
-    if (isCoursePremium(entityCourse)) {
-      String subjectBucket = entityCourse.getSubjectBucket();
-      long countDots = subjectBucket.chars().filter(ch -> ch == '.').count();
-      if (countDots > 1) {
-        fwCode = subjectBucket.substring(0, subjectBucket.indexOf('.'));
-      }
-      return true;
-    }
-    LOGGER
-        .info("Won't queue for milestone calculation. Course: '{}' and FW: '{}'", courseId, fwCode);
-    return false;
-  }
 
   private void doQueue() {
+    fwCode = fetchFwCodeFromGrade();
     if (fwCode == null) {
       fwCode = DEFAULT_FW;
     }
@@ -96,6 +74,11 @@ public class MilestoneQueuerImpl implements MilestoneQueuer {
     }
     throw new DBException(e);
   }
+
+    private String fetchFwCodeFromGrade() {
+      Object fwCodeObject = Base.firstCell("select fw_code from grade_master where id = ?", gradeCurrent);
+      return String.valueOf(fwCodeObject);
+    }
 
 
 }

@@ -12,15 +12,9 @@ public interface MilestoneQueuer {
 
   /*
    * This variation assumes caller has done validation for course being premium/non deleted etc.
-   * If the supplied fwCode is null, then default of GUT is used
+   * The fw code is deduced based on destination for the class.
    */
-  void enqueue(UUID courseId, String fwCode);
-
-  /*
-   * This variation validates the presence of course and it bring premium. It also deduces the
-   * framework from subject bucket.
-   */
-  void enqueue(UUID courseId);
+  void enqueue(UUID courseId, Long currentGrade);
 
   static MilestoneQueuer build() {
     return new MilestoneQueuerImpl(false);
