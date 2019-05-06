@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitydelete;
 
 import io.vertx.core.json.JsonObject;
 import java.math.BigInteger;
@@ -9,6 +9,7 @@ import org.gooru.nucleus.handlers.classes.processors.events.EventBuilder;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
@@ -19,7 +20,7 @@ import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DeleteClassContentHandler implements DBHandler {
+public class DeleteClassContentHandler implements DBHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DeleteClassContentHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
@@ -27,7 +28,7 @@ class DeleteClassContentHandler implements DBHandler {
   private AJEntityClassContents classContents;
   private String classContentId;
 
-  DeleteClassContentHandler(ProcessorContext context) {
+  public DeleteClassContentHandler(ProcessorContext context) {
     this.context = context;
   }
 

@@ -1,9 +1,8 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.cacontentactivation;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentactivation;
 
 import io.vertx.core.json.JsonObject;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
@@ -14,21 +13,18 @@ import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by ashish
- */
-class ActivationFlowContentActivator implements ContentActivator {
+class ScheduleForDayContentActivator implements ContentActivator {
 
   private final AJEntityClassContents classContents;
   private final FlowDeterminer flowDeterminer;
   private final ProcessorContext context;
   private static final Logger LOGGER = LoggerFactory
-      .getLogger(ActivationFlowContentActivator.class);
+      .getLogger(ScheduleForDayContentActivator.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
-  private String activationDateAsString;
-  private LocalDate activationDate;
+  private LocalDate dcaAddedDate;
+  private String dcaAddedDateAsString;
 
-  ActivationFlowContentActivator(AJEntityClass entityClass,
+  ScheduleForDayContentActivator(AJEntityClass entityClass,
       AJEntityClassContents classContents, FlowDeterminer flowDeterminer,
       ProcessorContext context) {
     this.classContents = classContents;
@@ -39,17 +35,14 @@ class ActivationFlowContentActivator implements ContentActivator {
 
   @Override
   public void validate() {
-    validateContentNotAlreadyActivated();
+    validateContentNotAlreadyScheduled();
     validateTheDates();
-    validateAlreadyActivatedSameContentForThatDay();
+    validateAlreadyScheduledSameContentForThatDay();
   }
 
   @Override
   public void activateContent() {
-    this.classContents.setActivationDateIfNotPresent(activationDate);
-    if (this.classContents.getDcaAddedDate() == null) {
-      this.classContents.setDcaAddedDateIfNotPresent(activationDate);
-    }
+    this.classContents.setDcaAddedDateIfNotPresent(dcaAddedDate);
     boolean result = this.classContents.save();
     if (!result) {
       if (classContents.hasErrors()) {
@@ -60,16 +53,6 @@ class ActivationFlowContentActivator implements ContentActivator {
     }
   }
 
-  private void validateContentNotAlreadyActivated() {
-    if (this.classContents.getActivationDate() != null) {
-      LOGGER.warn("content {} already activated to this class {}", this.classContents.getId(),
-          context.classId());
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(
-              RESOURCE_BUNDLE.getString("already.class.content.activated")));
-    }
-  }
-
   private JsonObject getModelErrors() {
     JsonObject errors = new JsonObject();
     this.classContents.errors().entrySet()
@@ -77,17 +60,27 @@ class ActivationFlowContentActivator implements ContentActivator {
     return errors;
   }
 
-  private void validateAlreadyActivatedSameContentForThatDay() {
+  private void validateAlreadyScheduledSameContentForThatDay() {
     LazyList<AJEntityClassContents> ajClassContents = AJEntityClassContents
-        .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE_ACTIVATION, context.classId(),
-            this.classContents.getContentId(), activationDateAsString);
+        .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE_SCHEDULE,
+            context.classId(), this.classContents.getContentId(), dcaAddedDateAsString);
     if (!ajClassContents.isEmpty()) {
-      LOGGER.warn("For this class {} same content {} already activated for this date {}",
+      LOGGER.warn("For this class {} same content {} already scheduled for this date {}",
           context.classId(),
-          this.classContents.getContentId(), activationDateAsString);
+          this.classContents.getContentId(), dcaAddedDateAsString);
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(
-              RESOURCE_BUNDLE.getString("same.content.already.activated")));
+              RESOURCE_BUNDLE.getString("same.content.already.scheduled")));
+    }
+  }
+
+  private void validateContentNotAlreadyScheduled() {
+    if (this.classContents.getDcaAddedDate() != null) {
+      LOGGER.warn("content {} already scheduled for this class {}", this.classContents.getId(),
+          context.classId());
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("already.class.content.scheduled")));
     }
   }
 
@@ -95,25 +88,14 @@ class ActivationFlowContentActivator implements ContentActivator {
     String incomingDateAsString = flowDeterminer.getInputDateAsString();
     try {
       if (incomingDateAsString != null) {
-        activationDate = LocalDate.parse(incomingDateAsString);
+        dcaAddedDate = LocalDate.parse(incomingDateAsString);
         // toString() method will extract the date only (yyyy-mm-dd)
-        activationDateAsString = activationDate.toString();
-        final String dcaAddedDate = Objects.toString(this.classContents.getDcaAddedDate(), null);
-
-        if (dcaAddedDate != null && !activationDateAsString.equals(dcaAddedDate)) {
-          LOGGER.warn("Activation date {} should be same as class content creation date {}",
-              activationDateAsString, dcaAddedDate);
+        dcaAddedDateAsString = dcaAddedDate.toString();
+        if (this.dcaAddedDate.getMonthValue() != this.classContents.getForMonth()
+            || this.dcaAddedDate.getYear() != this.classContents.getForYear()) {
           throw new MessageResponseWrapperException(MessageResponseFactory
               .createInvalidRequestResponse(
-                  RESOURCE_BUNDLE.getString("activation.date.not.same.as.creation.date")));
-
-        } else if (dcaAddedDate == null) {
-          if (activationDate.getMonthValue() != this.classContents.getForMonth()
-              || activationDate.getYear() != this.classContents.getForYear()) {
-            throw new MessageResponseWrapperException(MessageResponseFactory
-                .createInvalidRequestResponse(
-                    RESOURCE_BUNDLE.getString("activation.date.not.same.as.monthyear")));
-          }
+                  RESOURCE_BUNDLE.getString("dca.date.not.same.as.creation.date")));
         }
       } else {
         LOGGER.warn("Incoming date is null");
@@ -121,10 +103,11 @@ class ActivationFlowContentActivator implements ContentActivator {
             .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.payload")));
       }
     } catch (DateTimeParseException e) {
-      LOGGER.warn("Invalid activation date format {}", incomingDateAsString);
+      LOGGER.warn("Invalid dca added date format {}", incomingDateAsString);
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(
-              RESOURCE_BUNDLE.getString("invalid.activation.date.format")));
+              RESOURCE_BUNDLE.getString("invalid.dca.added.date.format")));
     }
   }
+
 }

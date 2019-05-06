@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activityaddusers;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityaddusers;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

@@ -1,6 +1,7 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activitylistusers;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityaddusers;
 
 import java.util.ResourceBundle;
+import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContextHelper;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
@@ -18,7 +19,7 @@ class RequestValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(RequestValidator.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
-  public RequestValidator(ProcessorContext context) {
+  RequestValidator(ProcessorContext context) {
     this.context = context;
   }
 
@@ -34,6 +35,18 @@ class RequestValidator {
           MessageResponseFactory
               .createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")));
     }
-
+    validateContentId();
   }
+
+  private void validateContentId() {
+    String contentId = context.requestHeaders().get(MessageConstants.CLASS_CONTENT_ID);
+    try {
+      Long.parseLong(contentId);
+    } catch (NumberFormatException nfe) {
+      LOGGER.warn("Invalid class activity id: '{}'", contentId);
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.classcontentid")));
+    }
+  }
+
 }

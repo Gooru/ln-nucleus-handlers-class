@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityadd;
 
 import io.vertx.core.json.JsonObject;
 import java.time.LocalDate;
@@ -9,6 +9,7 @@ import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
@@ -24,7 +25,7 @@ import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class AddContentInClassHandler implements DBHandler {
+public class AddContentInClassHandler implements DBHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AddContentInClassHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
@@ -36,7 +37,7 @@ class AddContentInClassHandler implements DBHandler {
   private int forMonth;
   private String dcaDateString;
 
-  AddContentInClassHandler(ProcessorContext context) {
+  public AddContentInClassHandler(ProcessorContext context) {
     this.context = context;
   }
 
