@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.ConverterRegistry;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -49,6 +48,7 @@ public class AJEntityClassContents extends Model {
   public static final String ASSESSMENT_EXTERNAL = "assessment-external";
   public static final String COLLECTION_EXTERNAL = "collection-external";
   public static final String COLLECTION = "collection";
+  private static final String OFFLINE_ACTIVITY = "offline-activity";
   public static final String RESOURCE = "resource";
   public static final String QUESTION = "question";
   public static final String ID_CONTENT = "contentId";
@@ -71,7 +71,7 @@ public class AJEntityClassContents extends Model {
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
   private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
       .asList(ASSESSMENT, COLLECTION, ASSESSMENT_EXTERNAL, COLLECTION_EXTERNAL, RESOURCE,
-          QUESTION));
+          QUESTION, OFFLINE_ACTIVITY));
   public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
           CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL);
@@ -183,20 +183,20 @@ public class AJEntityClassContents extends Model {
   public static FieldSelector updateFieldSelector() {
     return () -> Collections.unmodifiableSet(UPDATEABLE_FIELDS);
   }
-  
-  public static FieldSelector updateMasteryAccrualFieldSelector() {
-      return new FieldSelector() {
-          @Override
-          public Set<String> allowedFields() {
-            return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
-          }
 
-          @Override
-          public Set<String> mandatoryFields() {
-            return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
-          }
-        };
-    }
+  public static FieldSelector updateMasteryAccrualFieldSelector() {
+    return new FieldSelector() {
+      @Override
+      public Set<String> allowedFields() {
+        return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
+      }
+
+      @Override
+      public Set<String> mandatoryFields() {
+        return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
+      }
+    };
+  }
 
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
