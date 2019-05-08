@@ -214,7 +214,13 @@ public enum CommandProcessorBuilder {
       public Processor build(ProcessorContext context) {
         return new ClassContentMasteryAccrualUpdateProcessor(context);
       }
-    };
+    },
+  MSG_OP_CLASS_CONTENT_COMPLETION(MessageConstants.MSG_OP_CLASS_CONTENT_COMPLETION) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentCompletionMarkerProcessor(context);
+    }
+  };
   private String name;
 
   CommandProcessorBuilder(String name) {

@@ -17,6 +17,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassContentsDao;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -210,11 +211,11 @@ public class ListClassContentHandler implements DBHandler {
 
   private LazyList<AJEntityClassContents> getClassContentsByContentType() {
     if (isStudent) {
-      return AJEntityClassContents
+      return EntityClassContentsDao
           .fetchClassContentsByContentTypeForStudent(context.classId(), contentType, forMonth,
               forYear, context.userId());
     } else {
-      return AJEntityClassContents
+      return EntityClassContentsDao
           .fetchClassContentsByContentTypeForTeacher(context.classId(), contentType, forMonth,
               forYear);
     }
@@ -222,10 +223,10 @@ public class ListClassContentHandler implements DBHandler {
 
   private LazyList<AJEntityClassContents> getAllClassContents() {
     if (isStudent) {
-      return AJEntityClassContents
+      return EntityClassContentsDao
           .fetchAllContentsForStudent(context.classId(), forMonth, forYear, context.userId());
     } else {
-      return AJEntityClassContents.fetchAllContentsForTeacher(context.classId(), forMonth, forYear);
+      return EntityClassContentsDao.fetchAllContentsForTeacher(context.classId(), forMonth, forYear);
     }
   }
 

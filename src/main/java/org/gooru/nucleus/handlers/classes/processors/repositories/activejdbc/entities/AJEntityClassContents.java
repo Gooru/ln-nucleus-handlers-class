@@ -96,18 +96,6 @@ public class AJEntityClassContents extends Model {
       "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE is null "
           + " and for_month = ? and for_year = ?";
 
-  private static final String SELECT_CLASS_CONTENTS =
-      "class_id = ?::uuid AND for_year = ? AND for_month = ?";
-
-  private static final String SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED =
-      "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null)";
-
-  private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
-      "class_id = ?::uuid AND for_year = ? and for_month = ? and content_type = ? ";
-
-  private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
-      "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date AND (?::text = any(users) OR users is null)";
-
   private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_contents set users = ?::text[], users_count = ? where id = ?";
 
   public static final String FETCH_CLASS_CONTENT = "id = ?::bigint AND class_id = ?::uuid";
@@ -285,46 +273,6 @@ public class AJEntityClassContents extends Model {
 
   public int getUsersCount() {
     return this.getInteger(USERS_COUNT);
-  }
-
-  public static LazyList<AJEntityClassContents> fetchAllContentsForStudent(String classId,
-      int forMonth, int forYear, String userId) {
-
-    LocalDate fromDate, toDate;
-    fromDate = LocalDate.of(forYear, forMonth, 1);
-    toDate = fromDate.withDayOfMonth(fromDate.lengthOfMonth());
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED, classId, fromDate.toString(),
-            toDate.toString(), userId).orderBy("activation_date desc, id desc");
-  }
-
-  public static LazyList<AJEntityClassContents> fetchAllContentsForTeacher(String classId,
-      int forMonth, int forYear) {
-
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS, classId, forYear, forMonth)
-        .orderBy("dca_added_date desc nulls first, created_at desc");
-  }
-
-  public static LazyList<AJEntityClassContents> fetchClassContentsByContentTypeForStudent(
-      String classId, String contentType, int forMonth, int forYear, String userId) {
-
-    LocalDate fromDate, toDate;
-    fromDate = LocalDate.of(forYear, forMonth, 1);
-    toDate = fromDate.withDayOfMonth(fromDate.lengthOfMonth());
-
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED, classId, contentType,
-            fromDate.toString(), toDate.toString(), userId)
-        .orderBy("activation_date desc, id desc");
-  }
-
-  public static LazyList<AJEntityClassContents> fetchClassContentsByContentTypeForTeacher(
-      String classId, String contentType, int forMonth, int forYear) {
-
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS_GRP_BY_TYPE, classId, forYear, forMonth, contentType)
-        .orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
   public static void updateClassContentUsers(Long classContentId, String users, int count) {

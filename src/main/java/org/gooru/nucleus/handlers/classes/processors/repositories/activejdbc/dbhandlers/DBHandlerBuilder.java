@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityadd.AddContentInClassHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityaddusers.AddClassContentUsersHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentcompletion.ClassContentCompletionMarkerHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitydelete.DeleteClassContentHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.ListClassContentHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylistusers.ListClassContentUsersHandler;
@@ -148,5 +149,9 @@ public final class DBHandlerBuilder {
 
     public static DBHandler buildUpdateClassContentMasteryAccrualHandler(ProcessorContext context) {
         return new UpdateClassContentMasteryAccrualHandler(context);
+    }
+
+    public static DBHandler buildClassContentCompletionMarkerHandler(ProcessorContext context) {
+        return new ClassContentCompletionMarkerHandler(context);
     }
 }
