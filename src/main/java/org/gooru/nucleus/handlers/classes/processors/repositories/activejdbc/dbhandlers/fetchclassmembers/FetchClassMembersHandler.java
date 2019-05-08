@@ -137,11 +137,11 @@ public class FetchClassMembersHandler implements DBHandler {
       } else {
         userDemographic.put(AJClassMember.IS_ACTIVE, (Boolean) null);
         userDemographic
-            .put(AJClassMember.PROFILE_BASELINE_DONE, (Boolean)null);
+            .put(AJClassMember.PROFILE_BASELINE_DONE, (Boolean) null);
         userDemographic
-        .put(AJClassMember.INITIAL_LP_DONE, (Boolean)null);
+            .put(AJClassMember.INITIAL_LP_DONE, (Boolean) null);
         userDemographic.put(AJClassMember.CREATED_AT, (Long) null);
-        userDemographic.put(AJClassMember.DIAGNOSTIC_ASSESSMENT_STATE, (Integer)null);
+        userDemographic.put(AJClassMember.DIAGNOSTIC_ASSESSMENT_STATE, (Integer) null);
       }
     }
   }

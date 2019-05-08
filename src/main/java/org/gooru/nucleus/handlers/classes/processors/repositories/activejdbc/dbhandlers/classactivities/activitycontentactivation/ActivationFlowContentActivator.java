@@ -79,7 +79,8 @@ class ActivationFlowContentActivator implements ContentActivator {
 
   private void validateAlreadyActivatedSameContentForThatDay() {
     LazyList<AJEntityClassContents> ajClassContents = AJEntityClassContents
-        .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE_ACTIVATION, context.classId(),
+        .findBySQL(AJEntityClassContents.SELECT_CLASS_CONTENTS_TO_VALIDATE_ACTIVATION,
+            context.classId(),
             this.classContents.getContentId(), activationDateAsString);
     if (!ajClassContents.isEmpty()) {
       LOGGER.warn("For this class {} same content {} already activated for this date {}",

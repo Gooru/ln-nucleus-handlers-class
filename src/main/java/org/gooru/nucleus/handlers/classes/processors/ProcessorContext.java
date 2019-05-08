@@ -67,7 +67,7 @@ public final class ProcessorContext {
   public String languageId() {
     return this.languageId;
   }
-  
+
   public String classCode() {
     return this.classCode;
   }
@@ -147,8 +147,8 @@ public final class ProcessorContext {
       this.accessToken = accessToken;
       return this;
     }
-    
-    ProcessorContextBuilder setLanguageId (String languageId) {
+
+    ProcessorContextBuilder setLanguageId(String languageId) {
       this.languageId = languageId;
       return this;
     }

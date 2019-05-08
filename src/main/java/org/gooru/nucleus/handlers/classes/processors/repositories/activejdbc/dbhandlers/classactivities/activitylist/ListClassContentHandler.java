@@ -226,7 +226,8 @@ public class ListClassContentHandler implements DBHandler {
       return EntityClassContentsDao
           .fetchAllContentsForStudent(context.classId(), forMonth, forYear, context.userId());
     } else {
-      return EntityClassContentsDao.fetchAllContentsForTeacher(context.classId(), forMonth, forYear);
+      return EntityClassContentsDao
+          .fetchAllContentsForTeacher(context.classId(), forMonth, forYear);
     }
   }
 
@@ -259,7 +260,7 @@ public class ListClassContentHandler implements DBHandler {
   }
 
   private boolean checkContentTypeIsCollection(String contentType) {
-    return (AJEntityClassContents.ASSESSMENT_TYPES.matcher(contentType).matches() 
+    return (AJEntityClassContents.ASSESSMENT_TYPES.matcher(contentType).matches()
         || AJEntityClassContents.COLLECTION_TYPES.matcher(contentType).matches());
   }
 

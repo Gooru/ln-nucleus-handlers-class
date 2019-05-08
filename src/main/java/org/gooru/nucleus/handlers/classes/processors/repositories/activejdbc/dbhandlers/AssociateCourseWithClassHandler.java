@@ -139,8 +139,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
     // If course is premium and class destination is set, trigger the milestone creation
     if (isCoursePremium() && this.entityClass.getGradeCurrent() != null) {
       LOGGER.info("Will trigger milestone creation");
-      MilestoneQueuer.build().enqueue(UUID.fromString(this.context.courseId()), 
-            entityClass.getGradeCurrent());
+      MilestoneQueuer.build().enqueue(UUID.fromString(this.context.courseId()),
+          entityClass.getGradeCurrent());
     }
   }
 

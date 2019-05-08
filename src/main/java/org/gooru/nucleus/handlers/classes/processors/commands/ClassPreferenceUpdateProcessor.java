@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.commands;
 
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -27,7 +26,7 @@ public class ClassPreferenceUpdateProcessor extends AbstractCommandProcessor {
       return MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class"));
     }
-    
+
     return RepoBuilder.buildClassRepo(context).updateClassPreference();
   }
 

@@ -1,6 +1,7 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.preference;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -8,8 +9,6 @@ import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseW
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.vertx.core.json.JsonObject;
 
 /**
  * @author szgooru Created On 03-Jan-2019
@@ -46,7 +45,7 @@ public class ClassPreferenceCommand {
     return new JsonObject().put(ClassPreferenceAttributes.SUBJECT, subject)
         .put(ClassPreferenceAttributes.FRAMEWORK, framework);
   }
-  
+
   public String getSubject() {
     return subject;
   }
@@ -56,6 +55,7 @@ public class ClassPreferenceCommand {
   }
 
   static class ClassPreferenceAttributes {
+
     private ClassPreferenceAttributes() {
       throw new AssertionError();
     }

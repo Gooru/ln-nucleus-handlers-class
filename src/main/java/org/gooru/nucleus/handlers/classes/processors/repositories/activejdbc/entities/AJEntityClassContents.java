@@ -22,7 +22,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.Base;
-import org.javalite.activejdbc.LazyList;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 import org.postgresql.util.PGobject;

@@ -50,7 +50,7 @@ public interface ClassRepo {
   MessageResponse updateClassRerouteSetting();
 
   MessageResponse updateProfileBaselineForSpecifiedStudents();
-  
+
   MessageResponse updateProfileBaselineForStudent();
 
   MessageResponse updateClassMembersRerouteSetting();
@@ -66,7 +66,7 @@ public interface ClassRepo {
   MessageResponse updateClassPreference();
 
   MessageResponse updateClassLanguage();
-  
+
   MessageResponse updateClassContentMasteryAccrual();
 
   MessageResponse classContentComplete();

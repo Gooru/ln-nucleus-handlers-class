@@ -54,7 +54,7 @@ class RequestDbValidator {
     Long classLower = entityClass.getGradeLowerBound();
     Long classHigher = entityClass.getGradeUpperBound();
     Long classCurrent = entityClass.getGradeCurrent();
-    
+
     if (classLower == null || classCurrent == null) {
       LOGGER.warn("class bounds are set not setup");
       throw new MessageResponseWrapperException(MessageResponseFactory
@@ -85,10 +85,10 @@ class RequestDbValidator {
     });
 
     Map<Long, Integer> gradeSeqMap = fetchGrades(idsSet);
-    
+
     // Used to compute the highest grade across all members of the class
     Map<Integer, Long> studentHighGradesSeq = new HashMap<>();
-    
+
     command.getUserSettings().forEach(user -> {
       Long memberLower = user.getGradeLowerBound();
       Long memberHigher = user.getGradeUpperBound();

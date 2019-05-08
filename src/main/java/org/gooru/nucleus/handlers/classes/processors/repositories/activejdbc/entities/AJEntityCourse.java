@@ -29,7 +29,7 @@ public class AJEntityCourse extends Model {
 
   public static final String SELECT_COURSE_TITLE_VERSION =
       "SELECT id, title, version FROM course where id = ANY(?::uuid[]) AND is_deleted = false";
-  
+
   public String getTenant() {
     return this.getString(TENANT);
   }

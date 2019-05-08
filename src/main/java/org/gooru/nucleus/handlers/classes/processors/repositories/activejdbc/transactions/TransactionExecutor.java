@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
 public final class TransactionExecutor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionExecutor.class);
-  private static final List<ExceptionHandler> EXCEPTION_HANDLERS = ExceptionHandlerRegistry.getInstance().getHandlers() ;
+  private static final List<ExceptionHandler> EXCEPTION_HANDLERS = ExceptionHandlerRegistry
+      .getInstance().getHandlers();
 
   private TransactionExecutor() {
     throw new AssertionError();

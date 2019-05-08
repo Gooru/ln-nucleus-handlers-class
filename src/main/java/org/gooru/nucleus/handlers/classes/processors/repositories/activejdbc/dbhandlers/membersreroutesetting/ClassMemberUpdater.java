@@ -29,13 +29,14 @@ class ClassMemberUpdater {
         updateClassMembersLowerBound(user);
       } else {
         updateClassMemberUpperBound(user);
-      }  
+      }
     });
-    
+
     // send for post processing to baseline, route0 and rescope based on the what grades has been
     // updated
     RerouteSettingPostProcessorCommand postProcessorCommand =
-        RerouteSettingPostProcessorCommand.build(command.getClassId().toString(), command.getUserSettings());
+        RerouteSettingPostProcessorCommand
+            .build(command.getClassId().toString(), command.getUserSettings());
     ExecutionResult<MessageResponse> result =
         new RerouteSettingPostProcessor(postProcessorCommand).process();
     if (!result.isSuccessful()) {

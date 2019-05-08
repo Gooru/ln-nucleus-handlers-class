@@ -203,18 +203,20 @@ public enum CommandProcessorBuilder {
       return new ClassLanguageUpdateProcessor(context);
     }
   },
-  MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER(MessageConstants.MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER) {
+  MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER(
+      MessageConstants.MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER) {
     @Override
     public Processor build(ProcessorContext context) {
       return new ClassProfileBaselineTriggerForStudentProcessor(context);
     }
   },
-  CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE(MessageConstants.MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE) {
-      @Override
-      public Processor build(ProcessorContext context) {
-        return new ClassContentMasteryAccrualUpdateProcessor(context);
-      }
-    },
+  CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE(
+      MessageConstants.MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentMasteryAccrualUpdateProcessor(context);
+    }
+  },
   MSG_OP_CLASS_CONTENT_COMPLETION(MessageConstants.MSG_OP_CLASS_CONTENT_COMPLETION) {
     @Override
     public Processor build(ProcessorContext context) {
