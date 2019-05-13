@@ -61,7 +61,7 @@ public class AJEntityClassContents extends Model {
 
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
-          DCA_ADDED_DATE));
+          DCA_ADDED_DATE, END_DATE));
   private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
       .asList(USERS));
   private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
@@ -116,6 +116,9 @@ public class AJEntityClassContents extends Model {
         (fieldValue -> FieldConverter
             .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
     converterMap.put(DCA_ADDED_DATE,
+        (fieldValue -> FieldConverter
+            .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+    converterMap.put(END_DATE,
         (fieldValue -> FieldConverter
             .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
     return Collections.unmodifiableMap(converterMap);
