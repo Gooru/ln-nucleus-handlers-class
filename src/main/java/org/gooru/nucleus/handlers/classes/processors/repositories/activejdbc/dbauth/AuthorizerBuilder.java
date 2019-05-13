@@ -178,6 +178,11 @@ public final class AuthorizerBuilder {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
 
+  public static Authorizer<AJEntityClass> buildClassContentScheduleAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
   public static Authorizer<AJEntityClass> buildClassMemberDeactivateAuthorizer(
       ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);

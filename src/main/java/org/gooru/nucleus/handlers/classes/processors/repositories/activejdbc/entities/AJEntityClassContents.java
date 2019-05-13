@@ -53,7 +53,7 @@ public class AJEntityClassContents extends Model {
   public static final String ID_CONTENT = "contentId";
   public static final String USERS = "users";
   public static final String USERS_COUNT = "users_count";
-  private static final String END_DATE = "end_date";
+  public static final String END_DATE = "end_date";
   private static final String IS_COMPLETED = "is_completed";
   public static final String ID = "id";
   public static final Pattern ASSESSMENT_TYPES = Pattern.compile("assessment|assessment-external");
