@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
+import java.util.List;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
@@ -92,5 +93,11 @@ public class AJEntityCollection extends Model {
 
   public String getCourseId() {
     return this.getString(COURSE_ID);
+  }
+
+  public static List<AJEntityCollection> findCollectionsForSpecifiedIds(
+      String collectionIdsArrayString) {
+    return AJEntityCollection
+        .findBySQL(AJEntityCollection.SELECT_COLLECTION, collectionIdsArrayString);
   }
 }

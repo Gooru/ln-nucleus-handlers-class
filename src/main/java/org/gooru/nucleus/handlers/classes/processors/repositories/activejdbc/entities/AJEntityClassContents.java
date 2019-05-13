@@ -47,7 +47,7 @@ public class AJEntityClassContents extends Model {
   public static final String ASSESSMENT_EXTERNAL = "assessment-external";
   public static final String COLLECTION_EXTERNAL = "collection-external";
   public static final String COLLECTION = "collection";
-  private static final String OFFLINE_ACTIVITY = "offline-activity";
+  public static final String OFFLINE_ACTIVITY = "offline-activity";
   public static final String RESOURCE = "resource";
   public static final String QUESTION = "question";
   public static final String ID_CONTENT = "contentId";
@@ -70,15 +70,15 @@ public class AJEntityClassContents extends Model {
       Arrays.asList(ALLOW_MASTERY_ACCRUAL));
   private static final Set<String> MANDATORY_FIELDS =
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
-  private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
+  public static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
       .asList(ASSESSMENT, COLLECTION, ASSESSMENT_EXTERNAL, COLLECTION_EXTERNAL, RESOURCE,
           QUESTION, OFFLINE_ACTIVITY));
   public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL);
+          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED);
   public static final List<String> RESPONSE_FIELDS_FOR_STUDENT = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, ALLOW_MASTERY_ACCRUAL);
+          CREATED_AT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED);
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
