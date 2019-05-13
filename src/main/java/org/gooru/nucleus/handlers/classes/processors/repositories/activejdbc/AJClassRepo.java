@@ -125,6 +125,12 @@ class AJClassRepo implements ClassRepo {
   }
 
   @Override
+  public MessageResponse scheduleContentInClass() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildScheduleContentInClassHandler(context));
+  }
+
+  @Override
   public MessageResponse archiveClass() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildArchiveClassHandler(context));

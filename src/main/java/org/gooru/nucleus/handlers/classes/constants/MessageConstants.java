@@ -37,13 +37,16 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_GET_CONTENT_VISIBILITY = "class.content.visibility.get";
   public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
   public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
+  public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
+
+
   public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
-  public static final String MSG_OP_CLASS_CONTENT_USERS_ADD = "class.content.users.add";
-  public static final String MSG_OP_CLASS_CONTENT_USERS_LIST = "class.content.users.list";
   public static final String MSG_OP_CLASS_CONTENT_LIST = "class.content.list";
   public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
-  public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
+  public static final String MSG_OP_CLASS_CONTENT_SCHEDULE = "class.content.schedule";
   public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
+  public static final String MSG_OP_CLASS_CONTENT_USERS_ADD = "class.content.users.add";
+  public static final String MSG_OP_CLASS_CONTENT_USERS_LIST = "class.content.users.list";
   public static final String MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE = "class.content.mastery.accrual.update";
   public static final String MSG_OP_CLASS_CONTENT_COMPLETION = "class.content.completion";
 

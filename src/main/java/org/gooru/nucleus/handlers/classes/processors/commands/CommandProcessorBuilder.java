@@ -160,6 +160,12 @@ public enum CommandProcessorBuilder {
       return new ClassContentEnableProcessor(context);
     }
   },
+  CLASS_CONTENT_SCHEDULE(MessageConstants.MSG_OP_CLASS_CONTENT_SCHEDULE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentScheduleProcessor(context);
+    }
+  },
   CLASS_ARCHIVE(MessageConstants.MSG_OP_CLASS_ARCHIVE) {
     @Override
     public Processor build(ProcessorContext context) {
