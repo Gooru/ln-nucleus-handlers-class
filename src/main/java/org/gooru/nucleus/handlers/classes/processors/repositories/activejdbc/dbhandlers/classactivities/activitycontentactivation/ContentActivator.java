@@ -6,22 +6,11 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 
 public interface ContentActivator {
 
-  void validate();
-
   void activateContent();
 
   static ContentActivator buildForActivationFlow(AJEntityClass entityClass,
-      AJEntityClassContents classContents, FlowDeterminer flowDeterminer,
-      ProcessorContext context) {
-    return new ActivationFlowContentActivator(entityClass, classContents, flowDeterminer,
-        context);
-  }
-
-  static ContentActivator buildForScheduleOnDayFlow(AJEntityClass entityClass,
-      AJEntityClassContents classContents, FlowDeterminer flowDeterminer,
-      ProcessorContext context) {
-    return new ScheduleForDayContentActivator(entityClass, classContents, flowDeterminer,
-        context);
+      AJEntityClassContents classContents, ProcessorContext context) {
+    return new ContentActivatorImpl(entityClass, classContents, context);
   }
 
 }
