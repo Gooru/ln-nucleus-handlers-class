@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentcompletion;
 
+import io.vertx.core.json.JsonObject;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
@@ -12,6 +13,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassContentsDao;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassDao;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
+import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.slf4j.Logger;
@@ -54,18 +56,28 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
       entityClass = EntityClassDao.fetchClassById(context.classId());
       classContents = EntityClassContentsDao
           .fetchActivityByIdAndClass(contentId, context.classId());
-      // TODO: Implement this
+      validateCompletionCriteria();
+      return AuthorizerBuilder.buildClassContentCompletionAuthorizer(context)
+          .authorize(this.entityClass);
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
           ExecutionResult.ExecutionStatus.FAILED);
     }
-
-    return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    // TODO: Implement this
+    classContents.setCompleted();
+    boolean result = classContents.save();
+    if (!result) {
+      if (classContents.hasErrors()) {
+        LOGGER.warn("Error in completing activity for class");
+        return new ExecutionResult<>(
+            MessageResponseFactory.createValidationErrorResponse(getModelErrors()),
+            ExecutionStatus.FAILED);
+      }
+    }
+
     return new ExecutionResult<>(MessageResponseFactory
         .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
             EventBuilderFactory
@@ -77,4 +89,25 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
   public boolean handlerReadOnly() {
     return false;
   }
+
+  private void validateCompletionCriteria() {
+    if (!classContents.isActivityOffline()) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("not.offline.activity")));
+    }
+    if (!classContents.isOfflineActivityActive()) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("offline.activity.not.active")));
+    }
+  }
+
+
+  private JsonObject getModelErrors() {
+    JsonObject errors = new JsonObject();
+    this.classContents.errors().entrySet()
+        .forEach(entry -> errors.put(entry.getKey(), entry.getValue()));
+    return errors;
+  }
+
+
 }

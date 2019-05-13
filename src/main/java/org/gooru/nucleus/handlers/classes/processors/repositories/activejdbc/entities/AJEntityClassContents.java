@@ -53,6 +53,8 @@ public class AJEntityClassContents extends Model {
   public static final String ID_CONTENT = "contentId";
   public static final String USERS = "users";
   public static final String USERS_COUNT = "users_count";
+  private static final String END_DATE = "end_date";
+  private static final String IS_COMPLETED = "is_completed";
   public static final String ID = "id";
   public static final Pattern ASSESSMENT_TYPES = Pattern.compile("assessment|assessment-external");
   public static final Pattern COLLECTION_TYPES = Pattern.compile("collection|collection-external");
@@ -214,6 +216,32 @@ public class AJEntityClassContents extends Model {
     }
   }
 
+  public void setEndDateIfNotPresent(LocalDate endDate) {
+    if (this.getDate(END_DATE) == null) {
+      this.set(END_DATE,
+          FieldConverter
+              .convertFieldToDateWithFormat(endDate, DateTimeFormatter.ISO_LOCAL_DATE));
+    }
+  }
+
+  public void setCompleted() {
+    this.setBoolean(IS_COMPLETED, true);
+  }
+
+  public boolean isActivityOffline() {
+    String activityType = this.getString(CONTENT_TYPE);
+    return OFFLINE_ACTIVITY.equals(activityType);
+  }
+
+  public boolean isOfflineActivityActive() {
+    // Activity should have been started : activation date is today or in past
+    // It is not completed yet
+    if (isActivityOffline() && this.getActivationDate() != null) {
+      LocalDate startDate = this.getActivationDate().toLocalDate();
+      return !startDate.isAfter(LocalDate.now()) && !this.isCompleted();
+    }
+    return false;
+  }
 
   public Date getActivationDate() {
     return this.getDate(ACTIVATION_DATE);
@@ -241,6 +269,14 @@ public class AJEntityClassContents extends Model {
 
   public Integer getForYear() {
     return this.getInteger(FOR_YEAR);
+  }
+
+  public Date getEndDate() {
+    return this.getDate(END_DATE);
+  }
+
+  public Boolean isCompleted() {
+    return this.getBoolean(IS_COMPLETED);
   }
 
   public List<String> getUsers() {
