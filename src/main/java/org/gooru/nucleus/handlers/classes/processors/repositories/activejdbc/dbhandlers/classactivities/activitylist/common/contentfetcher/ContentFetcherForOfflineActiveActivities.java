@@ -1,7 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.contentfetcher;
 
 import java.util.List;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled.ListOnlineScheduledActivityCommand;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive.ListActivityOfflineActiveCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassContentsDao;
 
@@ -9,31 +9,29 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
  * @author ashish.
  */
 
-class ContentFetcherForOnlineScheduledActivities implements ActivityFetcher {
+class ContentFetcherForOfflineActiveActivities implements ActivityFetcher {
 
-  private final ListOnlineScheduledActivityCommand command;
+  private final ListActivityOfflineActiveCommand command;
   private List<AJEntityClassContents> contents;
   private boolean contentFetchDone = false;
 
-  ContentFetcherForOnlineScheduledActivities(ListOnlineScheduledActivityCommand command) {
-
+  ContentFetcherForOfflineActiveActivities(ListActivityOfflineActiveCommand command) {
     this.command = command;
   }
-
 
   @Override
   public List<AJEntityClassContents> fetchContents() {
     if (!contentFetchDone) {
       if (command.isStudent()) {
         contents = EntityClassContentsDao
-            .fetchAllOnlineScheduledActivitiesForStudent(command.getClassId(),
-                command.getStartDate(),
-                command.getEndDate(), command.getUserId());
+            .fetchOfflineActiveActivitiesForStudent(command.getClassId(),
+                command.getOffset(),
+                command.getLimit(), command.getUserId());
       } else {
         contents = EntityClassContentsDao
-            .fetchAllOnlineScheduledActivitiesForTeacher(command.getClassId(),
-                command.getStartDate(),
-                command.getEndDate());
+            .fetchOfflineActiveActivitiesForTeacher(command.getClassId(),
+                command.getOffset(),
+                command.getLimit());
       }
       contentFetchDone = true;
     }

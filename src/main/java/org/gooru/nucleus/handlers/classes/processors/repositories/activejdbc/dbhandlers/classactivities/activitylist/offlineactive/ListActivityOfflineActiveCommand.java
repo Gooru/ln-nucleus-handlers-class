@@ -4,28 +4,24 @@ import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 
 /**
  * @author ashish.
  */
 
-class ListActivityOfflineActiveCommand {
-  // TODO: Implement this with correct payload
+public class ListActivityOfflineActiveCommand {
 
-  private final String contentType;
   private final boolean isStudent;
-  private final int forMonth;
-  private final int forYear;
+  private final int offset;
+  private final int limit;
   private final String userId;
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final String classId;
 
   ListActivityOfflineActiveCommand(ProcessorContext context, boolean isStudent) {
-    contentType = DbHelperUtil.readRequestParam(AJEntityClassContents.CONTENT_TYPE, context);
-    forMonth = DbHelperUtil.getForMonth(context);
-    forYear = DbHelperUtil.getForYear(context);
+    limit = DbHelperUtil.getLimitFromContext(context);
+    offset = DbHelperUtil.getOffsetFromContext(context);
     userId = context.userId();
     classId = context.classId();
     this.isStudent = isStudent;
@@ -33,26 +29,15 @@ class ListActivityOfflineActiveCommand {
 
 
   public void validate() {
-    if (contentType != null && !AJEntityClassContents.ACCEPT_CONTENT_TYPES.contains(contentType)) {
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("content.type.invalid")));
+    if (offset < 0 || limit < 0) {
+      throw new MessageResponseWrapperException(
+          MessageResponseFactory
+              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.limit.offset")));
     }
-  }
-
-  public String getContentType() {
-    return contentType;
   }
 
   public boolean isStudent() {
     return isStudent;
-  }
-
-  public int getForMonth() {
-    return forMonth;
-  }
-
-  public int getForYear() {
-    return forYear;
   }
 
   public String getUserId() {
@@ -63,19 +48,12 @@ class ListActivityOfflineActiveCommand {
     return classId;
   }
 
-  public boolean fetchingAllContentTypesButOffline() {
-    return contentType == null;
+  public int getOffset() {
+    return offset;
   }
 
-
-  public boolean fetchingOfflineContentType() {
-    return (contentType != null && AJEntityClassContents.OFFLINE_ACTIVITY
-        .equalsIgnoreCase(contentType));
-  }
-
-  public boolean fetchingSpecificContentType() {
-    return (contentType != null && !AJEntityClassContents.OFFLINE_ACTIVITY
-        .equalsIgnoreCase(contentType));
+  public int getLimit() {
+    return limit;
   }
 
 }

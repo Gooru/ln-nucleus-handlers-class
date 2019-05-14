@@ -69,7 +69,6 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
         .buildContentEnricherForUnscheduledActivities(classContents)
         .enrichContent();
 
-
     return new ExecutionResult<>(
         MessageResponseFactory
             .createOkayResponse(

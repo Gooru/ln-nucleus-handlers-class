@@ -12,6 +12,8 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 class ContentFetcherForUnscheduledActivities implements ActivityFetcher {
 
   private final ListActivityUnscheduledCommand command;
+  private List<AJEntityClassContents> contents;
+  private boolean contentFetchDone = false;
 
   ContentFetcherForUnscheduledActivities(ListActivityUnscheduledCommand command) {
     this.command = command;
@@ -19,8 +21,20 @@ class ContentFetcherForUnscheduledActivities implements ActivityFetcher {
 
   @Override
   public List<AJEntityClassContents> fetchContents() {
-    return EntityClassContentsDao
-        .fetchUnscheduledActivitiesForTeacher(command.getClassId(), command.getForMonth(),
-            command.getForYear());
+    if (!contentFetchDone) {
+      contents = EntityClassContentsDao
+          .fetchUnscheduledActivitiesForTeacher(command.getClassId(), command.getForMonth(),
+              command.getForYear());
+      contentFetchDone = true;
+    }
+    return contents;
+  }
+
+  @Override
+  public int fetchTotalContentCount() {
+    if (!contentFetchDone) {
+      throw new IllegalStateException("Count fetch without fetching content");
+    }
+    return contents != null ? contents.size() : 0;
   }
 }

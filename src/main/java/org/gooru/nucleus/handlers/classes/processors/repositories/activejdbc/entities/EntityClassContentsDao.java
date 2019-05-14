@@ -56,12 +56,35 @@ public final class EntityClassContentsDao {
     return null;
   }
 
+  public static List<AJEntityClassContents> fetchOfflineCompletedActivitiesForStudent(
+      String classId, int offset, int limit, String userId) {
+    // TODO: Implement this
+    return null;
+  }
+
+  public static List<AJEntityClassContents> fetchOfflineCompletedActivitiesForTeacher(
+      String classId, int offset, int limit) {
+    // TODO: Implement this
+    return null;
+  }
+
+
+  public static List<AJEntityClassContents> fetchOfflineActiveActivitiesForStudent(String classId,
+      int offset, int limit, String userId) {
+    // TODO: Implement this
+    return null;
+  }
+
+  public static List<AJEntityClassContents> fetchOfflineActiveActivitiesForTeacher(String classId,
+      int offset, int limit) {
+    // TODO: Implement this
+    return null;
+  }
+
   private static final String SELECT_ONLINE_SCHEDULED_FOR_STUDENTS =
       "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
           + " and content_type != 'offline-activity'";
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_TEACHERS =
       "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
-
-
 }

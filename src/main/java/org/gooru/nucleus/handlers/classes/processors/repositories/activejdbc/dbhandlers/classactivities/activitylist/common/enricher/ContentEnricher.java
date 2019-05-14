@@ -21,17 +21,13 @@ public interface ContentEnricher {
   static ContentEnricher buildContentEnricherForOfflineActiveActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
-    // TODO: Implement this with correct payload
-
-    return null;
+    return new ContentEnricherForOfflineActiveActivities(classContents, isStudent);
   }
 
   static ContentEnricher buildContentEnricherForOfflineCompletedActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
-    // TODO: Implement this with correct payload
-
-    return null;
+    return new ContentEnricherForOfflineCompletedActivities(classContents, isStudent);
   }
 
   static ContentEnricher buildContentEnricherForUnscheduledActivities(

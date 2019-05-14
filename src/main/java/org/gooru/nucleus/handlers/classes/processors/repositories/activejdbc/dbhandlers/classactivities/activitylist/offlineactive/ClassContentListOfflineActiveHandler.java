@@ -2,12 +2,15 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.contentfetcher.ActivityFetcher;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.enricher.ContentEnricher;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.validators.SanityValidators;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
@@ -15,7 +18,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +27,11 @@ public class ClassContentListOfflineActiveHandler implements DBHandler {
       ClassContentListOfflineActiveHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
-  private LazyList<AJEntityClassContents> classContents;
+  private List<AJEntityClassContents> classContents;
   private ListActivityOfflineActiveCommand command;
+  private ContentEnricher contentEnricher;
+  private ActivityFetcher activityFetcher;
+
 
   public ClassContentListOfflineActiveHandler(ProcessorContext context) {
     this.context = context;
@@ -75,18 +80,26 @@ public class ClassContentListOfflineActiveHandler implements DBHandler {
   public ExecutionResult<MessageResponse> executeRequest() {
 
     fetchClassContents();
-    // TODO: Implement this
-    JsonArray renderedContent = new JsonArray();
+    contentEnricher = ContentEnricher
+        .buildContentEnricherForOfflineActiveActivities(classContents, command.isStudent());
 
     return new ExecutionResult<>(
-        MessageResponseFactory
-            .createOkayResponse(
-                new JsonObject().put(MessageConstants.CLASS_CONTENTS, renderedContent)),
+        MessageResponseFactory.createOkayResponse(createResponse()),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
   }
 
+  private JsonObject createResponse() {
+    JsonArray renderedContent = contentEnricher.enrichContent();
+
+    return new JsonObject().put(MessageConstants.CLASS_CONTENTS, renderedContent)
+        .put(MessageConstants.COUNT, activityFetcher.fetchTotalContentCount());
+  }
+
   private void fetchClassContents() {
-    // TODO: Implement this
+    activityFetcher = ActivityFetcher
+        .buildContentFetcherForOfflineActiveActivities(command);
+
+    classContents = activityFetcher.fetchContents();
   }
 
 
@@ -94,5 +107,4 @@ public class ClassContentListOfflineActiveHandler implements DBHandler {
   public boolean handlerReadOnly() {
     return false;
   }
-
 }
