@@ -17,4 +17,17 @@ public interface ActivityFetcher {
     return new ContentFetcherForOnlineScheduledActivities(command);
   }
 
+  static ActivityFetcher buildContentFetcherForOfflineActiveActivities() {
+    return null;
+  }
+
+  static ActivityFetcher buildContentFetcherForOfflineCompletedActivities() {
+    return null;
+  }
+
+  static ActivityFetcher buildContentFetcherForUnscheduledActivities() {
+    return null;
+  }
+
+
 }
