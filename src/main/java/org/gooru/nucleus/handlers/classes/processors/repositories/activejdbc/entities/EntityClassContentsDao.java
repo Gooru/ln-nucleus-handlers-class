@@ -52,52 +52,53 @@ public final class EntityClassContentsDao {
 
   public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classId,
       int forMonth, int forYear) {
-    // TODO: Implement this
-    return null;
+    return AJEntityClassContents
+        .where(SELECT_UNSCHEDULED_FOR_TEACHERS, classId, forMonth, forYear);
   }
 
   public static List<AJEntityClassContents> fetchOfflineCompletedActivitiesForStudent(
       String classId, int offset, int limit, String userId) {
-    // TODO: Implement this
-    return null;
+    return AJEntityClassContents
+        .where(SELECT_ALL_OFFLINE_COMPLETED_FOR_STUDENTS, classId, userId)
+        .orderBy("end_date desc").offset(offset).limit(limit);
+
   }
 
   public static List<AJEntityClassContents> fetchOfflineCompletedActivitiesForTeacher(
       String classId, int offset, int limit) {
-    // TODO: Implement this
-    return null;
+    return AJEntityClassContents
+        .where(SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS, classId)
+        .orderBy("end_date desc").offset(offset).limit(limit);
   }
 
   public static List<AJEntityClassContents> fetchOfflineActiveActivitiesForStudent(String classId,
       int offset, int limit, String userId) {
-    // TODO: Implement this
-    return null;
+    return AJEntityClassContents
+        .where(SELECT_ALL_OFFLINE_ACTIVE_FOR_STUDENTS, classId, userId)
+        .orderBy("end_date desc").offset(offset).limit(limit);
   }
 
   public static List<AJEntityClassContents> fetchOfflineActiveActivitiesForTeacher(String classId,
       int offset, int limit) {
-    // TODO: Implement this
-    return null;
+    return AJEntityClassContents
+        .where(SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS, classId)
+        .orderBy("end_date desc").offset(offset).limit(limit);
   }
 
-  public static int fetchOfflineCompletedActivitiesCountForStudent(String classId, String userId) {
-    // TODO: Implement this
-    return 0;
+  public static Long fetchOfflineCompletedActivitiesCountForStudent(String classId, String userId) {
+    return AJEntityClassContents.count(SELECT_ALL_OFFLINE_COMPLETED_FOR_STUDENTS, classId, userId);
   }
 
-  public static int fetchOfflineCompletedActivitiesCountForTeacher(String classId) {
-    // TODO: Implement this
-    return 0;
+  public static Long fetchOfflineCompletedActivitiesCountForTeacher(String classId) {
+    return AJEntityClassContents.count(SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS, classId);
   }
 
-  public static int fetchOfflineActiveActivitiesCountForStudent(String classId, String userId) {
-    // TODO: Implement this
-    return 0;
+  public static Long fetchOfflineActiveActivitiesCountForStudent(String classId, String userId) {
+    return AJEntityClassContents.count(SELECT_ALL_OFFLINE_ACTIVE_FOR_STUDENTS, classId, userId);
   }
 
-  public static int fetchOfflineActiveActivitiesCountForTeacher(String classId) {
-    // TODO: Implement this
-    return 0;
+  public static Long fetchOfflineActiveActivitiesCountForTeacher(String classId) {
+    return AJEntityClassContents.count(SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS, classId);
   }
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_STUDENTS =
@@ -106,5 +107,23 @@ public final class EntityClassContentsDao {
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_TEACHERS =
       "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
+
+  private static final String SELECT_UNSCHEDULED_FOR_TEACHERS =
+      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null";
+
+  private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS =
+      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'";
+
+  private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS =
+      "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'";
+
+  private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_STUDENTS =
+      "class_id = ?::uuid AND is_completed = false and activation_date is not null and content_type = 'offline-activity' "
+          + " and (?::text = any(users) OR users is null) ";
+
+  private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_STUDENTS =
+      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity' "
+          + " and (?::text = any(users) OR users is null) ";
+
 
 }

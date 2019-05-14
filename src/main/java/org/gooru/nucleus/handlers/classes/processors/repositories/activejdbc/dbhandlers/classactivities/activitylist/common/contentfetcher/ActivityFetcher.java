@@ -15,7 +15,7 @@ public interface ActivityFetcher {
 
   List<AJEntityClassContents> fetchContents();
 
-  int fetchTotalContentCount();
+  Long fetchTotalContentCount();
 
   static ActivityFetcher buildContentFetcherForOnlineScheduledActivities(
       ListOnlineScheduledActivityCommand command) {

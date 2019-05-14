@@ -64,7 +64,6 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
 
     fetchClassContents();
 
-    // TODO: Implement this
     JsonArray renderedContent = ContentEnricher
         .buildContentEnricherForUnscheduledActivities(classContents)
         .enrichContent();

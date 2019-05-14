@@ -14,7 +14,7 @@ class ContentFetcherForOfflineCompletedActivities implements ActivityFetcher {
   private final ListActivityOfflineCompletedCommand command;
   private List<AJEntityClassContents> contents;
   private boolean contentFetchDone = false;
-  private int count = 0;
+  private Long count = 0L;
 
   ContentFetcherForOfflineCompletedActivities(ListActivityOfflineCompletedCommand command) {
     this.command = command;
@@ -45,7 +45,7 @@ class ContentFetcherForOfflineCompletedActivities implements ActivityFetcher {
   }
 
   @Override
-  public int fetchTotalContentCount() {
+  public Long fetchTotalContentCount() {
     if (!contentFetchDone) {
       throw new IllegalStateException("Count fetch without fetching content");
     }

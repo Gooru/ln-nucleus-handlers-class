@@ -41,10 +41,10 @@ class ContentFetcherForOnlineScheduledActivities implements ActivityFetcher {
   }
 
   @Override
-  public int fetchTotalContentCount() {
+  public Long fetchTotalContentCount() {
     if (!contentFetchDone) {
       throw new IllegalStateException("Count fetch without fetching content");
     }
-    return contents != null ? contents.size() : 0;
+    return contents != null ? (long) contents.size() : 0;
   }
 }

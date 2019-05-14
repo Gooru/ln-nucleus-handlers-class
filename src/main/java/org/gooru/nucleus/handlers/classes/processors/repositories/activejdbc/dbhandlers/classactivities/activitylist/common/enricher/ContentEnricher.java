@@ -21,12 +21,14 @@ public interface ContentEnricher {
   static ContentEnricher buildContentEnricherForOfflineActiveActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
+    // Here we can optimize a bit to provide only offline type of enricher
     return new ContentEnricherForAllTypesOfActivities(classContents, isStudent);
   }
 
   static ContentEnricher buildContentEnricherForOfflineCompletedActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
+    // Here we can optimize a bit to provide only offline type of enricher
     return new ContentEnricherForAllTypesOfActivities(classContents, isStudent);
   }
 
