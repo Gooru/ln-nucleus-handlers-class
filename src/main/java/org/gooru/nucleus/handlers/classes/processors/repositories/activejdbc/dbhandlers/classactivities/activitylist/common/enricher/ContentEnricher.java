@@ -15,25 +15,25 @@ public interface ContentEnricher {
   static ContentEnricher buildContentEnricherForOnlineScheduledActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
-    return new ContentEnricherForOnlineScheduledActivities(classContents, isStudent);
+    return new ContentEnricherForAllTypesOfActivities(classContents, isStudent);
   }
 
   static ContentEnricher buildContentEnricherForOfflineActiveActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
-    return new ContentEnricherForOfflineActiveActivities(classContents, isStudent);
+    return new ContentEnricherForAllTypesOfActivities(classContents, isStudent);
   }
 
   static ContentEnricher buildContentEnricherForOfflineCompletedActivities(
       List<AJEntityClassContents> classContents, boolean isStudent) {
 
-    return new ContentEnricherForOfflineCompletedActivities(classContents, isStudent);
+    return new ContentEnricherForAllTypesOfActivities(classContents, isStudent);
   }
 
   static ContentEnricher buildContentEnricherForUnscheduledActivities(
       List<AJEntityClassContents> classContents) {
 
-    return new ContentEnricherForUnscheduledActivities(classContents);
+    return new ContentEnricherForAllTypesOfActivities(classContents, false);
   }
 
 }

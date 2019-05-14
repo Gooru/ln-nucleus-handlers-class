@@ -75,10 +75,10 @@ public class AJEntityClassContents extends Model {
           QUESTION, OFFLINE_ACTIVITY));
   public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED);
+          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE);
   public static final List<String> RESPONSE_FIELDS_FOR_STUDENT = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED);
+          CREATED_AT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE);
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 

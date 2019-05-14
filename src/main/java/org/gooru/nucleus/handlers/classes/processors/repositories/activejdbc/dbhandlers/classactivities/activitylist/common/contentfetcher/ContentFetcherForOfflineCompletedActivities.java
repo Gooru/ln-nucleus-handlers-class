@@ -29,7 +29,8 @@ class ContentFetcherForOfflineCompletedActivities implements ActivityFetcher {
                 command.getOffset(),
                 command.getLimit(), command.getUserId());
         count = EntityClassContentsDao
-            .fetchOfflineCompletedActivitiesCountForStudent(command.getClassId(), command.getUserId());
+            .fetchOfflineCompletedActivitiesCountForStudent(command.getClassId(),
+                command.getUserId());
       } else {
         contents = EntityClassContentsDao
             .fetchOfflineCompletedActivitiesForTeacher(command.getClassId(),
