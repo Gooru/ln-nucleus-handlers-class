@@ -50,13 +50,7 @@ public final class EntityClassContentsDao {
         .orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
-  public static LazyList<AJEntityClassContents> fetchOfflineActivitiesForStudent(String classId,
-      int forMonth, int forYear, String userId) {
-    // TODO: Implement this
-    return null;
-  }
-
-  public static LazyList<AJEntityClassContents> fetchOfflineActivitiesForTeacher(String classId,
+  public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classId,
       int forMonth, int forYear) {
     // TODO: Implement this
     return null;

@@ -1,12 +1,16 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.contentfetcher.ActivityFetcher;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.enricher.ContentEnricher;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.validators.SanityValidators;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
@@ -14,7 +18,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +27,7 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
       .getLogger(ListClassContentUnscheduledHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
-  private LazyList<AJEntityClassContents> classContents;
+  private List<AJEntityClassContents> classContents;
   private ListActivityUnscheduledCommand command;
 
   public ListClassContentUnscheduledHandler(ProcessorContext context) {
@@ -46,24 +49,10 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
   @Override
   public ExecutionResult<MessageResponse> validateRequest() {
     try {
-      boolean studentAuthorization = false;
       AJEntityClass entityClass = EntityClassDao.fetchClassById(context.classId());
-      ExecutionResult<MessageResponse> classAuthorization =
-          AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
-      if (!classAuthorization.continueProcessing()) {
-        classAuthorization = AuthorizerBuilder.buildClassStudentAuthorizer(context)
-            .authorize(entityClass);
-        if (!classAuthorization.continueProcessing()) {
-          return new ExecutionResult<>(
-              MessageResponseFactory
-                  .createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
-              ExecutionResult.ExecutionStatus.FAILED);
-        }
-        studentAuthorization = true;
-      }
-      command = new ListActivityUnscheduledCommand(context, studentAuthorization);
+      command = new ListActivityUnscheduledCommand(context);
       command.validate();
-      return classAuthorization;
+      return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
           ExecutionResult.ExecutionStatus.FAILED);
@@ -76,7 +65,10 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
     fetchClassContents();
 
     // TODO: Implement this
-    JsonObject renderedContent = new JsonObject();
+    JsonArray renderedContent = ContentEnricher
+        .buildContentEnricherForUnscheduledActivities(classContents)
+        .enrichContent();
+
 
     return new ExecutionResult<>(
         MessageResponseFactory
@@ -86,7 +78,8 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
   }
 
   private void fetchClassContents() {
-    // TODO: Implement this
+    classContents = ActivityFetcher.buildContentFetcherForUnscheduledActivities(command)
+        .fetchContents();
   }
 
 

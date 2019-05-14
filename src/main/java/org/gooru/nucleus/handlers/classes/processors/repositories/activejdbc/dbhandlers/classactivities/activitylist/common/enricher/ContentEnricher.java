@@ -35,10 +35,9 @@ public interface ContentEnricher {
   }
 
   static ContentEnricher buildContentEnricherForUnscheduledActivities(
-      List<AJEntityClassContents> classContents, boolean isStudent) {
+      List<AJEntityClassContents> classContents) {
 
-    // TODO: Implement this with correct payload
-    return null;
+    return new ContentEnricherForUnscheduledActivities(classContents);
   }
 
 }

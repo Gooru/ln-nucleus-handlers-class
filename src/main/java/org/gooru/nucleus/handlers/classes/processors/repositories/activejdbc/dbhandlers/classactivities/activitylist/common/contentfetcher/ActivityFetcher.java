@@ -2,6 +2,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import java.util.List;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled.ListOnlineScheduledActivityCommand;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled.ListActivityUnscheduledCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 
 /**
@@ -25,8 +26,9 @@ public interface ActivityFetcher {
     return null;
   }
 
-  static ActivityFetcher buildContentFetcherForUnscheduledActivities() {
-    return null;
+  static ActivityFetcher buildContentFetcherForUnscheduledActivities(
+      ListActivityUnscheduledCommand command) {
+    return new ContentFetcherForUnscheduledActivities(command);
   }
 
 
