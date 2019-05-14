@@ -5,9 +5,9 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.RepoBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 
 
-class ClassContentListProcessor extends AbstractCommandProcessor {
+class ClassContentListUnscheduledProcessor extends AbstractCommandProcessor {
 
-  public ClassContentListProcessor(ProcessorContext context) {
+  public ClassContentListUnscheduledProcessor(ProcessorContext context) {
     super(context);
   }
 
@@ -18,6 +18,6 @@ class ClassContentListProcessor extends AbstractCommandProcessor {
 
   @Override
   protected MessageResponse processCommand() {
-    return RepoBuilder.buildClassRepo(context).listClassContent();
+    return RepoBuilder.buildClassRepo(context).listClassContentUnscheduled();
   }
 }

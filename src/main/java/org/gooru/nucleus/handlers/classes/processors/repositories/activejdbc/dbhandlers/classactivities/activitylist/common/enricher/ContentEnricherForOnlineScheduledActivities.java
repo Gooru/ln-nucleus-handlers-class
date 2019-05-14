@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.enricher;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -11,7 +11,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
-import org.javalite.activejdbc.LazyList;
 
 /**
  * Take the activity list and fetch details for each activity to enrich it and render it
@@ -19,22 +18,24 @@ import org.javalite.activejdbc.LazyList;
  * @author ashish.
  */
 
-class ContentRenderer {
+class ContentEnricherForOnlineScheduledActivities implements ContentEnricher {
 
-  private final LazyList<AJEntityClassContents> classContents;
-  private final ListActivityCommand command;
+  private final List<AJEntityClassContents> classContents;
+  private final boolean isStudent;
   private List<String> contentIds;
   private List<String> collectionIds;
   private JsonObject idToEnrichmentDataMap;
   private JsonArray unenrichedActivities;
   private JsonArray enrichedActivities;
 
-  ContentRenderer(LazyList<AJEntityClassContents> classContents, ListActivityCommand command) {
+  ContentEnricherForOnlineScheduledActivities(List<AJEntityClassContents> classContents,
+      boolean isStudent) {
     this.classContents = classContents;
-    this.command = command;
+    this.isStudent = isStudent;
   }
 
-  JsonArray renderContent() {
+  @Override
+  public JsonArray enrichContent() {
     initializeUnenrichedActivities();
     enrichedActivities = new JsonArray();
 
@@ -67,7 +68,7 @@ class ContentRenderer {
   }
 
   private void initializeUnenrichedActivities() {
-    if (command.isStudent()) {
+    if (isStudent) {
       unenrichedActivities = new JsonArray(JsonFormatterBuilder
           .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_STUDENT)
           .toJson(classContents));

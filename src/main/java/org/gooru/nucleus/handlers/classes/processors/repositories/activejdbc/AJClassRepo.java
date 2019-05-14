@@ -113,9 +113,9 @@ class AJClassRepo implements ClassRepo {
   }
 
   @Override
-  public MessageResponse listClassContent() {
+  public MessageResponse listClassContentUnscheduled() {
     return TransactionExecutor
-        .executeTransaction(DBHandlerBuilder.buildListClassContentHandler(context));
+        .executeTransaction(DBHandlerBuilder.buildListClassContentUnscheduledHandler(context));
   }
 
   @Override
@@ -213,5 +213,23 @@ class AJClassRepo implements ClassRepo {
   public MessageResponse classContentComplete() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassContentCompletionMarkerHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentListOfflineActiveProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListOfflineActiveHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentListOfflineCompletedProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListOfflineCompletedHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentListOnlineScheduledProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListOnlineScheduledHandler(context));
   }
 }

@@ -1,13 +1,16 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.contentfetcher.ActivityFetcher;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.enricher.ContentEnricher;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.validators.SanityValidators;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
@@ -15,19 +18,19 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ListClassContentHandler implements DBHandler {
+public class ClassContentListOnlineScheduledHandler implements DBHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ListClassContentHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+      ClassContentListOnlineScheduledHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
-  private LazyList<AJEntityClassContents> classContents;
-  private ListActivityCommand command;
+  private List<AJEntityClassContents> classContents;
+  private ListOnlineScheduledActivityCommand command;
 
-  public ListClassContentHandler(ProcessorContext context) {
+  public ClassContentListOnlineScheduledHandler(ProcessorContext context) {
     this.context = context;
   }
 
@@ -61,7 +64,7 @@ public class ListClassContentHandler implements DBHandler {
         }
         studentAuthorization = true;
       }
-      command = new ListActivityCommand(context, studentAuthorization);
+      command = new ListOnlineScheduledActivityCommand(context, studentAuthorization);
       command.validate();
       return classAuthorization;
     } catch (MessageResponseWrapperException mrwe) {
@@ -74,7 +77,9 @@ public class ListClassContentHandler implements DBHandler {
   public ExecutionResult<MessageResponse> executeRequest() {
 
     fetchClassContents();
-    JsonArray renderedContent = new ContentRenderer(classContents, command).renderContent();
+    JsonArray renderedContent = ContentEnricher
+        .buildContentEnricherForOnlineScheduledActivities(classContents, command.isStudent())
+        .enrichContent();
 
     return new ExecutionResult<>(
         MessageResponseFactory
@@ -84,14 +89,8 @@ public class ListClassContentHandler implements DBHandler {
   }
 
   private void fetchClassContents() {
-    if (command.fetchingAllContentTypesButOffline()) {
-      classContents = ActivityFetcher.buildAllNonOfflineActivitiesFetcher(command).fetchContents();
-    } else if (command.fetchingSpecificContentType()) {
-      classContents = ActivityFetcher.buildSpecificContentTypeActivitiesFetcher(command)
-          .fetchContents();
-    } else if (command.fetchingOfflineContentType()) {
-      classContents = ActivityFetcher.buildOfflineActivitiesFetcher(command).fetchContents();
-    }
+    classContents = ActivityFetcher.buildContentFetcherForOnlineScheduledActivities(command)
+        .fetchContents();
   }
 
 

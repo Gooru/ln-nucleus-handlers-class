@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled;
 
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -11,7 +11,8 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
  * @author ashish.
  */
 
-class ListActivityCommand {
+class ListActivityUnscheduledCommand {
+  // TODO: Implement this with correct payload
 
   private final String contentType;
   private final boolean isStudent;
@@ -21,7 +22,7 @@ class ListActivityCommand {
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final String classId;
 
-  ListActivityCommand(ProcessorContext context, boolean isStudent) {
+  ListActivityUnscheduledCommand(ProcessorContext context, boolean isStudent) {
     contentType = DbHelperUtil.readRequestParam(AJEntityClassContents.CONTENT_TYPE, context);
     forMonth = DbHelperUtil.getForMonth(context);
     forYear = DbHelperUtil.getForYear(context);

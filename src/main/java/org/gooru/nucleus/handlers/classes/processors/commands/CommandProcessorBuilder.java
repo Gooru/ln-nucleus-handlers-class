@@ -142,10 +142,29 @@ public enum CommandProcessorBuilder {
       return new ClassContentUsersAddProcessor(context);
     }
   },
-  CLASS_CONTENT_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_LIST) {
+  CLASS_CONTENT_LIST_UNSCHEDULED(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_UNSCHEDULED) {
     @Override
     public Processor build(ProcessorContext context) {
-      return new ClassContentListProcessor(context);
+      return new ClassContentListUnscheduledProcessor(context);
+    }
+  },
+  CLASS_CONTENT_LIST_OFFLINE_ACTIVE(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_OFFLINE_ACTIVE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListOfflineActiveProcessor(context);
+    }
+  },
+  CLASS_CONTENT_LIST_OFFLINE_COMPLETED(
+      MessageConstants.MSG_OP_CLASS_CONTENT_LIST_OFFLINE_COMPLETED) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListOfflineCompletedProcessor(context);
+    }
+  },
+  CLASS_CONTENT_LIST_ONLINE_SCHEDULED(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_ONLINE_SCHEDULED) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListOnlineScheduledProcessor(context);
     }
   },
   CLASS_CONTENT_USERS_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_LIST) {

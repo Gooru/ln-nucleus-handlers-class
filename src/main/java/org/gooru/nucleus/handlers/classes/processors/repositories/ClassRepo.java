@@ -39,7 +39,7 @@ public interface ClassRepo {
 
   MessageResponse addContentInClass();
 
-  MessageResponse listClassContent();
+  MessageResponse listClassContentUnscheduled();
 
   MessageResponse enableContentInClass();
 
@@ -72,4 +72,10 @@ public interface ClassRepo {
   MessageResponse updateClassContentMasteryAccrual();
 
   MessageResponse classContentComplete();
+
+  MessageResponse listClassContentListOfflineActiveProcessor();
+
+  MessageResponse listClassContentListOfflineCompletedProcessor();
+
+  MessageResponse listClassContentListOnlineScheduledProcessor();
 }

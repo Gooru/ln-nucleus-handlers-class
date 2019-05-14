@@ -13,6 +13,7 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
  */
 
 class ScheduleActivityCommand {
+
   private LocalDate dcaAddedDate;
   private LocalDate endDate;
   private final String dcaAddedDateAsString;
