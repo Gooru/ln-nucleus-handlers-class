@@ -14,6 +14,7 @@ class ContentFetcherForOfflineActiveActivities implements ActivityFetcher {
   private final ListActivityOfflineActiveCommand command;
   private List<AJEntityClassContents> contents;
   private boolean contentFetchDone = false;
+  private int count = 0;
 
   ContentFetcherForOfflineActiveActivities(ListActivityOfflineActiveCommand command) {
     this.command = command;
@@ -27,11 +28,15 @@ class ContentFetcherForOfflineActiveActivities implements ActivityFetcher {
             .fetchOfflineActiveActivitiesForStudent(command.getClassId(),
                 command.getOffset(),
                 command.getLimit(), command.getUserId());
+        count = EntityClassContentsDao
+            .fetchOfflineActiveActivitiesCountForStudent(command.getClassId(), command.getUserId());
       } else {
         contents = EntityClassContentsDao
             .fetchOfflineActiveActivitiesForTeacher(command.getClassId(),
                 command.getOffset(),
                 command.getLimit());
+        count = EntityClassContentsDao
+            .fetchOfflineActiveActivitiesCountForTeacher(command.getClassId());
       }
       contentFetchDone = true;
     }
@@ -43,6 +48,6 @@ class ContentFetcherForOfflineActiveActivities implements ActivityFetcher {
     if (!contentFetchDone) {
       throw new IllegalStateException("Count fetch without fetching content");
     }
-    return contents != null ? contents.size() : 0;
+    return count;
   }
 }
