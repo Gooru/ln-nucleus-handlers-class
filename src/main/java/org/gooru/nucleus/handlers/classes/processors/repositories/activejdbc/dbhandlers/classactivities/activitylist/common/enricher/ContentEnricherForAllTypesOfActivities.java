@@ -99,11 +99,11 @@ class ContentEnricherForAllTypesOfActivities implements ContentEnricher {
     if (isStudent) {
       unenrichedActivities = new JsonArray(JsonFormatterBuilder
           .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_STUDENT)
-          .toJson(classContents));
+          .toJsonFromList(classContents));
     } else {
       unenrichedActivities = new JsonArray(JsonFormatterBuilder
           .buildSimpleJsonFormatter(false, AJEntityClassContents.RESPONSE_FIELDS_FOR_TEACHER)
-          .toJson(classContents));
+          .toJsonFromList(classContents));
     }
   }
 

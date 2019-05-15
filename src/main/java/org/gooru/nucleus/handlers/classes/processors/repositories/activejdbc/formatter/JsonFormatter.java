@@ -13,6 +13,6 @@ public interface JsonFormatter {
 
   <T extends Model> String toJson(LazyList<T> modelList);
 
-  <T extends Model> String toJson(List<T> modelList);
+  <T extends Model> String toJsonFromList(List<T> modelList);
 
 }

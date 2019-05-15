@@ -41,11 +41,11 @@ class SimpleJsonFormatter implements JsonFormatter {
 
   @Override
   public <T extends Model> String toJson(LazyList<T> modelList) {
-    return toJson(modelList);
+    return toJsonFromList(modelList);
   }
 
   @Override
-  public <T extends Model> String toJson(List<T> modelList) {
+  public <T extends Model> String toJsonFromList(List<T> modelList) {
     StringBuilder sb = new StringBuilder(CAPACITY);
     sb.append('[');
     if (pretty) {
