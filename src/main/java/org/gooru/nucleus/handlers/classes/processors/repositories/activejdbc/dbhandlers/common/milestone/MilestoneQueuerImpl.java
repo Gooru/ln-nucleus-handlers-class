@@ -75,10 +75,11 @@ public class MilestoneQueuerImpl implements MilestoneQueuer {
     throw new DBException(e);
   }
 
-    private String fetchFwCodeFromGrade() {
-      Object fwCodeObject = Base.firstCell("select fw_code from grade_master where id = ?", gradeCurrent);
-      return String.valueOf(fwCodeObject);
-    }
+  private String fetchFwCodeFromGrade() {
+    Object fwCodeObject = Base
+        .firstCell("select fw_code from grade_master where id = ?", gradeCurrent);
+    return String.valueOf(fwCodeObject);
+  }
 
 
 }

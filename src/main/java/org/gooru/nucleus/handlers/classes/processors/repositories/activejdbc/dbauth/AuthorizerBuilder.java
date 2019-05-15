@@ -61,7 +61,7 @@ public final class AuthorizerBuilder {
     // student of that class.
     return new ClassMemberAuthorizer(context);
   }
-  
+
   public static Authorizer<AJEntityClass> buildClassStudentAuthorizer(ProcessorContext context) {
     return new ClassStudentAuthorizer(context);
   }
@@ -169,6 +169,21 @@ public final class AuthorizerBuilder {
   }
 
   public static Authorizer<AJEntityClass> buildAddClassContentUsersAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildClassContentCompletionAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildClassContentScheduleAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+
+  public static Authorizer<AJEntityClass> buildClassContentEnableAuthorizer(
       ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }

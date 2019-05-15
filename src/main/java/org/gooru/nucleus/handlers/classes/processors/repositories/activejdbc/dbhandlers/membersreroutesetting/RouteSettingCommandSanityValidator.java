@@ -1,5 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -8,8 +10,6 @@ import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseW
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 
 /**
  * @author ashish.
@@ -32,7 +32,7 @@ class RouteSettingCommandSanityValidator {
       throw new MessageResponseWrapperException(MessageResponseFactory
           .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.class")));
     }
-    
+
     try {
       UUID.fromString(context.classId());
     } catch (IllegalArgumentException iae) {
@@ -42,7 +42,7 @@ class RouteSettingCommandSanityValidator {
     }
 
     JsonArray users = context.request().getJsonArray(MembersRerouteSettingRequestAttributes.USERS);
-    
+
     if (users == null || users.isEmpty()) {
       LOGGER.warn("No users specified in payload");
       throw new MessageResponseWrapperException(MessageResponseFactory

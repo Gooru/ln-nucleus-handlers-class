@@ -6,15 +6,16 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.DBException;
 import org.postgresql.util.PSQLException;
+
 /**
  * @author renuka
- * 
  */
 class UTF8EncodingExceptionHandler implements ExceptionHandler {
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
-  private UTF8EncodingExceptionHandler() {}
+  private UTF8EncodingExceptionHandler() {
+  }
 
   public static UTF8EncodingExceptionHandler getInstance() {
     return new UTF8EncodingExceptionHandler();

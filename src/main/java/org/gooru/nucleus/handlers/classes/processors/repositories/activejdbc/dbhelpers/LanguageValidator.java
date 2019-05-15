@@ -19,7 +19,8 @@ public final class LanguageValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(LanguageValidator.class);
   private static final String LANG_QUERY = "select id from gooru_language where is_visible = true";
 
-  private LanguageValidator() {}
+  private LanguageValidator() {
+  }
 
   public static boolean isValidLanguage(Integer id) {
     return id != null && languageIds.contains(id);

@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth;
 
 import java.util.ResourceBundle;
@@ -42,8 +41,9 @@ public class ClassStudentAuthorizer implements Authorizer<AJEntityClass> {
       LOGGER.warn("no class id present to check student enrollment");
       return false;
     }
-    LazyList<AJClassMember> members = AJClassMember.where(AJClassMember.FETCH_FOR_ACTIVE_USER_QUERY_FILTER,
-        classId, this.context.userId());
+    LazyList<AJClassMember> members = AJClassMember
+        .where(AJClassMember.FETCH_FOR_ACTIVE_USER_QUERY_FILTER,
+            classId, this.context.userId());
     return !members.isEmpty();
   }
 }

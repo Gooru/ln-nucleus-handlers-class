@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.preference;
 
 import java.util.ResourceBundle;

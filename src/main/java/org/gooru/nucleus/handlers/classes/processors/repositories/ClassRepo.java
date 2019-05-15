@@ -39,9 +39,11 @@ public interface ClassRepo {
 
   MessageResponse addContentInClass();
 
-  MessageResponse listClassContent();
+  MessageResponse listClassContentUnscheduled();
 
   MessageResponse enableContentInClass();
+
+  MessageResponse scheduleContentInClass();
 
   MessageResponse archiveClass();
 
@@ -50,7 +52,7 @@ public interface ClassRepo {
   MessageResponse updateClassRerouteSetting();
 
   MessageResponse updateProfileBaselineForSpecifiedStudents();
-  
+
   MessageResponse updateProfileBaselineForStudent();
 
   MessageResponse updateClassMembersRerouteSetting();
@@ -66,6 +68,14 @@ public interface ClassRepo {
   MessageResponse updateClassPreference();
 
   MessageResponse updateClassLanguage();
-  
+
   MessageResponse updateClassContentMasteryAccrual();
+
+  MessageResponse classContentComplete();
+
+  MessageResponse listClassContentListOfflineActiveProcessor();
+
+  MessageResponse listClassContentListOfflineCompletedProcessor();
+
+  MessageResponse listClassContentListOnlineScheduledProcessor();
 }

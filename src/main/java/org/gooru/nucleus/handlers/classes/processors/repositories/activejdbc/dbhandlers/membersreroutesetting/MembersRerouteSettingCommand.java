@@ -1,5 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,8 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 
 /**
  * @author ashish.

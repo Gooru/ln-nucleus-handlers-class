@@ -6,13 +6,13 @@ import java.util.List;
 
 /**
  * @author renuka
- * 
  */
 public final class ExceptionHandlerRegistry {
 
   private static final List<ExceptionHandler> EXCEPTION_HANDLERS;
 
-  private ExceptionHandlerRegistry() {}
+  private ExceptionHandlerRegistry() {
+  }
 
   public static ExceptionHandlerRegistry getInstance() {
     return Holder.INSTANCE;
@@ -35,6 +35,7 @@ public final class ExceptionHandlerRegistry {
   }
 
   private static final class Holder {
+
     private static final ExceptionHandlerRegistry INSTANCE = new ExceptionHandlerRegistry();
   }
 }
