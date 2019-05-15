@@ -46,8 +46,8 @@ public final class EntityClassContentsDao {
       String classId, LocalDate startDate, LocalDate endDate) {
 
     return AJEntityClassContents
-        .where(SELECT_ONLINE_SCHEDULED_FOR_TEACHERS, classId, startDate, endDate)
-        .orderBy("dca_added_date desc nulls first, created_at desc");
+        .where(SELECT_ONLINE_SCHEDULED_FOR_TEACHERS, classId, startDate.toString(),
+            endDate.toString()).orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
   public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classId,

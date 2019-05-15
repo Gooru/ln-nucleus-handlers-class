@@ -38,6 +38,10 @@ public class ListOnlineScheduledActivityCommand {
 
   public void validate() {
     try {
+      if (startDateString == null || endDateString == null) {
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("date.format.invalid")));
+      }
       startDate = LocalDate.parse(startDateString);
       endDate = LocalDate.parse(endDateString);
       if (startDate.isAfter(endDate)) {

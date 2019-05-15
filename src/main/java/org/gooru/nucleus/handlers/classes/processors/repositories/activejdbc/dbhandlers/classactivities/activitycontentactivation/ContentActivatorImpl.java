@@ -60,7 +60,7 @@ class ContentActivatorImpl implements ContentActivator {
   }
 
   private void validateContentIsScheduled() {
-    if (this.classContents.getDcaAddedDate() != null) {
+    if (this.classContents.getDcaAddedDate() == null) {
       LOGGER.warn("content {} is not scheduled to activate for this class {}",
           this.classContents.getId(), context.classId());
       throw new MessageResponseWrapperException(MessageResponseFactory
