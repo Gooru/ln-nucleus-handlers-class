@@ -169,7 +169,7 @@ class AssociateCourseWithClassHandler implements DBHandler {
   // Set if premium course else reset class settings when user deletes premium course and assigns a non-premium course to class.
   private void setClassAttributesBasedOnCourse() {
     setClassSettingsBasedOnCourseVersion();
-    setClassMilestoneViewApplicabilityBasedOnCourseVersion();
+    // setClassMilestoneViewApplicabilityBasedOnCourseVersion();
     setClassPrefsBasedOnCourse();
     setClassPrimaryLangFromCourse();
   }
@@ -213,6 +213,8 @@ class AssociateCourseWithClassHandler implements DBHandler {
           preference.put(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK, frameworkForCourse);
           preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT,
               subjectBucket.substring(subjectBucket.indexOf('.') + 1));
+
+          setClassMilestoneViewApplicabilityBasedOnCourseVersion();
         } else {
           preference.putNull(AJEntityTaxonomySubject.RESP_KEY_FRAMEWORK);
           preference.put(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, subjectBucket);

@@ -123,6 +123,8 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
       entityClass.setGradeCurrent(command.getGradeCurrent());
       entityClass.setGradeUpperBound(command.getGradeCurrent());
       gradeWasSet = true;
+
+      entityClass.setMilestoneViewApplicable(isCoursePremium());
     }
     if (command.getRoute0() != null) {
       entityClass.setRoute0(command.getRoute0());
@@ -130,6 +132,18 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
     if (command.getForceCalculateILP() != null) {
       entityClass.setForceCalculateIlp(command.getForceCalculateILP());
     }
+  }
+
+  private boolean isCoursePremium() {
+    String setting = this.entityClass.getString(AJEntityClass.SETTING);
+    JsonObject classSetting = (setting != null) ? new JsonObject(setting) : null;
+    if (classSetting != null && 
+        classSetting.containsKey(AJEntityClass.COURSE_PREMIUM) && 
+        classSetting.getBoolean(AJEntityClass.COURSE_PREMIUM)) {
+          return true;
+    }
+
+    return false;
   }
 
   @Override
