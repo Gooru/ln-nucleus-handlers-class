@@ -169,7 +169,6 @@ class AssociateCourseWithClassHandler implements DBHandler {
   // Set if premium course else reset class settings when user deletes premium course and assigns a non-premium course to class.
   private void setClassAttributesBasedOnCourse() {
     setClassSettingsBasedOnCourseVersion();
-    // setClassMilestoneViewApplicabilityBasedOnCourseVersion();
     setClassPrefsBasedOnCourse();
     setClassPrimaryLangFromCourse();
   }
