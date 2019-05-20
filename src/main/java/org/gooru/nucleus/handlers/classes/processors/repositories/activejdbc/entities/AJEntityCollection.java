@@ -49,6 +49,7 @@ public class AJEntityCollection extends Model {
   private static final String FORMAT_TYPE_ASSESSMENT = "assessment";
   private static final String FORMAT_TYPE_ASSESSMENT_EXT = "assessment-external";
   private static final String FORMAT_TYPE_COLLECTION_EXT = "collection-external";
+  private static final String FORMAT_TYPE_OFFLINE_ACTIVITY = "offline-activity";
   public static final String VISIBILITY_DML =
       "UPDATE collection SET class_visibility = ?::jsonb WHERE id = ?::uuid AND course_id = ?::uuid AND is_deleted = false";
   public static final String SELECT_COLLECTION_TO_AUTHORIZE =
@@ -76,6 +77,10 @@ public class AJEntityCollection extends Model {
 
   public boolean isCollectionExternal() {
     return FORMAT_TYPE_COLLECTION_EXT.equalsIgnoreCase(this.getString(FORMAT_TYPE));
+  }
+
+  public boolean isOfflineActivity() {
+    return FORMAT_TYPE_OFFLINE_ACTIVITY.equalsIgnoreCase(this.getString(FORMAT_TYPE));
   }
 
   public String getTenant() {
