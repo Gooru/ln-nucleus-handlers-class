@@ -2,9 +2,11 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import io.vertx.core.json.JsonObject;
 import java.util.List;
+import java.util.Map;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassContentsDao;
 
 /**
  * @author ashish.
@@ -15,6 +17,8 @@ class OfflineActivitiesEnricherService {
   private JsonObject idToEnrichmentDataMap;
   private List<String> offlineActivityIds;
   private boolean enrichmentDone = false;
+  private static final String TASK_COUNT = "task_count" ;
+  private static final String OA_ID = "oa_id" ;
 
   OfflineActivitiesEnricherService(List<String> offlineActivityIds) {
     this.offlineActivityIds = offlineActivityIds;
@@ -26,15 +30,33 @@ class OfflineActivitiesEnricherService {
     if (!enrichmentDone) {
       idToEnrichmentDataMap = new JsonObject();
       String collectionArrayString = DbHelperUtil.toPostgresArrayString(offlineActivityIds);
-      List<AJEntityCollection> collections = AJEntityCollection
-          .findCollectionsForSpecifiedIds(collectionArrayString);
-
-      collections.forEach(content -> {
-        JsonObject data = createOfflineDetailJson(content);
-        idToEnrichmentDataMap.put(content.getString(MessageConstants.ID), data);
-      });
+      enrichWithOAInfo(collectionArrayString);
+      enrichWithTasksInfo(collectionArrayString);
       enrichmentDone = true;
     }
+  }
+
+  private void enrichWithTasksInfo(String collectionArrayString) {
+    List<Map> tasksCountListMap = EntityClassContentsDao.fetchTaskCount(collectionArrayString);
+
+    if (tasksCountListMap == null || tasksCountListMap.isEmpty()) {
+      return;
+    }
+
+    tasksCountListMap.forEach(data -> {
+      idToEnrichmentDataMap.getJsonObject(data.get(OA_ID).toString())
+          .put(TASK_COUNT, data.get(TASK_COUNT));
+    });
+  }
+
+  private void enrichWithOAInfo(String collectionArrayString) {
+    List<AJEntityCollection> collections = AJEntityCollection
+        .findCollectionsForSpecifiedIds(collectionArrayString);
+
+    collections.forEach(content -> {
+      JsonObject data = createOfflineDetailJson(content);
+      idToEnrichmentDataMap.put(content.getString(MessageConstants.ID), data);
+    });
   }
 
   private JsonObject createOfflineDetailJson(AJEntityCollection content) {

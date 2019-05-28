@@ -2,9 +2,11 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.en
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,9 @@ public final class EntityClassContentsDao {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EntityClassContentsDao.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
+  private static final String SELECT_TASKS_COUNT_BY_OA =
+      "SELECT count(id) as task_count, oa_id FROM oa_tasks WHERE"
+          + " oa_id = ANY(?::uuid[]) GROUP BY oa_id" ;
 
   public static AJEntityClassContents fetchActivityByIdAndClass(String contentId, String classId) {
     LazyList<AJEntityClassContents> classContents =
@@ -103,27 +108,31 @@ public final class EntityClassContentsDao {
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_STUDENTS =
       "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
-          + " and content_type != 'offline-activity'";
+          + " and content_type != 'offline-activity'" ;
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
+      "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'" ;
 
   private static final String SELECT_UNSCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null";
+      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null" ;
 
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'";
+      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'" ;
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'";
+      "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'" ;
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_STUDENTS =
       "class_id = ?::uuid AND is_completed = false and activation_date is not null and content_type = 'offline-activity' "
-          + " and (?::text = any(users) OR users is null) ";
+          + " and (?::text = any(users) OR users is null) " ;
 
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_STUDENTS =
       "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity' "
-          + " and (?::text = any(users) OR users is null) ";
+          + " and (?::text = any(users) OR users is null) " ;
 
+
+  public static List<Map> fetchTaskCount(String offlineActivityIdListString) {
+    return Base.findAll(SELECT_TASKS_COUNT_BY_OA, offlineActivityIdListString);
+  }
 
 }
