@@ -16,6 +16,7 @@ public final class MessageResponse {
   private final DeliveryOptions deliveryOptions;
   private final JsonObject reply;
   private final JsonObject event;
+  private final JsonObject postProcessingEvent;
 
   // Private constructor
   private MessageResponse(JsonObject response) {
@@ -23,6 +24,8 @@ public final class MessageResponse {
         response.getString(MessageConstants.MSG_OP_STATUS));
     this.reply = response.getJsonObject(MessageConstants.RESP_CONTAINER_MBUS);
     this.event = response.getJsonObject(MessageConstants.RESP_CONTAINER_EVENT);
+    this.postProcessingEvent = response
+        .getJsonObject(MessageConstants.RESP_CONTAINER_POSTPROCESSOR);
   }
 
   public DeliveryOptions deliveryOptions() {
@@ -37,6 +40,10 @@ public final class MessageResponse {
     return this.event;
   }
 
+  public JsonObject postProcessingEvent() {
+    return this.postProcessingEvent;
+  }
+
   // Public builder with validations
   public static class Builder {
 
@@ -45,6 +52,7 @@ public final class MessageResponse {
     private JsonObject responseBody = null;
     private JsonObject headers;
     private JsonObject eventData = null;
+    private JsonObject postProcessingEventData = null;
 
     public Builder() {
       this.headers = new JsonObject();
@@ -137,6 +145,11 @@ public final class MessageResponse {
       return this;
     }
 
+    public Builder setPostProcessingEventData(JsonObject postProcessingEventData) {
+      this.postProcessingEventData = postProcessingEventData;
+      return this;
+    }
+
     public MessageResponse build() {
       JsonObject result;
       if (this.httpStatus == null || this.status == null) {
@@ -151,6 +164,10 @@ public final class MessageResponse {
 
         if (this.eventData != null && !this.eventData.isEmpty()) {
           result.put(MessageConstants.RESP_CONTAINER_EVENT, this.eventData);
+        }
+
+        if (this.postProcessingEventData != null && !postProcessingEventData.isEmpty()) {
+          result.put(MessageConstants.RESP_CONTAINER_POSTPROCESSOR, postProcessingEventData);
         }
       }
       return new MessageResponse(result);

@@ -64,6 +64,7 @@ public final class MessageConstants {
 
   // Containers for different responses
   public static final String RESP_CONTAINER_MBUS = "mb.container";
+  public static final String RESP_CONTAINER_POSTPROCESSOR = "mb.postprocessor.event";
   public static final String RESP_CONTAINER_EVENT = "mb.event";
 
   public static final String CLASS_ID = "classId";

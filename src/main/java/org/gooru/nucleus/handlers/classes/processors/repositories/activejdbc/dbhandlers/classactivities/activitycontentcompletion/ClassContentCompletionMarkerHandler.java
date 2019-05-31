@@ -5,6 +5,8 @@ import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
+import org.gooru.nucleus.handlers.classes.processors.postprocessors.OACompletionPostProcessorPayload;
+import org.gooru.nucleus.handlers.classes.processors.postprocessors.PostProcessorEventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.validators.SanityValidators;
@@ -78,11 +80,7 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
       }
     }
 
-    return new ExecutionResult<>(MessageResponseFactory
-        .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
-            EventBuilderFactory
-                .getClassContentEnableEventBuilder(classContents.getId(), this.context.classId())),
-        ExecutionResult.ExecutionStatus.SUCCESSFUL);
+    return returnResponseWithPostProcessorEvent();
   }
 
   @Override
@@ -101,6 +99,17 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
     }
   }
 
+  private ExecutionResult<MessageResponse> returnResponseWithPostProcessorEvent() {
+    OACompletionPostProcessorPayload postProcessorPayload = new OACompletionPostProcessorPayload()
+        .setClassId(context.classId()).setOAId(contentId)
+        .setOADcaId(classContents.getDcaId());
+
+    return new ExecutionResult<>(MessageResponseFactory
+        .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"), EventBuilderFactory
+                .getClassContentEnableEventBuilder(classContents.getId(), this.context.classId()),
+            PostProcessorEventBuilderFactory.buildOACompletionEvent(postProcessorPayload)),
+        ExecutionStatus.SUCCESSFUL);
+  }
 
   private JsonObject getModelErrors() {
     JsonObject errors = new JsonObject();

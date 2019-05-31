@@ -246,6 +246,10 @@ public class AJEntityClassContents extends Model {
     return false;
   }
 
+  public Long getDcaId() {
+    return this.getLong("id");
+  }
+
   public Date getActivationDate() {
     return this.getDate(ACTIVATION_DATE);
   }

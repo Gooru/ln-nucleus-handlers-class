@@ -77,6 +77,14 @@ public final class MessageResponseFactory {
         .setEventData(eventBuilder.build()).build();
   }
 
+  public static MessageResponse createNoContentResponse(String message, EventBuilder eventBuilder,
+      JsonObject postProcessingEventData) {
+    return new MessageResponse.Builder().successful().setStatusNoOutput()
+        .setResponseBody(new JsonObject().put(MessageConstants.MSG_MESSAGE, message))
+        .setEventData(eventBuilder.build()).setPostProcessingEventData(postProcessingEventData)
+        .build();
+  }
+
   public static MessageResponse createOkayResponse(JsonObject body) {
     return new MessageResponse.Builder().successful().setStatusOkay().setResponseBody(body).build();
   }
