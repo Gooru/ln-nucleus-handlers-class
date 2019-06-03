@@ -7,6 +7,7 @@ import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.app.components.DataSourceRegistry;
 import org.gooru.nucleus.handlers.classes.app.components.UtilityManager;
 import org.gooru.nucleus.handlers.classes.app.components.VersionInfo;
+import org.gooru.nucleus.handlers.classes.processors.postprocessors.PostProcessingHttpClient;
 
 public class Initializers implements Iterable<Initializer> {
 
@@ -18,6 +19,7 @@ public class Initializers implements Iterable<Initializer> {
     initializers.add(AppConfiguration.getInstance());
     initializers.add(UtilityManager.getInstance());
     initializers.add(new VersionInfo());
+    initializers.add(PostProcessingHttpClient.getInstance());
     internalIterator = initializers.iterator();
   }
 

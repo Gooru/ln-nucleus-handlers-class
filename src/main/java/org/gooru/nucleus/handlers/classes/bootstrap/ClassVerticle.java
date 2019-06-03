@@ -11,6 +11,7 @@ import org.gooru.nucleus.handlers.classes.bootstrap.startup.Initializers;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.constants.MessagebusEndpoints;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorBuilder;
+import org.gooru.nucleus.handlers.classes.processors.postprocessors.PostProcessingProcessorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,18 @@ public class ClassVerticle extends AbstractVerticle {
                 LOGGER.warn("Invalid session token received");
               }
               eb.send(MessagebusEndpoints.MBEP_EVENT, eventData);
+            }
+            JsonObject postProcessingEventData = result.postProcessingEvent();
+            if (postProcessingEventData != null && !postProcessingEventData.isEmpty()) {
+              vertx.executeBlocking(postProcessingFuture -> {
+                Future<MessageResponse> resultFuture = PostProcessingProcessorBuilder
+                    .build(postProcessingEventData).process();
+                resultFuture.setHandler(postProcessingInterimResult -> {
+                  postProcessingFuture.complete();
+                });
+              }, postProcessingResult -> {
+                // Nothing to do after post processing, right now
+              });
             }
           });
         }).completionHandler(result -> {
