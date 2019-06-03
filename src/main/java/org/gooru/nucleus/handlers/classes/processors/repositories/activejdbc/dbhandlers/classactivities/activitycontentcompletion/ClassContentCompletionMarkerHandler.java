@@ -106,7 +106,7 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
 
     return new ExecutionResult<>(MessageResponseFactory
         .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"), EventBuilderFactory
-                .getClassContentEnableEventBuilder(classContents.getId(), this.context.classId()),
+                .getClassContentCompletionEventBuilder(classContents.getId(), this.context.classId()),
             PostProcessorEventBuilderFactory.buildOACompletionEvent(postProcessorPayload)),
         ExecutionStatus.SUCCESSFUL);
   }

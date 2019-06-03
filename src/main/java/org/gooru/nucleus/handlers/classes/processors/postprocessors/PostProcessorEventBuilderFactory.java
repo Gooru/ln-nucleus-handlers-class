@@ -13,10 +13,9 @@ public final class PostProcessorEventBuilderFactory {
   }
 
   public static JsonObject buildOACompletionEvent(OACompletionPostProcessorPayload payload) {
-    new JsonObject().put(PostProcessorEventAttributes.PPEVENT_KEY,
+    return new JsonObject().put(PostProcessorEventAttributes.PPEVENT_KEY,
         PostProcessorEventAttributes.PPEVENT_OA_COMPLETE)
         .put(PostProcessorEventAttributes.PPEVENT_PAYLOAD, payload.createPayload());
-    return new JsonObject();
   }
 
 }
