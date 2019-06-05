@@ -101,7 +101,7 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
 
   private ExecutionResult<MessageResponse> returnResponseWithPostProcessorEvent() {
     OACompletionPostProcessorPayload postProcessorPayload = new OACompletionPostProcessorPayload()
-        .setClassId(context.classId()).setOAId(contentId)
+        .setClassId(context.classId()).setOAId(classContents.getContentId())
         .setOADcaId(classContents.getDcaId());
 
     return new ExecutionResult<>(MessageResponseFactory
