@@ -21,7 +21,8 @@ public final class EntityClassContentsDao {
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private static final String SELECT_TASKS_COUNT_BY_OA =
       "SELECT count(id) as task_count, oa_id FROM oa_tasks WHERE"
-          + " oa_id = ANY(?::uuid[]) GROUP BY oa_id" ;
+          + " oa_id = ANY(?::uuid[]) GROUP BY oa_id";
+  private static final String SELECT_ACTIVE_CLASS_USERS = "select user_id::text from class_member where class_id = ?::uuid and is_active = true";
 
   public static AJEntityClassContents fetchActivityByIdAndClass(String contentId, String classId) {
     LazyList<AJEntityClassContents> classContents =
@@ -38,6 +39,15 @@ public final class EntityClassContentsDao {
   private EntityClassContentsDao() {
     throw new AssertionError();
   }
+
+  public static List<String> fetchUsersForSpecifiedOA(AJEntityClassContents classContents) {
+    List<String> users = classContents.getUsers();
+    if (users == null) {
+      users = Base.firstColumn(SELECT_ACTIVE_CLASS_USERS, classContents.getClassId());
+    }
+    return users;
+  }
+
 
   public static List<AJEntityClassContents> fetchAllOnlineScheduledActivitiesForStudent(
       String classId, LocalDate startDate, LocalDate endDate, String userId) {
@@ -108,27 +118,27 @@ public final class EntityClassContentsDao {
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_STUDENTS =
       "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
-          + " and content_type != 'offline-activity'" ;
+          + " and content_type != 'offline-activity'";
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'" ;
+      "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
 
   private static final String SELECT_UNSCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null" ;
+      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null";
 
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'" ;
+      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'";
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'" ;
+      "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'";
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_STUDENTS =
       "class_id = ?::uuid AND is_completed = false and activation_date is not null and content_type = 'offline-activity' "
-          + " and (?::text = any(users) OR users is null) " ;
+          + " and (?::text = any(users) OR users is null) ";
 
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_STUDENTS =
       "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity' "
-          + " and (?::text = any(users) OR users is null) " ;
+          + " and (?::text = any(users) OR users is null) ";
 
 
   public static List<Map> fetchTaskCount(String offlineActivityIdListString) {

@@ -203,6 +203,10 @@ public class AJEntityClassContents extends Model {
     }
   }
 
+  public String getClassId() {
+    return this.getString(CLASS_ID);
+  }
+
   public void setActivationDateIfNotPresent(LocalDate activationDate) {
     if (this.getDate(ACTIVATION_DATE) == null) {
       this.set(ACTIVATION_DATE,

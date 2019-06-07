@@ -1,6 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentcompletion;
 
 import io.vertx.core.json.JsonObject;
+import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
@@ -100,9 +101,10 @@ public class ClassContentCompletionMarkerHandler implements DBHandler {
   }
 
   private ExecutionResult<MessageResponse> returnResponseWithPostProcessorEvent() {
+    List<String> users = EntityClassContentsDao.fetchUsersForSpecifiedOA(classContents);
     OACompletionPostProcessorPayload postProcessorPayload = new OACompletionPostProcessorPayload()
         .setClassId(context.classId()).setOAId(classContents.getContentId())
-        .setOADcaId(classContents.getDcaId());
+        .setOADcaId(classContents.getDcaId()).setUsers(users);
 
     return new ExecutionResult<>(MessageResponseFactory
         .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"), EventBuilderFactory
