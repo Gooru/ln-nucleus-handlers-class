@@ -37,24 +37,34 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_GET_CONTENT_VISIBILITY = "class.content.visibility.get";
   public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
   public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
+  public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
+
+
   public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
+  public static final String MSG_OP_CLASS_CONTENT_LIST_UNSCHEDULED = "class.content.list.unscheduled";
+  public static final String MSG_OP_CLASS_CONTENT_LIST_OFFLINE_COMPLETED = "class.content.list.offline.completed";
+  public static final String MSG_OP_CLASS_CONTENT_LIST_OFFLINE_ACTIVE = "class.content.list.offline.active";
+  public static final String MSG_OP_CLASS_CONTENT_LIST_ONLINE_SCHEDULED = "class.content.list.online.scheduled";
+  public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
+  public static final String MSG_OP_CLASS_CONTENT_SCHEDULE = "class.content.schedule";
+  public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
   public static final String MSG_OP_CLASS_CONTENT_USERS_ADD = "class.content.users.add";
   public static final String MSG_OP_CLASS_CONTENT_USERS_LIST = "class.content.users.list";
-  public static final String MSG_OP_CLASS_CONTENT_LIST = "class.content.list";
-  public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
-  public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
-  public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
+  public static final String MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE = "class.content.mastery.accrual.update";
+  public static final String MSG_OP_CLASS_CONTENT_COMPLETION = "class.content.completion";
+
 
   public static final String MSG_OP_CLASS_REROUTE_SETTINGS_UPDATE = "class.reroute.settings.update";
   public static final String MSG_OP_CLASS_LPBASELINE_TRIGGER = "class.lb.baseline.trigger";
   public static final String MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER = "class.lb.baseline.student.trigger";
   public static final String MSG_OP_CLASS_MEMBERS_REROUTE_SETTINGS_UPDATE = "class.members.reroute.settings.update";
-  
+
   public static final String MSG_OP_CLASS_PREFERENCE_UPDATE = "class.preference.update";
   public static final String MSG_OP_CLASS_LANGUAGE_UPDATE = "class.language.update";
-  
+
   // Containers for different responses
   public static final String RESP_CONTAINER_MBUS = "mb.container";
+  public static final String RESP_CONTAINER_POSTPROCESSOR = "mb.postprocessor.event";
   public static final String RESP_CONTAINER_EVENT = "mb.event";
 
   public static final String CLASS_ID = "classId";
@@ -66,6 +76,7 @@ public final class MessageConstants {
   public static final String USER_ID = "userId";
   public static final String EMAIL = "email";
   public static final String CLASS_CONTENTS = "class_contents";
+  public static final String COUNT = "count";
   public static final String TITLE = "title";
   public static final String THUMBNAIL = "thumbnail";
   public static final String TAXONOMY = "taxonomy";

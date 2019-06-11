@@ -78,7 +78,8 @@ public final class VisibleContentHelper {
       JsonObject visibilityJson = new JsonObject().put(AJEntityCollection.ID, id)
           .put(AJEntityCollection.JSON_KEY_VISIBLE, visibility);
 
-      if (collection.isAssessment() || collection.isAssessmentExternal()) {
+      if (collection.isAssessment() || collection.isAssessmentExternal() || collection
+          .isOfflineActivity()) {
         if (assessmentsByLesson.containsKey(lessonId)) {
           assessmentsByLesson.get(lessonId).add(visibilityJson);
         } else {

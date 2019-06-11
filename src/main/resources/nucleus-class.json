@@ -15,6 +15,9 @@
     "limit.default": 20,
     "limit.max": 50,
     "course.version.for.alternate.visibility": "3.0-nu",
-    "course.version.for.premium.content": "premium"
+    "course.version.for.premium.content": "premium",
+    "oa.completion.informer.endpoint": "http://localhost:8082/api/internal/nucleus-insights/oa/complete",
+    "httpclient.timeout": 60000,
+    "httpclient.pool.size": 5
   }
 }

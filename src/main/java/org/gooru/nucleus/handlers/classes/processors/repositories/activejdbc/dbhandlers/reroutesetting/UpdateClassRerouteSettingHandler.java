@@ -3,11 +3,13 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.DBHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.milestone.MilestoneQueuer;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult.ExecutionStatus;
@@ -96,11 +98,16 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
             ExecutionResult.ExecutionStatus.FAILED);
       }
     }
-    return handleClassMembersUpdate();
+
+    return handlePostProcessing();
   }
 
-  private ExecutionResult<MessageResponse> handleClassMembersUpdate() {
+  private ExecutionResult<MessageResponse> handlePostProcessing() {
     new ClassMemberUpdater(command, gradeWasSet).update();
+    if (gradeWasSet && this.entityClass.getCourseId() != null) {
+      MilestoneQueuer.build()
+          .enqueue(UUID.fromString(this.entityClass.getCourseId()), command.getGradeCurrent());
+    }
 
     return new ExecutionResult<>(
         MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),

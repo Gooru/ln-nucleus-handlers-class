@@ -1,6 +1,6 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
+import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -9,15 +9,12 @@ import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.LanguageValidator;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.vertx.core.json.JsonObject;
 
 /**
  * @author szgooru Created On 03-Jan-2019
@@ -95,11 +92,12 @@ public class UpdateClassLanguageHandler implements DBHandler {
               RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
-    
+
     if (!validateLanguageIfPresent(this.languageId)) {
       LOGGER.warn("language with id {} not found", this.languageId);
       return new ExecutionResult<>(
-          MessageResponseFactory.createNotFoundResponse(RESOURCE_BUNDLE.getString("language.not.found")),
+          MessageResponseFactory
+              .createNotFoundResponse(RESOURCE_BUNDLE.getString("language.not.found")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
 

@@ -131,7 +131,7 @@ public class AJClassMember extends Model {
   public Boolean getProfileBaselineDone() {
     return this.getBoolean(PROFILE_BASELINE_DONE);
   }
-  
+
   public Boolean getInitialLPDone() {
     return this.getBoolean(INITIAL_LP_DONE);
   }

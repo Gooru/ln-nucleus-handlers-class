@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.membersreroutesetting;
 
 import java.util.UUID;
@@ -7,6 +6,7 @@ import java.util.UUID;
  * @author szgooru Created On 19-Feb-2019
  */
 public class UserSettingCommand {
+
   private final UUID userId;
   private final Long gradeLowerBound;
   private final Long gradeUpperBound;

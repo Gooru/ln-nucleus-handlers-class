@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.ConverterRegistry;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -23,7 +22,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.val
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.ValidatorRegistry;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.Base;
-import org.javalite.activejdbc.LazyList;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 import org.postgresql.util.PGobject;
@@ -49,35 +47,38 @@ public class AJEntityClassContents extends Model {
   public static final String ASSESSMENT_EXTERNAL = "assessment-external";
   public static final String COLLECTION_EXTERNAL = "collection-external";
   public static final String COLLECTION = "collection";
+  public static final String OFFLINE_ACTIVITY = "offline-activity";
   public static final String RESOURCE = "resource";
   public static final String QUESTION = "question";
   public static final String ID_CONTENT = "contentId";
-  private static final String SORT_DESC = " desc";
   public static final String USERS = "users";
   public static final String USERS_COUNT = "users_count";
+  public static final String END_DATE = "end_date";
+  private static final String IS_COMPLETED = "is_completed";
   public static final String ID = "id";
-  private static final String COMMA_SEPARATOR = ",";
   public static final Pattern ASSESSMENT_TYPES = Pattern.compile("assessment|assessment-external");
   public static final Pattern COLLECTION_TYPES = Pattern.compile("collection|collection-external");
 
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
-          DCA_ADDED_DATE, ALLOW_MASTERY_ACCRUAL));
+          DCA_ADDED_DATE, END_DATE));
   private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
       .asList(USERS));
   private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
       Arrays.asList(ACTIVATION_DATE, DCA_ADDED_DATE, UPDATED_AT));
+  private static final Set<String> UPDATE_MASTERY_ACCRUAL_FIELDS = new HashSet<>(
+      Arrays.asList(ALLOW_MASTERY_ACCRUAL));
   private static final Set<String> MANDATORY_FIELDS =
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
-  private static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
+  public static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
       .asList(ASSESSMENT, COLLECTION, ASSESSMENT_EXTERNAL, COLLECTION_EXTERNAL, RESOURCE,
-          QUESTION));
+          QUESTION, OFFLINE_ACTIVITY));
   public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL);
+          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE);
   public static final List<String> RESPONSE_FIELDS_FOR_STUDENT = Arrays
       .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, ALLOW_MASTERY_ACCRUAL);
+          CREATED_AT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE);
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
@@ -95,18 +96,6 @@ public class AJEntityClassContents extends Model {
   public static final String SELECT_DUPLICATED_ADDED_CONTENT_FOR_MONTH =
       "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE is null "
           + " and for_month = ? and for_year = ?";
-
-  private static final String SELECT_CLASS_CONTENTS =
-      "class_id = ?::uuid AND for_year = ? AND for_month = ?";
-
-  private static final String SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED =
-      "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null)";
-
-  private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE =
-      "class_id = ?::uuid AND for_year = ? and for_month = ? and content_type = ? ";
-
-  private static final String SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED =
-      "class_id = ?::uuid AND content_type = ? AND activation_date BETWEEN ?::date AND ?::date AND (?::text = any(users) OR users is null)";
 
   private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_contents set users = ?::text[], users_count = ? where id = ?";
 
@@ -127,6 +116,9 @@ public class AJEntityClassContents extends Model {
         (fieldValue -> FieldConverter
             .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
     converterMap.put(DCA_ADDED_DATE,
+        (fieldValue -> FieldConverter
+            .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+    converterMap.put(END_DATE,
         (fieldValue -> FieldConverter
             .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
     return Collections.unmodifiableMap(converterMap);
@@ -184,6 +176,20 @@ public class AJEntityClassContents extends Model {
     return () -> Collections.unmodifiableSet(UPDATEABLE_FIELDS);
   }
 
+  public static FieldSelector updateMasteryAccrualFieldSelector() {
+    return new FieldSelector() {
+      @Override
+      public Set<String> allowedFields() {
+        return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
+      }
+
+      @Override
+      public Set<String> mandatoryFields() {
+        return Collections.unmodifiableSet(UPDATE_MASTERY_ACCRUAL_FIELDS);
+      }
+    };
+  }
+
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
       PGobject value = FieldConverter.convertFieldToUuid(classId);
@@ -195,6 +201,10 @@ public class AJEntityClassContents extends Model {
 
       }
     }
+  }
+
+  public String getClassId() {
+    return this.getString(CLASS_ID);
   }
 
   public void setActivationDateIfNotPresent(LocalDate activationDate) {
@@ -213,6 +223,36 @@ public class AJEntityClassContents extends Model {
     }
   }
 
+  public void setEndDateIfNotPresent(LocalDate endDate) {
+    if (this.getDate(END_DATE) == null) {
+      this.set(END_DATE,
+          FieldConverter
+              .convertFieldToDateWithFormat(endDate, DateTimeFormatter.ISO_LOCAL_DATE));
+    }
+  }
+
+  public void setCompleted() {
+    this.setBoolean(IS_COMPLETED, true);
+  }
+
+  public boolean isActivityOffline() {
+    String activityType = this.getString(CONTENT_TYPE);
+    return OFFLINE_ACTIVITY.equals(activityType);
+  }
+
+  public boolean isOfflineActivityActive() {
+    // Activity should have been started : activation date is today or in past
+    // It is not completed yet
+    if (isActivityOffline() && this.getActivationDate() != null) {
+      LocalDate startDate = this.getActivationDate().toLocalDate();
+      return !startDate.isAfter(LocalDate.now()) && !this.isCompleted();
+    }
+    return false;
+  }
+
+  public Long getDcaId() {
+    return this.getLong("id");
+  }
 
   public Date getActivationDate() {
     return this.getDate(ACTIVATION_DATE);
@@ -240,6 +280,14 @@ public class AJEntityClassContents extends Model {
 
   public Integer getForYear() {
     return this.getInteger(FOR_YEAR);
+  }
+
+  public Date getEndDate() {
+    return this.getDate(END_DATE);
+  }
+
+  public Boolean isCompleted() {
+    return this.getBoolean(IS_COMPLETED);
   }
 
   public List<String> getUsers() {
@@ -271,46 +319,6 @@ public class AJEntityClassContents extends Model {
 
   public int getUsersCount() {
     return this.getInteger(USERS_COUNT);
-  }
-
-  public static LazyList<AJEntityClassContents> fetchAllContentsForStudent(String classId,
-      int forMonth, int forYear, String userId) {
-
-    LocalDate fromDate, toDate;
-    fromDate = LocalDate.of(forYear, forMonth, 1);
-    toDate = fromDate.withDayOfMonth(fromDate.lengthOfMonth());
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS_FLT_NOT_ACTIVATED, classId, fromDate.toString(),
-            toDate.toString(), userId).orderBy("activation_date desc, id desc");
-  }
-
-  public static LazyList<AJEntityClassContents> fetchAllContentsForTeacher(String classId,
-      int forMonth, int forYear) {
-
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS, classId, forYear, forMonth)
-        .orderBy("dca_added_date desc nulls first, created_at desc");
-  }
-
-  public static LazyList<AJEntityClassContents> fetchClassContentsByContentTypeForStudent(
-      String classId, String contentType, int forMonth, int forYear, String userId) {
-
-    LocalDate fromDate, toDate;
-    fromDate = LocalDate.of(forYear, forMonth, 1);
-    toDate = fromDate.withDayOfMonth(fromDate.lengthOfMonth());
-
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS_GRP_BY_TYPE_FLT_NOT_ACTIVATED, classId, contentType,
-            fromDate.toString(), toDate.toString(), userId)
-        .orderBy("activation_date desc, id desc");
-  }
-
-  public static LazyList<AJEntityClassContents> fetchClassContentsByContentTypeForTeacher(
-      String classId, String contentType, int forMonth, int forYear) {
-
-    return AJEntityClassContents
-        .where(SELECT_CLASS_CONTENTS_GRP_BY_TYPE, classId, forYear, forMonth, contentType)
-        .orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
   public static void updateClassContentUsers(Long classContentId, String users, int count) {

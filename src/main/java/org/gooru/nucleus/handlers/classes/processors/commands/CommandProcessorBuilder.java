@@ -142,10 +142,29 @@ public enum CommandProcessorBuilder {
       return new ClassContentUsersAddProcessor(context);
     }
   },
-  CLASS_CONTENT_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_LIST) {
+  CLASS_CONTENT_LIST_UNSCHEDULED(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_UNSCHEDULED) {
     @Override
     public Processor build(ProcessorContext context) {
-      return new ClassContentListProcessor(context);
+      return new ClassContentListUnscheduledProcessor(context);
+    }
+  },
+  CLASS_CONTENT_LIST_OFFLINE_ACTIVE(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_OFFLINE_ACTIVE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListOfflineActiveProcessor(context);
+    }
+  },
+  CLASS_CONTENT_LIST_OFFLINE_COMPLETED(
+      MessageConstants.MSG_OP_CLASS_CONTENT_LIST_OFFLINE_COMPLETED) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListOfflineCompletedProcessor(context);
+    }
+  },
+  CLASS_CONTENT_LIST_ONLINE_SCHEDULED(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_ONLINE_SCHEDULED) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListOnlineScheduledProcessor(context);
     }
   },
   CLASS_CONTENT_USERS_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_LIST) {
@@ -158,6 +177,12 @@ public enum CommandProcessorBuilder {
     @Override
     public Processor build(ProcessorContext context) {
       return new ClassContentEnableProcessor(context);
+    }
+  },
+  CLASS_CONTENT_SCHEDULE(MessageConstants.MSG_OP_CLASS_CONTENT_SCHEDULE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentScheduleProcessor(context);
     }
   },
   CLASS_ARCHIVE(MessageConstants.MSG_OP_CLASS_ARCHIVE) {
@@ -203,10 +228,24 @@ public enum CommandProcessorBuilder {
       return new ClassLanguageUpdateProcessor(context);
     }
   },
-  MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER(MessageConstants.MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER) {
+  MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER(
+      MessageConstants.MSG_OP_CLASS_LPBASELINE_STUDENT_TRIGGER) {
     @Override
     public Processor build(ProcessorContext context) {
       return new ClassProfileBaselineTriggerForStudentProcessor(context);
+    }
+  },
+  CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE(
+      MessageConstants.MSG_OP_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentMasteryAccrualUpdateProcessor(context);
+    }
+  },
+  MSG_OP_CLASS_CONTENT_COMPLETION(MessageConstants.MSG_OP_CLASS_CONTENT_COMPLETION) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentCompletionMarkerProcessor(context);
     }
   };
   private String name;

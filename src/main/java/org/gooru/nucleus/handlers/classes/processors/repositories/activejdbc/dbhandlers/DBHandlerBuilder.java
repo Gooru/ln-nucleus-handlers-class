@@ -1,9 +1,18 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activityaddusers.AddClassContentUsersHandler;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.activitylistusers.ListClassContentUsersHandler;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.cacontentactivation.EnableContentInClassHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityadd.AddContentInClassHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityaddusers.AddClassContentUsersHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentactivation.EnableContentInClassHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentcompletion.ClassContentCompletionMarkerHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitydelete.DeleteClassContentHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive.ClassContentListOfflineActiveHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlinecompleted.ClassContentListOfflineCompletedHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled.ClassContentListOnlineScheduledHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled.ListClassContentUnscheduledHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylistusers.ListClassContentUsersHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitymasteryaccrual.UpdateClassContentMasteryAccrualHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityschedule.ScheduleContentInClassHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classmembersactivate.ClassMembersActivateHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classmembersdeactivate.ClassMembersDeactivateHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.fetchclassmembers.FetchClassMembersHandler;
@@ -86,12 +95,12 @@ public final class DBHandlerBuilder {
     return new AddContentInClassHandler(context);
   }
 
-  public static DBHandler buildListClassContentHandler(ProcessorContext context) {
-    return new ListClassContentHandler(context);
-  }
-
   public static DBHandler buildEnableContentInClassHandler(ProcessorContext context) {
     return new EnableContentInClassHandler(context);
+  }
+
+  public static DBHandler buildScheduleContentInClassHandler(ProcessorContext context) {
+    return new ScheduleContentInClassHandler(context);
   }
 
   public static DBHandler buildArchiveClassHandler(ProcessorContext context) {
@@ -138,8 +147,32 @@ public final class DBHandlerBuilder {
   public static DBHandler buildClassLanguageUpdateHandler(ProcessorContext context) {
     return new UpdateClassLanguageHandler(context);
   }
-  
+
   public static DBHandler buildUpdateProfileBaselineForStudentHandler(ProcessorContext context) {
     return new UpdateProfileBaselineForStudentHandler(context);
+  }
+
+  public static DBHandler buildUpdateClassContentMasteryAccrualHandler(ProcessorContext context) {
+    return new UpdateClassContentMasteryAccrualHandler(context);
+  }
+
+  public static DBHandler buildClassContentCompletionMarkerHandler(ProcessorContext context) {
+    return new ClassContentCompletionMarkerHandler(context);
+  }
+
+  public static DBHandler buildListClassContentUnscheduledHandler(ProcessorContext context) {
+    return new ListClassContentUnscheduledHandler(context);
+  }
+
+  public static DBHandler buildClassContentListOfflineActiveHandler(ProcessorContext context) {
+    return new ClassContentListOfflineActiveHandler(context);
+  }
+
+  public static DBHandler buildClassContentListOfflineCompletedHandler(ProcessorContext context) {
+    return new ClassContentListOfflineCompletedHandler(context);
+  }
+
+  public static DBHandler buildClassContentListOnlineScheduledHandler(ProcessorContext context) {
+    return new ClassContentListOnlineScheduledHandler(context);
   }
 }

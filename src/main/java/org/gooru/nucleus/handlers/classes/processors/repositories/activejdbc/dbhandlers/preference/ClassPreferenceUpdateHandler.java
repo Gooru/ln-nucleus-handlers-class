@@ -1,6 +1,6 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.preference;
 
+import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -17,7 +17,6 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.vertx.core.json.JsonObject;
 
 /**
  * @author szgooru Created On 28-Dec-2018
@@ -139,5 +138,6 @@ public class ClassPreferenceUpdateHandler implements DBHandler {
   }
 
   private static class DefaultPayloadValidator implements PayloadValidator {
+
   }
 }

@@ -22,9 +22,11 @@ class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
       .getLogger(AssociateCourseWithClassAuthorizer.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
+  private final AJEntityCourse entityCourse;
 
-  AssociateCourseWithClassAuthorizer(ProcessorContext context) {
+  AssociateCourseWithClassAuthorizer(ProcessorContext context, AJEntityCourse entityCourse) {
     this.context = context;
+    this.entityCourse = entityCourse;
   }
 
   @Override
@@ -44,17 +46,15 @@ class AssociateCourseWithClassAuthorizer implements Authorizer<AJEntityClass> {
 
   private ExecutionResult<MessageResponse> checkCourseAuthorization() {
     try {
-      AJEntityCourse course =
-          AJEntityCourse.findFirst(AJEntityCourse.COURSE_ASSOCIATION_FILTER, context.courseId());
-      if (course != null) {
-        if (Objects.equals(context.tenant(), course.getTenant())) {
+      if (entityCourse != null) {
+        if (Objects.equals(context.tenant(), entityCourse.getTenant())) {
           return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
         }
 
         final AJEntityTenant courseTenant =
-            AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, course.getTenant());
+            AJEntityTenant.findFirst(AJEntityTenant.SELECT_TENANT, entityCourse.getTenant());
         if (courseTenant != null && ((courseTenant.isContentVisibilityTenant()
-            && Objects.equals(context.tenantRoot(), course.getTenant()))
+            && Objects.equals(context.tenantRoot(), entityCourse.getTenant()))
             || courseTenant.isContentVisibilityGlobal())) {
           return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
         }

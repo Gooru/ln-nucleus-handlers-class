@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor;
 
 import java.sql.PreparedStatement;
@@ -72,7 +71,8 @@ public class RerouteSettingPostProcessor {
                   false, false, true);
             }
           } else {
-            LOGGER.debug("there is no baseline done for user '{}' -- nothing to do, skipping", userId);
+            LOGGER.debug("there is no baseline done for user '{}' -- nothing to do, skipping",
+                userId);
           }
         });
 

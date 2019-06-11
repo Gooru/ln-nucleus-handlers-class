@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.commands;
 
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -8,8 +7,7 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 
 /**
- * @author szgooru
- * Created On 04-Feb-2019
+ * @author szgooru Created On 04-Feb-2019
  */
 public class ClassProfileBaselineTriggerForStudentProcessor extends AbstractCommandProcessor {
 

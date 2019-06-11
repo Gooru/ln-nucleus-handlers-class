@@ -77,6 +77,18 @@ public final class AppConfiguration implements Initializer {
     return configuration.getJsonObject(KEY).getString(COURSE_VERSION_FOR_PREMIUM_CONTENT);
   }
 
+  public String getOACompletionInformEndpoint() {
+    return configuration.getJsonObject(KEY).getString("oa.completion.informer.endpoint");
+  }
+
+  public int getHttpClientPoolSize() {
+    return configuration.getJsonObject(KEY).getInteger("httpclient.pool.size");
+  }
+
+  public int getHttpClientTimeout() {
+    return configuration.getJsonObject(KEY).getInteger("httpclient.timeout");
+  }
+
   private static final class Holder {
 
     private static final AppConfiguration INSTANCE = new AppConfiguration();

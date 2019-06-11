@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.reroutesetting.postprocessor;
 
 import java.util.List;
@@ -8,6 +7,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbh
  * @author szgooru Created On 07-Feb-2019
  */
 public class RerouteSettingPostProcessorCommand {
+
   private String classId;
   private List<UserSettingCommand> users;
 

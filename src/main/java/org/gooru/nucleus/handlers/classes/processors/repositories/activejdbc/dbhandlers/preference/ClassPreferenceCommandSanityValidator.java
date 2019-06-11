@@ -1,4 +1,3 @@
-
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.preference;
 
 import java.util.ResourceBundle;
@@ -9,6 +8,7 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
  * @author szgooru Created On 03-Jan-2019
  */
 public class ClassPreferenceCommandSanityValidator {
+
   private final static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
 
   private final String subject;

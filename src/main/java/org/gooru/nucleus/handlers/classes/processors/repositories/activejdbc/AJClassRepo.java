@@ -113,15 +113,21 @@ class AJClassRepo implements ClassRepo {
   }
 
   @Override
-  public MessageResponse listClassContent() {
+  public MessageResponse listClassContentUnscheduled() {
     return TransactionExecutor
-        .executeTransaction(DBHandlerBuilder.buildListClassContentHandler(context));
+        .executeTransaction(DBHandlerBuilder.buildListClassContentUnscheduledHandler(context));
   }
 
   @Override
   public MessageResponse enableContentInClass() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildEnableContentInClassHandler(context));
+  }
+
+  @Override
+  public MessageResponse scheduleContentInClass() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildScheduleContentInClassHandler(context));
   }
 
   @Override
@@ -193,6 +199,37 @@ class AJClassRepo implements ClassRepo {
 
   @Override
   public MessageResponse updateProfileBaselineForStudent() {
-    return TransactionExecutor.executeTransaction(DBHandlerBuilder.buildUpdateProfileBaselineForStudentHandler(context));
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildUpdateProfileBaselineForStudentHandler(context));
+  }
+
+  @Override
+  public MessageResponse updateClassContentMasteryAccrual() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildUpdateClassContentMasteryAccrualHandler(context));
+  }
+
+  @Override
+  public MessageResponse classContentComplete() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentCompletionMarkerHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentListOfflineActiveProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListOfflineActiveHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentListOfflineCompletedProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListOfflineCompletedHandler(context));
+  }
+
+  @Override
+  public MessageResponse listClassContentListOnlineScheduledProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListOnlineScheduledHandler(context));
   }
 }
