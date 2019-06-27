@@ -160,7 +160,10 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
     currentCollaborators =
         currentCollaboratorsAsString != null && !currentCollaboratorsAsString.isEmpty() ?
             new JsonArray(currentCollaboratorsAsString) : new JsonArray();
-    JsonArray newCollaborators = this.context.request().getJsonArray(AJEntityClass.COLLABORATOR);
+    JsonArray newCollaborators =
+        this.context.request().getJsonArray(AJEntityClass.COLLABORATOR) != null ? this.context
+            .request().getJsonArray(AJEntityClass.COLLABORATOR) : new JsonArray();
+
     if (currentCollaborators.isEmpty() && !newCollaborators.isEmpty()) {
       // Adding all
       result.put(COLLABORATORS_ADDED, newCollaborators.copy());
@@ -197,6 +200,9 @@ class UpdateCollaboratorForClassHandler implements DBHandler {
   private boolean collaboratorsAreTeachersOrStudents() {
     String creatorId = this.entityClass.getString(AJEntityClass.CREATOR_ID);
     JsonArray newCollaborators = this.context.request().getJsonArray(AJEntityClass.COLLABORATOR);
+    if (newCollaborators == null) {
+      return false;
+    }
     if (newCollaborators.contains(creatorId)) {
       return true;
     }
