@@ -175,4 +175,8 @@ public final class DBHandlerBuilder {
   public static DBHandler buildClassContentListOnlineScheduledHandler(ProcessorContext context) {
     return new ClassContentListOnlineScheduledHandler(context);
   }
+
+  public static DBHandler buildClassStudentsAddHandler(ProcessorContext context) {
+    return new AddStudentsToClassHandler(context);
+  }
 }

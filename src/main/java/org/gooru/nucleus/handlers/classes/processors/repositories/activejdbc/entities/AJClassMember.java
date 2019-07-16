@@ -40,7 +40,7 @@ public class AJClassMember extends Model {
   public static final String CLASS_MEMBER_STATUS = "class_member_status";
   private static final String CLASS_MEMBER_STATUS_TYPE = "class_member_status_type";
   public static final String CLASS_MEMBER_STATUS_TYPE_INVITED = "invited";
-  private static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
+  public static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
   public static final String TABLE_CLASS_MEMBER = "class_member";
 
   public static final String INVITE_STUDENT_QUERY =

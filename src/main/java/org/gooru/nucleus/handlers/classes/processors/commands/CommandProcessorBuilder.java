@@ -247,7 +247,14 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ClassContentCompletionMarkerProcessor(context);
     }
+  },
+  MSG_OP_CLASS_STUDENTS_ADD(MessageConstants.MSG_OP_CLASS_STUDENTS_ADD) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassStudentsAddProcessor(context);
+    }
   };
+  
   private String name;
 
   CommandProcessorBuilder(String name) {
