@@ -95,41 +95,37 @@ public class AddStudentsToClassHandler implements DBHandler {
     }
 
     this.entityClass = classes.get(0);
-    initializeStudentList();
+    
+    if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
+      LOGGER.warn("Class with id '{}' is either archived or not of current version",
+          this.context.classId());
+      return new ExecutionResult<>(
+          MessageResponseFactory.createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+          ExecutionResult.ExecutionStatus.FAILED);
+    }
+    
+    // Initialize student list from the request payload and verify the existance of the users. If
+    // not we need to return bad request.
+    ExecutionResult<MessageResponse> result = initializeStudentList();
+    if (!result.continueProcessing()) {
+      return result;
+    }
 
+    // Verify that the user adding the students to class is owner or collaborator of the class
     return AuthorizerBuilder.buildAddStudentsToClassAuthorizer(this.context)
         .authorize(this.entityClass);
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    Map<String, AJClassMember> existingMembers = fetchExistingMembers();
-    Map<String, String> userEmails = fetchUserEmails();
-
     PreparedStatement cmBatch = Base.startBatch(
-        "INSERT INTO class_member(class_id, email, user_id, class_member_status, grade_upper_bound) VALUES (?::uuid, ?, ?::uuid, ?::class_member_status_type, ?)"
-            + " ON CONFLICT (class_id, email) DO UPDATE SET class_member_status = 'joined'::class_member_status_type, grade_upper_bound = ?, updated_at = now()");
+        "INSERT INTO class_member(class_id, user_id, class_member_status, grade_upper_bound) VALUES (?::uuid, ?::uuid, ?::class_member_status_type, ?)"
+            + " ON CONFLICT (class_id, user_id) DO NOTHING");
     try {
-
       this.studentList.forEach(id -> {
-        if (existingMembers.containsKey(id)) {
-          AJClassMember member = existingMembers.get(id);
-          // If user is only invited, we need to update the status to be joined.
-          if (AJClassMember.CLASS_MEMBER_STATUS_TYPE_INVITED
-              .equalsIgnoreCase(member.getString(AJClassMember.CLASS_MEMBER_STATUS))) {
-            Base.addBatch(cmBatch, this.context.classId(), member.getString(AJClassMember.EMAIL),
-                this.context.userId(), AJClassMember.CLASS_MEMBER_STATUS_TYPE_JOINED,
-                this.entityClass.getGradeCurrent(), this.entityClass.getGradeCurrent());
-          } else {
-            // No action as the users is already joined class
-          }
-        } else {
-          String email = userEmails.get(id);
-          Base.addBatch(cmBatch, this.context.classId(),
-              (email != null ? email : getUserEmailAddress()), id,
-              AJClassMember.CLASS_MEMBER_STATUS_TYPE_JOINED, this.entityClass.getGradeCurrent(),
-              this.entityClass.getGradeCurrent());
-        }
+        Base.addBatch(cmBatch, this.context.classId(), id,
+            AJClassMember.CLASS_MEMBER_STATUS_TYPE_JOINED, this.entityClass.getGradeCurrent());
       });
 
       Base.executeBatch(cmBatch);
@@ -169,12 +165,20 @@ public class AddStudentsToClassHandler implements DBHandler {
   private static class DefaultPayloadValidator implements PayloadValidator {
   }
 
-  private void initializeStudentList() {
+  private ExecutionResult<MessageResponse> initializeStudentList() {
     JsonArray input = this.context.request().getJsonArray(AJEntityClass.STUDENTS);
     this.studentList = new ArrayList<>(input.size());
     input.forEach(entry -> {
       this.studentList.add(entry.toString());
     });
+
+    Integer userCount = fetchUserCount();
+    if (userCount != this.studentList.size()) {
+      return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
+          "Not all students exists in database"), ExecutionResult.ExecutionStatus.FAILED);
+    }
+
+    return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
   }
 
   private Map<String, AJClassMember> fetchExistingMembers() {
@@ -194,20 +198,9 @@ public class AddStudentsToClassHandler implements DBHandler {
     }
   }
 
-  private Map<String, String> fetchUserEmails() {
+  private Integer fetchUserCount() {
     LazyList<AJEntityUser> demographics = AJEntityUser.findBySQL(AJEntityUser.GET_SUMMARY_QUERY,
         DbHelperUtil.toPostgresArrayString(this.studentList));
-    Map<String, String> userEmails = new HashMap<>();
-    if (!demographics.isEmpty()) {
-      demographics.forEach(user -> {
-        userEmails.put(user.getString(AJEntityUser.ID), user.getString(AJEntityUser.EMAIL));
-      });
-    }
-
-    return userEmails;
-  }
-
-  private String getUserEmailAddress() {
-    return GeneratorBuilder.buildDummyEmailGenerator(this.context.userId()).generate();
+    return (demographics != null) ? demographics.size() : 0;
   }
 }

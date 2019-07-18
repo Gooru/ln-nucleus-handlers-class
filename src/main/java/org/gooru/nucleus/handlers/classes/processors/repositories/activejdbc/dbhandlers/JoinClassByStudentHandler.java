@@ -1,6 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers;
 
-import io.vertx.core.json.JsonObject;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -10,7 +9,6 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dba
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
-import org.gooru.nucleus.handlers.classes.processors.repositories.generators.GeneratorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
@@ -19,6 +17,7 @@ import org.javalite.activejdbc.LazyList;
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Created by ashish on 8/2/16.
@@ -30,10 +29,7 @@ class JoinClassByStudentHandler implements DBHandler {
   private final ProcessorContext context;
   private AJEntityClass entityClass;
   private String classId;
-  private String courseId;
   private AJClassMember membership;
-  private String email;
-  private static final String JOIN_CLASS = "join.class";
 
   JoinClassByStudentHandler(ProcessorContext context) {
     this.context = context;
@@ -49,6 +45,7 @@ class JoinClassByStudentHandler implements DBHandler {
               .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("missing.class.code")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
+
     // The user should not be anonymous
     if (context.userId() == null || context.userId().isEmpty()
         || context.userId().equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
@@ -57,15 +54,14 @@ class JoinClassByStudentHandler implements DBHandler {
           MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
-    this.email = context.session().getString(MessageConstants.EMAIL);
+
     // Payload should not be null
     if (context.request() == null) {
-      LOGGER.warn("Payload is null");
-      return new ExecutionResult<>(
-          MessageResponseFactory
-              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("empty.payload")),
-          ExecutionResult.ExecutionStatus.FAILED);
+      LOGGER.warn("Payload is null or empty");
+      return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
+          RESOURCE_BUNDLE.getString("empty.payload")), ExecutionResult.ExecutionStatus.FAILED);
     }
+
     // Our validators should certify this
     JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
         AJEntityClass.joinClassFieldSelector(), AJEntityClass.getValidatorRegistry());
@@ -80,8 +76,8 @@ class JoinClassByStudentHandler implements DBHandler {
   @Override
   public ExecutionResult<MessageResponse> validateRequest() {
     String classCode = context.classCode().toUpperCase();
-    LazyList<AJEntityClass> classes = AJEntityClass
-        .where(AJEntityClass.FETCH_VIA_CODE_FILTER, classCode);
+    LazyList<AJEntityClass> classes =
+        AJEntityClass.where(AJEntityClass.FETCH_VIA_CODE_FILTER, classCode);
     if (classes.isEmpty()) {
       LOGGER.warn("Not able to find class with code '{}'", classCode);
       return new ExecutionResult<>(
@@ -90,14 +86,13 @@ class JoinClassByStudentHandler implements DBHandler {
     }
     this.entityClass = classes.get(0);
     this.classId = this.entityClass.getId().toString();
-    this.courseId = this.entityClass.getString(AJEntityClass.COURSE_ID);
+
     // Class should be of current version and Class should not be archived
     if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
       LOGGER.warn("Class with code '{}' is either archived or not of current version", classCode);
       return new ExecutionResult<>(
-          MessageResponseFactory
-              .createInvalidRequestResponse(
-                  RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+          MessageResponseFactory.createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
     // First level of authorization, user should not be teacher, co teacher
@@ -105,61 +100,39 @@ class JoinClassByStudentHandler implements DBHandler {
     if (isUserClassMember()) {
       // User is already joined, so nothing to do; just return
       // successfully
+      LOGGER.debug("user is already member");
       return new ExecutionResult<>(
           MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("joined")),
           ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
-    // Now get the membership record for that user
-    if (this.email != null && !this.email.isEmpty()) {
-      LazyList<AJClassMember> members =
-          AJClassMember.where(AJClassMember.FETCH_FOR_EMAIL_QUERY_FILTER, this.classId, this.email);
-      if (!members.isEmpty()) {
-        this.membership = members.get(0);
-      } else {
-        this.membership = null;
-      }
-    } else {
-      this.membership = null;
-    }
+
     // Delegate it to authorizer to confirm if this is either an open class
     // in which case allow user to join or it is restricted class but the
     // user is invited which is also fine. Else no authorization
-    return AuthorizerBuilder.buildJoinClassByStudentAuthorizer(this.context, this.membership)
+    return AuthorizerBuilder.buildJoinClassByStudentAuthorizer(this.context)
         .authorize(this.entityClass);
   }
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    if (this.membership == null) {
-      // Make an entry into the members tables in case of open class
-      this.membership = new AJClassMember();
-      this.membership.setClassId(this.classId);
-      this.membership.setString(AJClassMember.EMAIL, getUserEmailAddress());
-      this.membership.setUserId(this.context.userId());
-      this.membership.setRosterId(this.context.request().getString(AJClassMember.ROSTER_ID));
-      this.membership
-          .setCreatorSystem(this.context.request().getString(AJClassMember.CREATOR_SYSTEM));
-      this.membership.setStatusJoined();
-      this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
-      if (this.membership.hasErrors()) {
-        return membershipErrors();
-      }
-    } else {
-      // In case user is already invited we need to update the status
-      if (AJClassMember.CLASS_MEMBER_STATUS_TYPE_INVITED
-          .equalsIgnoreCase(this.membership.getString(AJClassMember.CLASS_MEMBER_STATUS))) {
-        this.membership.setUserId(this.context.userId());
-        this.membership.setStatusJoined();
-        this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
-      } else {
-        // User is already joined, so nothing to do; just return successfully
-        return new ExecutionResult<>(
-            MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("joined")),
-            ExecutionResult.ExecutionStatus.SUCCESSFUL);
-      }
+    // Make an entry into the members tables in case of open class
+    LOGGER.debug("creating new membership");
+    this.membership = new AJClassMember();
+    this.membership.setClassId(this.classId);
+    this.membership.setUserId(this.context.userId());
+    this.membership.setRosterId(this.context.request().getString(AJClassMember.ROSTER_ID));
+    this.membership
+        .setCreatorSystem(this.context.request().getString(AJClassMember.CREATOR_SYSTEM));
+    this.membership.setStatusJoined();
+    this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
+
+    if (this.membership.hasErrors()) {
+      return membershipErrors();
     }
+
     try {
       // Now we need to save
+      LOGGER.debug("saving membership");
       boolean result = this.membership.save();
       if (!result) {
         LOGGER.error("Class membership with id '{}' and user '{}' failed to save", this.classId,
@@ -169,9 +142,8 @@ class JoinClassByStudentHandler implements DBHandler {
         }
       }
     } catch (Exception e) {
-      if (e instanceof DBException && e.getCause() instanceof PSQLException && ((PSQLException) e
-          .getCause())
-          .getSQLState().startsWith("23")) {
+      if (e instanceof DBException && e.getCause() instanceof PSQLException
+          && ((PSQLException) e.getCause()).getSQLState().startsWith("23")) {
         // User is already joined, during race condition, so nothing to do; just return successfully
         return new ExecutionResult<>(
             MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("joined")),
@@ -180,6 +152,7 @@ class JoinClassByStudentHandler implements DBHandler {
       throw e;
     }
 
+    LOGGER.debug("membership saved");
     return new ExecutionResult<>(
         MessageResponseFactory.createCreatedResponse(this.classId,
             EventBuilderFactory.getStudentJoinedEventBuilder(this.classId, this.context.userId())),
@@ -192,7 +165,6 @@ class JoinClassByStudentHandler implements DBHandler {
   }
 
   private static class DefaultPayloadValidator implements PayloadValidator {
-
   }
 
   private ExecutionResult<MessageResponse> membershipErrors() {
@@ -207,14 +179,6 @@ class JoinClassByStudentHandler implements DBHandler {
     ExecutionResult<MessageResponse> result =
         AuthorizerBuilder.buildClassMembersAuthorizer(context).authorize(this.entityClass);
     return result.continueProcessing();
-  }
-
-  private String getUserEmailAddress() {
-    String userEmail = (this.email != null && !this.email.isEmpty()) ? this.email : null;
-    if (userEmail == null) {
-      userEmail = GeneratorBuilder.buildDummyEmailGenerator(this.context.userId()).generate();
-    }
-    return userEmail;
   }
 
 }
