@@ -126,10 +126,6 @@ class JoinClassByStudentHandler implements DBHandler {
     this.membership.setStatusJoined();
     this.membership.setGradeUpperBound(entityClass.getGradeCurrent());
 
-    if (this.membership.hasErrors()) {
-      return membershipErrors();
-    }
-
     try {
       // Now we need to save
       LOGGER.debug("saving membership");
@@ -149,7 +145,9 @@ class JoinClassByStudentHandler implements DBHandler {
             MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("joined")),
             ExecutionResult.ExecutionStatus.SUCCESSFUL);
       }
-      throw e;
+
+      return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
+          "Something went wrong with the request"), ExecutionResult.ExecutionStatus.FAILED);
     }
 
     LOGGER.debug("membership saved");

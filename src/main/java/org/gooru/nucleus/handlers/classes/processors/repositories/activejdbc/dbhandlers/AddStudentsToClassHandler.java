@@ -18,12 +18,10 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityUser;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
-import org.gooru.nucleus.handlers.classes.processors.repositories.generators.GeneratorBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.javalite.activejdbc.Base;
-import org.javalite.activejdbc.DBException;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,23 +177,6 @@ public class AddStudentsToClassHandler implements DBHandler {
     }
 
     return new ExecutionResult<>(null, ExecutionResult.ExecutionStatus.CONTINUE_PROCESSING);
-  }
-
-  private Map<String, AJClassMember> fetchExistingMembers() {
-    LazyList<AJClassMember> members =
-        AJClassMember.where(AJClassMember.FETCH_SPECIFIC_USERS_QUERY_FILTER, this.context.classId(),
-            DbHelperUtil.toPostgresArrayString(this.studentList));
-
-    if (members.isEmpty()) {
-      return new HashMap();
-    } else {
-      Map<String, AJClassMember> membersMap = new HashMap<>();
-      members.forEach(member -> {
-        membersMap.put(member.getString(AJClassMember.USER_ID), member);
-      });
-
-      return membersMap;
-    }
   }
 
   private Integer fetchUserCount() {
