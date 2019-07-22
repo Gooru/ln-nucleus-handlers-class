@@ -38,7 +38,7 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
   public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
   public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
-
+  public static final String MSG_OP_CLASS_STUDENTS_ADD = "class.students.add";
 
   public static final String MSG_OP_CLASS_CONTENT_ADD = "class.content.add";
   public static final String MSG_OP_CLASS_CONTENT_LIST_UNSCHEDULED = "class.content.list.unscheduled";

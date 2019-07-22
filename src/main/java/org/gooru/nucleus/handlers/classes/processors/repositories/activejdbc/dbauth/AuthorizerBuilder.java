@@ -1,13 +1,12 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth;
 
-import io.vertx.core.json.JsonArray;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCollection;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityContent;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityCourse;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
+import io.vertx.core.json.JsonArray;
 
 /**
  * Created by ashish on 29/1/16.
@@ -80,12 +79,15 @@ public final class AuthorizerBuilder {
   }
 
   public static Authorizer<AJEntityClass> buildJoinClassByStudentAuthorizer(
-      ProcessorContext context,
-      AJClassMember membership) {
-    return new OpenClassOrInvitedStudentAuthorizer(context, membership);
+      ProcessorContext context) {
+    return new OpenClassOrInvitedStudentAuthorizer(context);
   }
 
   public static Authorizer<AJEntityClass> buildUpdateClassAuthorizer(ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+  
+  public static Authorizer<AJEntityClass> buildAddStudentsToClassAuthorizer(ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
 

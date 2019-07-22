@@ -2,7 +2,6 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
-import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJClassMember;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -15,16 +14,14 @@ class OpenClassOrInvitedStudentAuthorizer implements Authorizer<AJEntityClass> {
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
-  private final AJClassMember membership;
 
-  OpenClassOrInvitedStudentAuthorizer(ProcessorContext context, AJClassMember membership) {
+  OpenClassOrInvitedStudentAuthorizer(ProcessorContext context) {
     this.context = context;
-    this.membership = membership;
   }
 
   @Override
   public ExecutionResult<MessageResponse> authorize(AJEntityClass model) {
-    if (checkClassTypeOpen(model) || checkStudentInvited(model)) {
+    if (checkClassTypeOpen(model)) {
       return AuthorizerBuilder.buildTenantJoinAuthorizer(context).authorize(model);
     }
     return new ExecutionResult<>(
@@ -38,11 +35,4 @@ class OpenClassOrInvitedStudentAuthorizer implements Authorizer<AJEntityClass> {
         .equalsIgnoreCase(model.getString(AJEntityClass.CLASS_SHARING));
   }
 
-  private boolean checkStudentInvited(AJEntityClass model) {
-    if (this.membership == null) {
-      return false;
-    }
-    // Membership record means that user is either invited or already joined
-    return true;
-  }
 }

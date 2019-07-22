@@ -78,4 +78,6 @@ public interface ClassRepo {
   MessageResponse listClassContentListOfflineCompletedProcessor();
 
   MessageResponse listClassContentListOnlineScheduledProcessor();
+  
+  MessageResponse addStudentsToClass();
 }
