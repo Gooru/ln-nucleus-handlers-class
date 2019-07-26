@@ -25,7 +25,7 @@ public class AJEntityUser extends Model {
   private static final String LAST_NAME = "last_name";
   private static final String THUMBNAIL = "thumbnail";
   private static final String ROSTER_GLOBAL_USERID = "roster_global_userid";
-  private static final String EMAIL = "email";
+  public static final String EMAIL = "email";
   public static final List<String> GET_SUMMARY_QUERY_FIELD_LIST =
       Arrays.asList(ID, FIRST_NAME, LAST_NAME, THUMBNAIL, ROSTER_GLOBAL_USERID, EMAIL);
 

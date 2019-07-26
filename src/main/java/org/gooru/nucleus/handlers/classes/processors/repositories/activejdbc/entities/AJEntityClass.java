@@ -63,6 +63,7 @@ public class AJEntityClass extends Model {
   private static final String FORCE_CALCULATE_ILP = "force_calculate_ilp";
   private static final String MILESTONE_VIEW_APPLICABLE = "milestone_view_applicable";
 
+  public static final String STUDENTS = "students";
 
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
@@ -118,6 +119,8 @@ public class AJEntityClass extends Model {
           MILESTONE_VIEW_APPLICABLE);
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
+  
+  private static final Set<String> ADD_STUDENTS_FIELDS = new HashSet<>(Arrays.asList(STUDENTS));
 
   private static final Set<String> CLASS_PREFERENCE_FIELDS =
       new HashSet<>(Arrays.asList(PREFERENCE));
@@ -184,6 +187,7 @@ public class AJEntityClass extends Model {
             .validateDeepJsonArrayIfPresent(value, FieldValidator::validateEmail));
     validatorMap.put(CV_ASSESSMENTS, FieldValidator::validateJsonArrayIfPresent);
     validatorMap.put(CV_COLLECTIONS, FieldValidator::validateJsonArrayIfPresent);
+    validatorMap.put(STUDENTS, FieldValidator::validateJsonArray);
     validatorMap.put(TENANT, (FieldValidator::validateUuid));
     validatorMap.put(TENANT_ROOT, (FieldValidator::validateUuid));
     validatorMap.put(PREFERENCE, (FieldValidator::validateJsonIfPresent));
@@ -220,6 +224,10 @@ public class AJEntityClass extends Model {
 
   public static FieldSelector joinClassFieldSelector() {
     return () -> Collections.unmodifiableSet(JOIN_CLASS_FIELDS);
+  }
+  
+  public static FieldSelector addStudentsToClassFieldSelector() {
+    return () -> Collections.unmodifiableSet(ADD_STUDENTS_FIELDS);
   }
 
   public static FieldSelector updateClassFieldSelector() {

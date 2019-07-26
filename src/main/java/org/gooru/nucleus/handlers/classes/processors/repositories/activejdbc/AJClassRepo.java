@@ -232,4 +232,10 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassContentListOnlineScheduledHandler(context));
   }
+
+  @Override
+  public MessageResponse addStudentsToClass() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassStudentsAddHandler(context));
+  }
 }
