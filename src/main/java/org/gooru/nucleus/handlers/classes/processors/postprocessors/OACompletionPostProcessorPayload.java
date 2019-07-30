@@ -19,6 +19,7 @@ public class OACompletionPostProcessorPayload {
   private String contentSource = DEFAULT_CONTENT_SOURCE;
   private int pathId = DEFAULT_PATH_ID;
   private String pathType = null;
+  private String studentRubricId;
   private List<String> users = new ArrayList<>();
 
   public OACompletionPostProcessorPayload setClassId(String classId) {
@@ -55,6 +56,11 @@ public class OACompletionPostProcessorPayload {
     this.users = users;
     return this;
   }
+  
+  public OACompletionPostProcessorPayload setStudentRubricId(String studentRubricId) {
+    this.studentRubricId = studentRubricId;
+    return this;
+  }
 
   public JsonObject createPayload() {
     JsonArray usersArray = new JsonArray();
@@ -66,7 +72,7 @@ public class OACompletionPostProcessorPayload {
 
     return new JsonObject().put("class_id", classId).put("oa_dca_id", oaDcaId).put("oa_id", oaId)
         .put("content_source", contentSource).put("path_id", pathId).put("path_type", pathType)
-        .put("users", usersArray);
+        .put("student_rubric_id", studentRubricId).put("users", usersArray);
   }
-
+ 
 }
