@@ -59,12 +59,6 @@ class AJClassRepo implements ClassRepo {
   }
 
   @Override
-  public MessageResponse inviteStudentToClass() {
-    return TransactionExecutor
-        .executeTransaction(DBHandlerBuilder.buildInviteStudentToClassHandler(context));
-  }
-
-  @Override
   public MessageResponse deleteClass() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildDeleteClassHandler(context));
@@ -86,12 +80,6 @@ class AJClassRepo implements ClassRepo {
   public MessageResponse updateCollaboratorForClass() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildUpdateCollaboratorForClassHandler(context));
-  }
-
-  @Override
-  public MessageResponse removeInviteForStudentFromClass() {
-    return TransactionExecutor
-        .executeTransaction(DBHandlerBuilder.buildRemoveInviteHandler(context));
   }
 
   @Override

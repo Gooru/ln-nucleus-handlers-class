@@ -31,11 +31,9 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_LIST = "class.list";
   public static final String MSG_OP_CLASS_LIST_FOR_COURSE = "class.list.for.course";
   public static final String MSG_OP_CLASS_JOIN = "class.join";
-  public static final String MSG_OP_CLASS_INVITE = "class.invite.user";
   public static final String MSG_OP_CLASS_COURSE_ASSOCIATION = "class.course.association";
   public static final String MSG_OP_CLASS_SET_CONTENT_VISIBILITY = "class.content.visibility.set";
   public static final String MSG_OP_CLASS_GET_CONTENT_VISIBILITY = "class.content.visibility.get";
-  public static final String MSG_OP_CLASS_INVITE_REMOVE = "class.invite.user.remove";
   public static final String MSG_OP_CLASS_REMOVE_STUDENT = "class.join.removal";
   public static final String MSG_OP_CLASS_ARCHIVE = "class.archive";
   public static final String MSG_OP_CLASS_STUDENTS_ADD = "class.students.add";
