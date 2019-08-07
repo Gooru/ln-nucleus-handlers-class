@@ -59,10 +59,6 @@ public final class DBHandlerBuilder {
     return new JoinClassByStudentHandler(context);
   }
 
-  public static DBHandler buildInviteStudentToClassHandler(ProcessorContext context) {
-    return new InviteStudentToClassHandler(context);
-  }
-
   public static DBHandler buildDeleteClassHandler(ProcessorContext context) {
     return new DeleteClassHandler(context);
   }
@@ -77,10 +73,6 @@ public final class DBHandlerBuilder {
 
   public static DBHandler buildSetContentVisibilityHandler(ProcessorContext context) {
     return new ContentVisibilityHandler(context);
-  }
-
-  public static DBHandler buildRemoveInviteHandler(ProcessorContext context) {
-    return new RemoveInviteHandler(context);
   }
 
   public static DBHandler buildRemoveStudentHandler(ProcessorContext context) {

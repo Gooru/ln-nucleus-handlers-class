@@ -23,6 +23,7 @@ public final class EntityClassContentsDao {
       "SELECT count(id) as task_count, oa_id FROM oa_tasks WHERE"
           + " oa_id = ANY(?::uuid[]) GROUP BY oa_id";
   private static final String SELECT_ACTIVE_CLASS_USERS = "select user_id::text from class_member where class_id = ?::uuid and is_active = true";
+  private static final String FETCH_STUDENT_RUBRIC_FOR_COLLECTION = "select id from rubric where collection_id = ?::uuid and is_deleted = false and is_rubric = true and grader = 'Self'";
 
   public static AJEntityClassContents fetchActivityByIdAndClass(String contentId, String classId) {
     LazyList<AJEntityClassContents> classContents =
@@ -140,9 +141,13 @@ public final class EntityClassContentsDao {
       "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity' "
           + " and (?::text = any(users) OR users is null) ";
 
-
   public static List<Map> fetchTaskCount(String offlineActivityIdListString) {
     return Base.findAll(SELECT_TASKS_COUNT_BY_OA, offlineActivityIdListString);
+  }
+  
+  public static String fetchStudentRubricForSpecifiedOA(String contentId) {
+    Object studentRubricId = Base.firstCell(FETCH_STUDENT_RUBRIC_FOR_COLLECTION, contentId);
+    return studentRubricId == null ? null : String.valueOf(studentRubricId);
   }
 
 }

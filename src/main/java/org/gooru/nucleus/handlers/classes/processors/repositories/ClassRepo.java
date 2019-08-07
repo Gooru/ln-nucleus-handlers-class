@@ -21,8 +21,6 @@ public interface ClassRepo {
 
   MessageResponse joinClassByStudent();
 
-  MessageResponse inviteStudentToClass();
-
   MessageResponse deleteClass();
 
   MessageResponse associateCourseWithClass();
@@ -30,8 +28,6 @@ public interface ClassRepo {
   MessageResponse updateCollaboratorForClass();
 
   MessageResponse setContentVisibility();
-
-  MessageResponse removeInviteForStudentFromClass();
 
   MessageResponse removeStudentFromClass();
 

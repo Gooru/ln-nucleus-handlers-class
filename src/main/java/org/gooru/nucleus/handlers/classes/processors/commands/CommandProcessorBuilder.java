@@ -64,12 +64,6 @@ public enum CommandProcessorBuilder {
       return new ClassDeleteProcessor(context);
     }
   },
-  CLASS_INVITE(MessageConstants.MSG_OP_CLASS_INVITE) {
-    @Override
-    public Processor build(ProcessorContext context) {
-      return new ClassInviteProcessor(context);
-    }
-  },
   CLASS_JOIN(MessageConstants.MSG_OP_CLASS_JOIN) {
     @Override
     public Processor build(ProcessorContext context) {
@@ -122,12 +116,6 @@ public enum CommandProcessorBuilder {
     @Override
     public Processor build(ProcessorContext context) {
       return new ClassRemoveStudentProcessor(context);
-    }
-  },
-  CLASS_INVITE_REMOVE(MessageConstants.MSG_OP_CLASS_INVITE_REMOVE) {
-    @Override
-    public Processor build(ProcessorContext context) {
-      return new ClassInviteRemoveProcessor(context);
     }
   },
   CLASS_CONTENT_ADD(MessageConstants.MSG_OP_CLASS_CONTENT_ADD) {
