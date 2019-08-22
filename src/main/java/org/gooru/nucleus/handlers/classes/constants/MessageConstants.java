@@ -84,6 +84,9 @@ public final class MessageConstants {
   public static final String REQ_PARAM_LIMIT = "limit";
   public static final String FOR_MONTH = "for_month";
   public static final String FOR_YEAR = "for_year";
+  
+  // Used to send multiple events
+  public static final String EVENTS = "events";
 
   private MessageConstants() {
     throw new AssertionError();
