@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.bootstrap;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.gooru.nucleus.handlers.classes.bootstrap.shutdown.Finalizer;
 import org.gooru.nucleus.handlers.classes.bootstrap.shutdown.Finalizers;
@@ -46,11 +47,21 @@ public class ClassVerticle extends AbstractVerticle {
               String sessionToken =
                   ((JsonObject) message.body()).getString(MessageConstants.MSG_HEADER_TOKEN);
               if (sessionToken != null && !sessionToken.isEmpty()) {
-                eventData.put(MessageConstants.MSG_HEADER_TOKEN, sessionToken);
+                // Check if there are multiple events present, if so iterate and send
+                if (eventData.containsKey(MessageConstants.EVENTS)) {
+                  JsonArray events = eventData.getJsonArray(MessageConstants.EVENTS);
+                  for (Object event : events) {
+                    JsonObject eventJson = (JsonObject) event;
+                    eventJson.put(MessageConstants.MSG_HEADER_TOKEN, sessionToken);
+                    eb.send(MessagebusEndpoints.MBEP_EVENT, eventJson);
+                  }
+                } else {
+                  eventData.put(MessageConstants.MSG_HEADER_TOKEN, sessionToken);
+                  eb.send(MessagebusEndpoints.MBEP_EVENT, eventData);
+                }
               } else {
                 LOGGER.warn("Invalid session token received");
               }
-              eb.send(MessagebusEndpoints.MBEP_EVENT, eventData);
             }
             JsonObject postProcessingEventData = result.postProcessingEvent();
             if (postProcessingEventData != null && !postProcessingEventData.isEmpty()) {

@@ -13,7 +13,6 @@ public final class EventBuilderFactory {
   private static final String EVT_CLASS_DELETE = "event.class.delete";
   private static final String EVT_CLASS_STUDENT_INVITE = "event.class.student.invite";
   private static final String EVT_CLASS_STUDENT_JOIN = "event.class.student.join";
-  private static final String EVT_CLASS_ADD_STUDENT = "event.class.student.add";
   private static final String EVT_CLASS_STUDENT_INVITE_REMOVAL = "event.class.student.invite.remove";
   private static final String EVT_CLASS_STUDENT_REMOVAL = "event.class.student.remove";
   private static final String EVT_CLASS_COLLABORATOR_UPDATE = "event.class.collaborator.update";
@@ -36,7 +35,6 @@ public final class EventBuilderFactory {
   private static final String CONTENT_TYPE = "content_type";
   private static final String CLASS_CONTENT_ID = "id";
   private static final String ID_CLASS = "class_id";
-  private static final String STUDENTS = "students";
 
   private EventBuilderFactory() {
     throw new AssertionError();
@@ -68,8 +66,12 @@ public final class EventBuilderFactory {
   }
   
   public static EventBuilder getAddStudentsToClassEventBuilder(String classId, JsonArray students) {
-    return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_ADD_STUDENT).put(EVENT_BODY,
-        new JsonObject().put(CLASS_ID, classId).put(STUDENTS, students));
+    JsonArray eventsArray = new JsonArray();
+    students.forEach(student -> {
+      eventsArray.add(new JsonObject().put(EVENT_NAME, EVT_CLASS_STUDENT_JOIN).put(EVENT_BODY,
+        new JsonObject().put(CLASS_ID, classId).put(STUDENT_ID, student)));
+    });
+    return () -> new JsonObject().put("events", eventsArray);
   }
 
   public static EventBuilder getCollaboratorUpdatedEventBuilder(String classId,
