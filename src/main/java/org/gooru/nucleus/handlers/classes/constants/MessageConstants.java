@@ -60,6 +60,8 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_PREFERENCE_UPDATE = "class.preference.update";
   public static final String MSG_OP_CLASS_LANGUAGE_UPDATE = "class.language.update";
 
+  public static final String MSG_OP_CLASS_SECONDARY_CLASSES_FIND = "class.secondary.classes.find";
+  
   // Containers for different responses
   public static final String RESP_CONTAINER_MBUS = "mb.container";
   public static final String RESP_CONTAINER_POSTPROCESSOR = "mb.postprocessor.event";
@@ -84,6 +86,7 @@ public final class MessageConstants {
   public static final String REQ_PARAM_LIMIT = "limit";
   public static final String FOR_MONTH = "for_month";
   public static final String FOR_YEAR = "for_year";
+  public static final String SECONDARY_CLASSES = "secondaryclasses";
   
   // Used to send multiple events
   public static final String EVENTS = "events";

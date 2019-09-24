@@ -66,10 +66,10 @@ public final class EntityClassContentsDao {
             endDate.toString()).orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
-  public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classId,
+  public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classIds,
       int forMonth, int forYear) {
     return AJEntityClassContents
-        .where(SELECT_UNSCHEDULED_FOR_TEACHERS, classId, forMonth, forYear);
+        .where(SELECT_UNSCHEDULED_FOR_TEACHERS, classIds, forMonth, forYear);
   }
 
   public static List<AJEntityClassContents> fetchOfflineCompletedActivitiesForStudent(
@@ -84,7 +84,7 @@ public final class EntityClassContentsDao {
       String classId, int offset, int limit) {
     return AJEntityClassContents
         .where(SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS, classId)
-        .orderBy("end_date desc").offset(offset).limit(limit);
+        .orderBy("end_date desc").orderBy("class_id").offset(offset).limit(limit);
   }
 
   public static List<AJEntityClassContents> fetchOfflineActiveActivitiesForStudent(String classId,
@@ -125,10 +125,10 @@ public final class EntityClassContentsDao {
       "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
 
   private static final String SELECT_UNSCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null";
+      "class_id = ANY(?::uuid[]) AND for_month = ? and for_year = ? and dca_added_date is null";
 
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'";
+      "class_id = ANY(?::uuid[]) AND is_completed = true and content_type = 'offline-activity'";
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS =
       "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'";

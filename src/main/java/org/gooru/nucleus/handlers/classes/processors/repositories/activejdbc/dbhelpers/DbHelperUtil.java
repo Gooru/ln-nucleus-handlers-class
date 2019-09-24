@@ -2,9 +2,14 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.db
 
 import io.vertx.core.json.JsonArray;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.UUID;
 import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -97,5 +102,23 @@ public final class DbHelperUtil {
     }
     return LocalDate.now().getYear();
   }
-
+  
+  public static Set<String> getSecondaryClasses(ProcessorContext context) {
+    String strClasses = readRequestParam(MessageConstants.SECONDARY_CLASSES, context);
+    try {
+      if (strClasses != null && !strClasses.isEmpty()) {
+        String[] classArray = strClasses.split(",");
+        Set<String> classes = new HashSet<>();
+        for (String element : classArray) {
+          UUID.fromString(element);
+          classes.add(element);
+        }
+        return classes;
+      }
+    } catch (IllegalArgumentException e) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.secondary.classes")));
+    }
+    return new HashSet<>();
+  }
 }

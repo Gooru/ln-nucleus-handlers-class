@@ -1,7 +1,9 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.contentfetcher;
 
 import java.util.List;
+import java.util.Set;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlinecompleted.ListActivityOfflineCompletedCommand;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassContentsDao;
 
@@ -32,8 +34,13 @@ class ContentFetcherForOfflineCompletedActivities implements ActivityFetcher {
             .fetchOfflineCompletedActivitiesCountForStudent(command.getClassId(),
                 command.getUserId());
       } else {
+        // Get secondary classes from command and add primary class id to filter the data for all
+        // classes including primary class. No need to check null on the set object as we are always
+        // returning non null.
+        Set<String> classes = command.getSecondaryClasses();
+        classes.add(command.getClassId());
         contents = EntityClassContentsDao
-            .fetchOfflineCompletedActivitiesForTeacher(command.getClassId(),
+            .fetchOfflineCompletedActivitiesForTeacher(DbHelperUtil.toPostgresArrayString(classes),
                 command.getOffset(),
                 command.getLimit());
         count = EntityClassContentsDao

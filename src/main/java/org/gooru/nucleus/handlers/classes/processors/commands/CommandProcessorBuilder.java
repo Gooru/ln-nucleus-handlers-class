@@ -241,6 +241,12 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ClassStudentsAddProcessor(context);
     }
+  },
+  MSG_OP_CLASS_SECONDARY_CLASSES_GET(MessageConstants.MSG_OP_CLASS_SECONDARY_CLASSES_FIND) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassSecondaryClassesFindProcessor(context);
+    }
   };
   
   private String name;

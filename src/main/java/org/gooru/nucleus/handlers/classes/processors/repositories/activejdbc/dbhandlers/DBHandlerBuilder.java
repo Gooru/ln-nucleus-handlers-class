@@ -171,4 +171,8 @@ public final class DBHandlerBuilder {
   public static DBHandler buildClassStudentsAddHandler(ProcessorContext context) {
     return new AddStudentsToClassHandler(context);
   }
+
+  public static DBHandler buildClassSecondaryClassesFindHandler(ProcessorContext context) {
+    return new FindSecondaryClassesForClassHandler(context);
+  }
 }
