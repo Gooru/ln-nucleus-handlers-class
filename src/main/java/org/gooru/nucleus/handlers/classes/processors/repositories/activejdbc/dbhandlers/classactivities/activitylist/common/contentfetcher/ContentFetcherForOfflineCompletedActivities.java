@@ -44,7 +44,7 @@ class ContentFetcherForOfflineCompletedActivities implements ActivityFetcher {
                 command.getOffset(),
                 command.getLimit());
         count = EntityClassContentsDao
-            .fetchOfflineCompletedActivitiesCountForTeacher(command.getClassId());
+            .fetchOfflineCompletedActivitiesCountForTeacher(DbHelperUtil.toPostgresArrayString(classes));
       }
       contentFetchDone = true;
     }

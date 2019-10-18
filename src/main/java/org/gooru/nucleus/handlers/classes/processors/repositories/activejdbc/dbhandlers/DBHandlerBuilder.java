@@ -9,6 +9,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbh
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive.ClassContentListOfflineActiveHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlinecompleted.ClassContentListOfflineCompletedHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled.ClassContentListOnlineScheduledHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.scheduled.ListClassContentScheduledHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled.ListClassContentUnscheduledHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylistusers.ListClassContentUsersHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitymasteryaccrual.UpdateClassContentMasteryAccrualHandler;
@@ -174,5 +175,9 @@ public final class DBHandlerBuilder {
 
   public static DBHandler buildClassSecondaryClassesFindHandler(ProcessorContext context) {
     return new FindSecondaryClassesForClassHandler(context);
+  }
+  
+  public static DBHandler buildClassContentListScheduledHandler(ProcessorContext context) {
+    return new ListClassContentScheduledHandler(context);
   }
 }

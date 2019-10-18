@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.scheduled;
 
 import java.util.List;
 import java.util.ResourceBundle;
@@ -24,16 +24,16 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class ClassContentListOnlineScheduledHandler implements DBHandler {
+public class ListClassContentScheduledHandler implements DBHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(
-      ClassContentListOnlineScheduledHandler.class);
+      ListClassContentScheduledHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private List<AJEntityClassContents> classContents;
-  private ListOnlineScheduledActivityCommand command;
+  private ListScheduledActivityCommand command;
 
-  public ClassContentListOnlineScheduledHandler(ProcessorContext context) {
+  public ListClassContentScheduledHandler(ProcessorContext context) {
     this.context = context;
   }
 
@@ -67,7 +67,8 @@ public class ClassContentListOnlineScheduledHandler implements DBHandler {
         }
         studentAuthorization = true;
       }
-      command = new ListOnlineScheduledActivityCommand(context, studentAuthorization);
+
+      command = new ListScheduledActivityCommand(context, studentAuthorization);
       command.validate();
       
    // Verify that the secondary classes exists in db which are not deleted and not archived
@@ -106,7 +107,7 @@ public class ClassContentListOnlineScheduledHandler implements DBHandler {
   }
 
   private void fetchClassContents() {
-    classContents = ActivityFetcher.buildContentFetcherForOnlineScheduledActivities(command)
+    classContents = ActivityFetcher.buildContentFetcherForScheduledActivities(command)
         .fetchContents();
   }
 

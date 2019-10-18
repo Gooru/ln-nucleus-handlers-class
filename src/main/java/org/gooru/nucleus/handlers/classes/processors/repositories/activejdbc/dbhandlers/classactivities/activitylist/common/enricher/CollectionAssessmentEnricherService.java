@@ -67,6 +67,9 @@ class CollectionAssessmentEnricherService {
     JsonObject taxonomy = (taxonomyString == null || taxonomyString.isEmpty()) ? new JsonObject()
         : new JsonObject(taxonomyString);
     data.put(MessageConstants.TAXONOMY, taxonomy);
+    data.put(MessageConstants.OWNER_ID, content.getString(MessageConstants.OWNER_ID));
+    data.put(MessageConstants.LEARNING_OBJECTIVE,
+        content.getString(MessageConstants.LEARNING_OBJECTIVE));
     return data;
   }
 

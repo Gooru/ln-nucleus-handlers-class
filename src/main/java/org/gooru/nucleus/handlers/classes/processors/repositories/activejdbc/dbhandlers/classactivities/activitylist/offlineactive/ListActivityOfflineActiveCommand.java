@@ -1,6 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive;
 
 import java.util.ResourceBundle;
+import java.util.Set;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
@@ -18,6 +19,7 @@ public class ListActivityOfflineActiveCommand {
   private final String userId;
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final String classId;
+  private final Set<String> secondaryClasses;
 
   ListActivityOfflineActiveCommand(ProcessorContext context, boolean isStudent) {
     limit = DbHelperUtil.getLimitFromContext(context);
@@ -25,6 +27,7 @@ public class ListActivityOfflineActiveCommand {
     userId = context.userId();
     classId = context.classId();
     this.isStudent = isStudent;
+    secondaryClasses = DbHelperUtil.getSecondaryClasses(context);
   }
 
 
@@ -56,4 +59,7 @@ public class ListActivityOfflineActiveCommand {
     return limit;
   }
 
+  public Set<String> getSecondaryClasses() {
+    return secondaryClasses;
+  }
 }

@@ -78,4 +78,6 @@ public interface ClassRepo {
   MessageResponse addStudentsToClass();
 
   MessageResponse findSecondaryClasses();
+
+  MessageResponse listClassContentListScheduledProcessor();
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive.ListActivityOfflineActiveCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlinecompleted.ListActivityOfflineCompletedCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled.ListOnlineScheduledActivityCommand;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.scheduled.ListScheduledActivityCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled.ListActivityUnscheduledCommand;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 
@@ -37,5 +38,9 @@ public interface ActivityFetcher {
     return new ContentFetcherForUnscheduledActivities(command);
   }
 
+  static ActivityFetcher buildContentFetcherForScheduledActivities(
+      ListScheduledActivityCommand command) {
+    return new ContentFetcherForScheduledActivities(command);
+  }
 
 }

@@ -16,6 +16,8 @@ class ContentFetcherForUnscheduledActivities implements ActivityFetcher {
   private final ListActivityUnscheduledCommand command;
   private List<AJEntityClassContents> contents;
   private boolean contentFetchDone = false;
+  private String ASSESSMENT = "assessment";
+  private String COLLECTION = "collection";
 
   ContentFetcherForUnscheduledActivities(ListActivityUnscheduledCommand command) {
     this.command = command;
@@ -29,8 +31,16 @@ class ContentFetcherForUnscheduledActivities implements ActivityFetcher {
       // returning non null.
       Set<String> classes = command.getSecondaryClasses();
       classes.add(command.getClassId());
-      contents = EntityClassContentsDao.fetchUnscheduledActivitiesForTeacher(
-          DbHelperUtil.toPostgresArrayString(classes), command.getForMonth(), command.getForYear());
+      if (command.getContentType() != null && (command.getContentType().contains(COLLECTION)
+              || command.getContentType().contains(ASSESSMENT))) {
+        contents = EntityClassContentsDao.fetchUnscheduledActivitiesForTeacherForContentType(
+            DbHelperUtil.toPostgresArrayString(classes), command.getForMonth(),
+            command.getForYear(), DbHelperUtil.toPostgresArrayString(command.getContentType()));
+      } else {
+        contents = EntityClassContentsDao.fetchUnscheduledActivitiesForTeacher(
+            DbHelperUtil.toPostgresArrayString(classes), command.getForMonth(),
+            command.getForYear());
+      }
       contentFetchDone = true;
     }
     return contents;

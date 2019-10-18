@@ -155,6 +155,12 @@ public enum CommandProcessorBuilder {
       return new ClassContentListOnlineScheduledProcessor(context);
     }
   },
+  CLASS_CONTENT_LIST_SCHEDULED(MessageConstants.MSG_OP_CLASS_CONTENT_LIST_SCHEDULED) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassContentListScheduledProcessor(context);
+    }
+  },
   CLASS_CONTENT_USERS_LIST(MessageConstants.MSG_OP_CLASS_CONTENT_USERS_LIST) {
     @Override
     public Processor build(ProcessorContext context) {

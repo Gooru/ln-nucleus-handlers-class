@@ -43,6 +43,7 @@ public final class MessageConstants {
   public static final String MSG_OP_CLASS_CONTENT_LIST_OFFLINE_COMPLETED = "class.content.list.offline.completed";
   public static final String MSG_OP_CLASS_CONTENT_LIST_OFFLINE_ACTIVE = "class.content.list.offline.active";
   public static final String MSG_OP_CLASS_CONTENT_LIST_ONLINE_SCHEDULED = "class.content.list.online.scheduled";
+  public static final String MSG_OP_CLASS_CONTENT_LIST_SCHEDULED = "class.content.list.scheduled";
   public static final String MSG_OP_CLASS_CONTENT_ENABLE = "class.content.enable";
   public static final String MSG_OP_CLASS_CONTENT_SCHEDULE = "class.content.schedule";
   public static final String MSG_OP_CLASS_CONTENT_DELETE = "class.content.delete";
@@ -87,7 +88,10 @@ public final class MessageConstants {
   public static final String FOR_MONTH = "for_month";
   public static final String FOR_YEAR = "for_year";
   public static final String SECONDARY_CLASSES = "secondaryclasses";
-  
+  public static final String OWNER_ID = "owner_id";
+  public static final String LEARNING_OBJECTIVE = "learning_objective";
+  public static final String CONTENT_TYPE = "content_type";
+
   // Used to send multiple events
   public static final String EVENTS = "events";
 
