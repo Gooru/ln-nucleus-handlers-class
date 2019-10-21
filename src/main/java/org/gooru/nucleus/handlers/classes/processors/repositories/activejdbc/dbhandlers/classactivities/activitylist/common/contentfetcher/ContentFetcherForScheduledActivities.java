@@ -47,8 +47,7 @@ class ContentFetcherForScheduledActivities implements ActivityFetcher {
   }
 
   private void populateOfflineScheduledActivitiesForStudent() {
-    if (command.getContentType() == null || (command.getContentType() != null
-        && command.getContentType().contains(OFFLINE_ACTIVITY))) {
+    if (hasNoFilterOrHasValidContentTypeFilterForOffline()) {
       contents.addAll(EntityClassContentsDao.fetchOfflineScheduledActivitiesForStudent(
           command.getClassId(), command.getStartDate(), command.getEndDate(), command.getUserId()));
     }
@@ -58,8 +57,7 @@ class ContentFetcherForScheduledActivities implements ActivityFetcher {
     if (command.getContentType() == null) {
       contents.addAll(EntityClassContentsDao.fetchAsmtCollScheduledActivitiesForStudent(
           command.getClassId(), command.getStartDate(), command.getEndDate(), command.getUserId()));
-    } else if (command.getContentType() != null && (command.getContentType().contains(COLLECTION)
-        || command.getContentType().contains(ASSESSMENT))) {
+    } else if (hasValidContentTypeFilterForOnline()) {
       contents
           .addAll(EntityClassContentsDao.fetchAsmtCollScheduledActivitiesForStudentForContentType(
               command.getClassId(), command.getStartDate(), command.getEndDate(),
@@ -68,8 +66,7 @@ class ContentFetcherForScheduledActivities implements ActivityFetcher {
   }
 
   private void populateOfflineScheduledActivitiesForTeacher(Set<String> classes) {
-    if (command.getContentType() == null || (command.getContentType() != null
-        && command.getContentType().contains(OFFLINE_ACTIVITY))) {
+    if (hasNoFilterOrHasValidContentTypeFilterForOffline()) {
       contents.addAll(EntityClassContentsDao.fetchOfflineScheduledActivitiesForTeacher(
           DbHelperUtil.toPostgresArrayString(classes), command.getStartDate(),
           command.getEndDate()));
@@ -81,8 +78,7 @@ class ContentFetcherForScheduledActivities implements ActivityFetcher {
       contents.addAll(EntityClassContentsDao.fetchAsmtCollScheduledActivitiesForTeacher(
           DbHelperUtil.toPostgresArrayString(classes), command.getStartDate(),
           command.getEndDate()));
-    } else if (command.getContentType() != null && (command.getContentType().contains(COLLECTION)
-        || command.getContentType().contains(ASSESSMENT))) {
+    } else if (hasValidContentTypeFilterForOnline()) {
       contents
           .addAll(EntityClassContentsDao.fetchAsmtCollScheduledActivitiesForTeacherForContentType(
               DbHelperUtil.toPostgresArrayString(classes), command.getStartDate(),
@@ -90,6 +86,16 @@ class ContentFetcherForScheduledActivities implements ActivityFetcher {
     }
   }
 
+  private boolean hasValidContentTypeFilterForOnline() {
+    return command.getContentType() != null && (command.getContentType().contains(COLLECTION)
+        || command.getContentType().contains(ASSESSMENT));
+  }
+
+  private boolean hasNoFilterOrHasValidContentTypeFilterForOffline() {
+    return command.getContentType() == null || (command.getContentType() != null
+        && command.getContentType().contains(OFFLINE_ACTIVITY));
+  }
+  
   @Override
   public Long fetchTotalContentCount() {
     if (!contentFetchDone) {

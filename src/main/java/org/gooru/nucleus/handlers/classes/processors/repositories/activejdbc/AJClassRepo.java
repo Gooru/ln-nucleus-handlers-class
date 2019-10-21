@@ -234,7 +234,7 @@ class AJClassRepo implements ClassRepo {
   }
   
   @Override
-  public MessageResponse listClassContentListScheduledProcessor() {
+  public MessageResponse listClassContentScheduledProcessor() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassContentListScheduledHandler(context));
   }

@@ -79,5 +79,5 @@ public interface ClassRepo {
 
   MessageResponse findSecondaryClasses();
 
-  MessageResponse listClassContentListScheduledProcessor();
+  MessageResponse listClassContentScheduledProcessor();
 }

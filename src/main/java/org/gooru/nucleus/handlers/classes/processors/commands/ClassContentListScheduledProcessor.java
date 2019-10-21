@@ -18,6 +18,6 @@ class ClassContentListScheduledProcessor extends AbstractCommandProcessor {
 
   @Override
   protected MessageResponse processCommand() {
-    return RepoBuilder.buildClassRepo(context).listClassContentListScheduledProcessor();
+    return RepoBuilder.buildClassRepo(context).listClassContentScheduledProcessor();
   }
 }
