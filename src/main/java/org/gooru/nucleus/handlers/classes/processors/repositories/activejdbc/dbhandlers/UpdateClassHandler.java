@@ -7,6 +7,7 @@ import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.ClassSettingsUpdater;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entitybuilders.EntityBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.validators.PayloadValidator;
@@ -52,10 +53,8 @@ class UpdateClassHandler implements DBHandler {
     // Payload should not be empty
     if (context.request() == null || context.request().isEmpty()) {
       LOGGER.warn("Empty payload supplied to edit class");
-      return new ExecutionResult<>(
-          MessageResponseFactory
-              .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("empty.payload")),
-          ExecutionResult.ExecutionStatus.FAILED);
+      return new ExecutionResult<>(MessageResponseFactory.createInvalidRequestResponse(
+          RESOURCE_BUNDLE.getString("empty.payload")), ExecutionResult.ExecutionStatus.FAILED);
     }
     // Our validators should certify this
     JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
@@ -71,8 +70,8 @@ class UpdateClassHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> validateRequest() {
-    LazyList<AJEntityClass> classes = AJEntityClass
-        .where(AJEntityClass.FETCH_QUERY_FILTER, context.classId());
+    LazyList<AJEntityClass> classes =
+        AJEntityClass.where(AJEntityClass.FETCH_QUERY_FILTER, context.classId());
     if (classes.isEmpty()) {
       LOGGER.warn("Not able to find class '{}'", this.context.classId());
       return new ExecutionResult<>(
@@ -84,9 +83,8 @@ class UpdateClassHandler implements DBHandler {
     if (!this.entityClass.isCurrentVersion() || this.entityClass.isArchived()) {
       LOGGER.warn("Class '{}' is either archived or not of current version", context.classId());
       return new ExecutionResult<>(
-          MessageResponseFactory
-              .createInvalidRequestResponse(
-                  RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
+          MessageResponseFactory.createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("class.archived.or.incorrect.version")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
@@ -95,10 +93,17 @@ class UpdateClassHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
+    String setting = this.entityClass.getString(AJEntityClass.SETTING);
+    JsonObject settingJson =
+        (setting != null && !setting.isEmpty()) ? new JsonObject(setting) : new JsonObject();
+        
     this.entityClass.setModifierId(this.context.userId());
     new DefaultAJEntityClassBuilder().build(this.entityClass, context.request(),
         AJEntityClass.getConverterRegistry());
 
+    // Update class setting
+    ClassSettingsUpdater.updateSetting(settingJson, this.entityClass, this.context.request());
+    
     boolean result = this.entityClass.save();
     if (!result) {
       LOGGER.error("Class with id '{}' failed to save", context.classId());

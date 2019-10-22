@@ -226,4 +226,16 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassStudentsAddHandler(context));
   }
+
+  @Override
+  public MessageResponse findSecondaryClasses() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassSecondaryClassesFindHandler(context));
+  }
+  
+  @Override
+  public MessageResponse listClassContentScheduledProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentListScheduledHandler(context));
+  }
 }

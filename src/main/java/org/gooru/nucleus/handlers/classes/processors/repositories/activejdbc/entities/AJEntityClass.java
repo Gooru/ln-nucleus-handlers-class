@@ -56,7 +56,7 @@ public class AJEntityClass extends Model {
   private static final String GRADE_CURRENT = "grade_current";
   private static final String ROUTE0 = "route0_applicable";
   public static final String SETTING = "setting";
-  private static final String PREFERENCE = "preference";
+  public static final String PREFERENCE = "preference";
   public static final String COURSE_PREMIUM = "course.premium";
   public static final String OWNER_ID = "owner_id";
   public static final String PRIMARY_LANGUAGE = "primary_language";
@@ -64,6 +64,12 @@ public class AJEntityClass extends Model {
   private static final String MILESTONE_VIEW_APPLICABLE = "milestone_view_applicable";
 
   public static final String STUDENTS = "students";
+  
+  public static final String SECONDARY_CLASSES = "secondary.classes";
+  public static final String SECONDARY_CLASSES_LIST = "list";
+  public static final String SECONDARY_CLASSES_CONFIRMATION = "confirmation";
+  public static final String CLASS_DEFAULT_VIEW = "class.default.view";
+  public static final String CONTENT_ADD_DEFAULT_VIEW = "content.add.default.view";
 
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
@@ -82,6 +88,7 @@ public class AJEntityClass extends Model {
 
   public static final String FETCH_QUERY_FILTER = "id = ?::uuid and is_deleted = false";
   public static final String FETCH_MULTIPLE_QUERY_FILTER = "id = ANY(?::uuid[]) and is_deleted = false";
+  public static final String FETCH_MULTIPLE_NON_DELETED_NON_ARCHIVED  = "id = ANY(?::uuid[]) and is_deleted = false and is_archived = false";
   public static final String FETCH_FOR_OWNER_COLLABORATOR_QUERY =
       "select id, creator_id from class where (creator_id = ?::uuid or collaborator ?? ? ) and is_deleted = false "
           + "order by created_at desc";
@@ -94,10 +101,14 @@ public class AJEntityClass extends Model {
       "select id, creator_id, end_date, course_id, gooru_version, is_archived from class where id = ?::uuid and "
           + "is_deleted = false";
   public static final String CODE_UNIQUENESS_QUERY = "code = ?";
+  
+  public static final String FIND_SECONDARY_CLASSES =
+      "SELECT id, title, code, preference FROM class WHERE (creator_id = ?::uuid OR collaborator ?? ?) AND is_deleted = false AND"
+      + " is_archived = false AND preference IS NOT NULL AND id <> ?::uuid";
 
   private static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
-          COLLABORATOR));
+          COLLABORATOR, SETTING));
   private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
       .asList(TITLE, DESCRIPTION, GREETING, GRADE, CLASS_SHARING, COVER_IMAGE, MIN_SCORE, END_DATE,
           COLLABORATOR, CONTENT_VISIBILITY, CREATOR_SYSTEM, ROSTER_ID, SETTING,
@@ -117,6 +128,8 @@ public class AJEntityClass extends Model {
           IS_ARCHIVED, SETTING, ROSTER_ID, CREATED_AT, UPDATED_AT, GRADE_CURRENT, GRADE_LOWER_BOUND,
           GRADE_UPPER_BOUND, ROUTE0, FORCE_CALCULATE_ILP, PREFERENCE, PRIMARY_LANGUAGE,
           MILESTONE_VIEW_APPLICABLE);
+  public static final List<String> SECONDARY_CLASSES_FIELD_LIST = Arrays.asList(ID, TITLE, CODE);
+  
   private static final Set<String> JOIN_CLASS_FIELDS = new HashSet<>(
       Arrays.asList(ROSTER_ID, CREATOR_SYSTEM));
   

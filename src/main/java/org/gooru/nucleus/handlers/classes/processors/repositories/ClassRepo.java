@@ -76,4 +76,8 @@ public interface ClassRepo {
   MessageResponse listClassContentListOnlineScheduledProcessor();
   
   MessageResponse addStudentsToClass();
+
+  MessageResponse findSecondaryClasses();
+
+  MessageResponse listClassContentScheduledProcessor();
 }

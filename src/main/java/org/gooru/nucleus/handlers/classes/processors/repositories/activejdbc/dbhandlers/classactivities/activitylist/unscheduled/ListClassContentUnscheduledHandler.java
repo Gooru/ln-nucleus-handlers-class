@@ -1,7 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.unscheduled;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -18,13 +16,11 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class ListClassContentUnscheduledHandler implements DBHandler {
 
-  private static final Logger LOGGER = LoggerFactory
-      .getLogger(ListClassContentUnscheduledHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private List<AJEntityClassContents> classContents;
@@ -52,6 +48,7 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
       AJEntityClass entityClass = EntityClassDao.fetchClassById(context.classId());
       command = new ListActivityUnscheduledCommand(context);
       command.validate();
+      
       return AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
@@ -63,10 +60,11 @@ public class ListClassContentUnscheduledHandler implements DBHandler {
   public ExecutionResult<MessageResponse> executeRequest() {
 
     fetchClassContents();
-
-    JsonArray renderedContent = ContentEnricher
-        .buildContentEnricherForUnscheduledActivities(classContents)
-        .enrichContent();
+ 
+    // For time being, added only class id in the current response and kept rest of sorting of the
+    // response same. Once we have clarity on the UI and response needed we can revisit it.
+    JsonArray renderedContent =
+        ContentEnricher.buildContentEnricherForUnscheduledActivities(classContents).enrichContent();
 
     return new ExecutionResult<>(
         MessageResponseFactory
