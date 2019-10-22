@@ -12,7 +12,10 @@ import org.gooru.nucleus.handlers.classes.app.components.AppConfiguration;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassDao;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.javalite.activejdbc.LazyList;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import io.vertx.core.json.JsonArray;
@@ -115,12 +118,21 @@ public final class DbHelperUtil {
     try {
       if (strClasses != null && !strClasses.isEmpty()) {
         String[] classArray = strClasses.split(",");
-        Set<String> classes = new HashSet<>();
+        Set<String> secondaryClasses = new HashSet<>();
         for (String element : classArray) {
           UUID.fromString(element);
-          classes.add(element);
+          secondaryClasses.add(element);
         }
-        return classes;
+        // Verify and return only the secondary classes exists in db which are not deleted and not archived
+        LazyList<AJEntityClass> classes = EntityClassDao
+            .fetchMultipleClassesByIds(DbHelperUtil.toPostgresArrayString(secondaryClasses));
+        if (classes != null && !classes.isEmpty()) {
+          Set<String> validSecondaryClasses = new HashSet<>();
+          classes.forEach(validClass -> {
+            validSecondaryClasses.add(validClass.getString(AJEntityClass.ID));
+          });
+          return validSecondaryClasses;
+        }
       }
     } catch (IllegalArgumentException e) {
       throw new MessageResponseWrapperException(MessageResponseFactory
