@@ -112,14 +112,12 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
     JsonArray classesArray = new JsonArray();
     secondaryClasses.forEach(cls -> {
       JsonObject preference = new JsonObject(cls.getString(AJEntityClass.PREFERENCE));
-      if (!preference.isEmpty()) {
+      if (isPremiumClass(cls) && !preference.isEmpty()) {
         String subject = preference.getString(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, null);
         if (subject != null && !subject.isEmpty() && subject.equalsIgnoreCase(this.classSubject)) {
-          if (isPremiumClass(cls)) {
-            classesArray.add(new JsonObject(JsonFormatterBuilder
-                .buildSimpleJsonFormatter(false, AJEntityClass.SECONDARY_CLASSES_FIELD_LIST)
-                .toJson(cls)));
-          }
+          classesArray.add(new JsonObject(JsonFormatterBuilder
+              .buildSimpleJsonFormatter(false, AJEntityClass.SECONDARY_CLASSES_FIELD_LIST)
+              .toJson(cls)));
         }
       }
     });
