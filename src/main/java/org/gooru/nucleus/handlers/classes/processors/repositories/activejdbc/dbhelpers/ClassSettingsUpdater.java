@@ -51,6 +51,13 @@ public final class ClassSettingsUpdater {
       setting.put(AJEntityClass.CONTENT_ADD_DEFAULT_VIEW,
           settingsFromRequest.getString(AJEntityClass.CONTENT_ADD_DEFAULT_VIEW));
     }
+    
+    // If mastery applicable key is present in the request payload then add/update it in existing
+    // setting
+    if (settingsFromRequest.containsKey(AJEntityClass.MASTERY_APPLICABLE)) {
+      setting.put(AJEntityClass.MASTERY_APPLICABLE,
+          settingsFromRequest.getString(AJEntityClass.MASTERY_APPLICABLE));
+    }
 
     LOGGER.debug("updating setting to '{}'", setting.toString());
     model.setClassSettings(setting);

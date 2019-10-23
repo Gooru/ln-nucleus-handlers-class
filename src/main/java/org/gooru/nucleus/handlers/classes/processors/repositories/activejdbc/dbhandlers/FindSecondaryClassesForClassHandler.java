@@ -107,10 +107,12 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.SUCCESSFUL);
     }
 
+    // Today, multiple class should be supported only for premium class. So, here we return only 
+    // classes from related subject which are premium
     JsonArray classesArray = new JsonArray();
     secondaryClasses.forEach(cls -> {
       JsonObject preference = new JsonObject(cls.getString(AJEntityClass.PREFERENCE));
-      if (!preference.isEmpty()) {
+      if (isPremiumClass(cls) && !preference.isEmpty()) {
         String subject = preference.getString(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, null);
         if (subject != null && !subject.isEmpty() && subject.equalsIgnoreCase(this.classSubject)) {
           classesArray.add(new JsonObject(JsonFormatterBuilder
@@ -119,7 +121,6 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
         }
       }
     });
-
     // After the subject filter if there are no classes to return, send empty response
     if (classesArray.isEmpty()) {
       LOGGER.debug("not classes filtered after subject check");
@@ -131,6 +132,13 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
     response.put(RESP_KEY_CLASSES, classesArray);
     return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(response),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
+  }
+
+  private Boolean isPremiumClass(AJEntityClass cls) {
+    final String setting = cls.getString(AJEntityClass.SETTING);
+    final JsonObject classSetting = setting != null ? new JsonObject(setting) : null;
+    return (classSetting != null && classSetting.containsKey(AJEntityClass.COURSE_PREMIUM)
+        && classSetting.getBoolean(AJEntityClass.COURSE_PREMIUM));
   }
 
   @Override
