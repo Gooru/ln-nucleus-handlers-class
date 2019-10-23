@@ -70,6 +70,7 @@ public class AJEntityClass extends Model {
   public static final String SECONDARY_CLASSES_CONFIRMATION = "confirmation";
   public static final String CLASS_DEFAULT_VIEW = "class.default.view";
   public static final String CONTENT_ADD_DEFAULT_VIEW = "content.add.default.view";
+  public static final String MASTERY_APPLICABLE = "mastery.applicable";
 
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
