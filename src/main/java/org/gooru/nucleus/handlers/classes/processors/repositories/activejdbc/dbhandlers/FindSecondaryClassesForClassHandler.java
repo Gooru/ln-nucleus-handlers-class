@@ -121,11 +121,9 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
         }
       }
     });
-    // After the subject filter if there are no classes to return, send empty response
+    // After the subject filter if there are no classes to return, send empty list in response
     if (classesArray.isEmpty()) {
-      LOGGER.debug("not classes filtered after subject check");
-      return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(new JsonObject()),
-          ExecutionResult.ExecutionStatus.SUCCESSFUL);
+      LOGGER.debug("no classes filtered after subject check");
     }
 
     JsonObject response = new JsonObject();

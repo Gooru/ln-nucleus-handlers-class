@@ -58,6 +58,7 @@ class PostProcessor implements AsyncMessageProcessor {
           }
           result.complete(MessageResponseFactory.createNoContentResponse(""));
         })).exceptionHandler(ex -> {
+          LOGGER.warn("OA completion request payload : {}", payload.toString());
           LOGGER.warn("Error while communicating with remote server: ", ex);
           result.fail(ex);
         });
