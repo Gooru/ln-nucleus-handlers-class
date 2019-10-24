@@ -11,6 +11,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.for
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
+import org.gooru.nucleus.handlers.classes.processors.utils.ValidatorUtils;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +39,8 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
   @Override
   public ExecutionResult<MessageResponse> checkSanity() {
     // There should be a class id present
-    if (context.classId() == null || context.classId().isEmpty()) {
-      LOGGER.warn("Missing class");
+    if (!ValidatorUtils.isValidUUID(context.classId())) {
+      LOGGER.warn("Class missing or invalid");
       return new ExecutionResult<>(
           MessageResponseFactory
               .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("missing.class.id")),
@@ -47,7 +48,7 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
     }
 
     // The user should not be anonymous
-    if (context.userId() == null || context.userId().isEmpty()
+    if (!ValidatorUtils.isValidUUID(context.userId())
         || context.userId().equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
       LOGGER.warn("Anonymous user attempting to edit class");
       return new ExecutionResult<>(
@@ -84,8 +85,10 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
     ExecutionResult<MessageResponse> result = validateSubjectExistance();
     if (!result.continueProcessing()) {
       LOGGER.warn("class '{}' does not have subject preference set", this.context.classId());
-      return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(new JsonObject()),
-          ExecutionResult.ExecutionStatus.SUCCESSFUL);
+      return new ExecutionResult<>(
+          MessageResponseFactory.createInvalidRequestResponse(
+              RESOURCE_BUNDLE.getString("class.subject.preference.missing")),
+          ExecutionResult.ExecutionStatus.FAILED);
     }
 
     // Verify that the user finding the secondary classes is owner or collaborator of the class
@@ -99,28 +102,23 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
         AJEntityClass.findBySQL(AJEntityClass.FIND_SECONDARY_CLASSES, this.context.userId(),
             this.context.userId(), this.context.classId());
 
-    // If there is no secondary class found, return empty response
-    if (secondaryClasses.isEmpty()) {
-      LOGGER.debug("there are no secondary classes present for class '{}' and user '{}'",
-          this.context.classId(), this.context.userId());
-      return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(new JsonObject()),
-          ExecutionResult.ExecutionStatus.SUCCESSFUL);
-    }
-
-    // Today, multiple class should be supported only for premium class. So, here we return only 
-    // classes from related subject which are premium
     JsonArray classesArray = new JsonArray();
-    secondaryClasses.forEach(cls -> {
-      JsonObject preference = new JsonObject(cls.getString(AJEntityClass.PREFERENCE));
-      if (isPremiumClass(cls) && !preference.isEmpty()) {
-        String subject = preference.getString(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, null);
-        if (subject != null && !subject.isEmpty() && subject.equalsIgnoreCase(this.classSubject)) {
-          classesArray.add(new JsonObject(JsonFormatterBuilder
-              .buildSimpleJsonFormatter(false, AJEntityClass.SECONDARY_CLASSES_FIELD_LIST)
-              .toJson(cls)));
+    if (!secondaryClasses.isEmpty()) {
+      // Today, multiple class should be supported only for premium class. So, here we return only
+      // classes from related subject which are premium
+      secondaryClasses.forEach(cls -> {
+        JsonObject preference = new JsonObject(cls.getString(AJEntityClass.PREFERENCE));
+        if (isPremiumClass(cls) && !preference.isEmpty()) {
+          String subject = preference.getString(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, null);
+          if (subject != null && !subject.isEmpty()
+              && subject.equalsIgnoreCase(this.classSubject)) {
+            classesArray.add(new JsonObject(JsonFormatterBuilder
+                .buildSimpleJsonFormatter(false, AJEntityClass.SECONDARY_CLASSES_FIELD_LIST)
+                .toJson(cls)));
+          }
         }
-      }
-    });
+      });
+    }
     // After the subject filter if there are no classes to return, send empty list in response
     if (classesArray.isEmpty()) {
       LOGGER.debug("no classes filtered after subject check");
