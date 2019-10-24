@@ -104,7 +104,7 @@ public class AJEntityClass extends Model {
   public static final String CODE_UNIQUENESS_QUERY = "code = ?";
   
   public static final String FIND_SECONDARY_CLASSES =
-      "SELECT id, title, code, preference FROM class WHERE (creator_id = ?::uuid OR collaborator ?? ?) AND is_deleted = false AND"
+      "SELECT id, title, code, preference, setting FROM class WHERE (creator_id = ?::uuid OR collaborator ?? ?) AND is_deleted = false AND"
       + " is_archived = false AND preference IS NOT NULL AND id <> ?::uuid";
 
   private static final Set<String> EDITABLE_FIELDS = new HashSet<>(Arrays
