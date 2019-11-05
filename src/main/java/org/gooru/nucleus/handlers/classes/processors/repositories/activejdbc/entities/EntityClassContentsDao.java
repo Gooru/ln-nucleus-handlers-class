@@ -151,7 +151,7 @@ public final class EntityClassContentsDao {
       "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type = ANY(?::text[])";
 
   private static final String SELECT_ALL_OFFLINE_SCHEDULED_FOR_TEACHERS =
-      "class_id = ANY(?::uuid[]) AND (activation_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
+      "class_id = ANY(?::uuid[]) AND (dca_added_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
       + " and content_type = 'offline-activity'";
 
   private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_STUDENTS =
@@ -163,7 +163,7 @@ public final class EntityClassContentsDao {
           + " and content_type = ANY(?::text[])";
 
   private static final String SELECT_ALL_OFFLINE_SCHEDULED_FOR_STUDENTS =
-      "class_id = ?::uuid AND (activation_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
+      "class_id = ?::uuid AND activation_date is not null AND (activation_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
       + " and content_type = 'offline-activity' and (?::text = any(users) OR users is null) ";
 
 
