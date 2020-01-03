@@ -51,12 +51,27 @@ public final class ClassSettingsUpdater {
       setting.put(AJEntityClass.CONTENT_ADD_DEFAULT_VIEW,
           settingsFromRequest.getString(AJEntityClass.CONTENT_ADD_DEFAULT_VIEW));
     }
-    
+
     // If mastery applicable key is present in the request payload then add/update it in existing
     // setting
     if (settingsFromRequest.containsKey(AJEntityClass.MASTERY_APPLICABLE)) {
       setting.put(AJEntityClass.MASTERY_APPLICABLE,
           settingsFromRequest.getString(AJEntityClass.MASTERY_APPLICABLE));
+    }
+
+    // If ca search default view key is present in the request payload then
+    // add/update it in existing setting
+    if (settingsFromRequest.containsKey(AJEntityClass.CA_SEARCH_DEFAULT_VIEW)) {
+
+      String caSearchDefaultViewSetting =
+          settingsFromRequest.getString(AJEntityClass.CA_SEARCH_DEFAULT_VIEW);
+      if (caSearchDefaultViewSetting == null
+          && setting.containsKey(AJEntityClass.CA_SEARCH_DEFAULT_VIEW)) {
+        setting.remove(AJEntityClass.CA_SEARCH_DEFAULT_VIEW);
+      } else {
+        setting.put(AJEntityClass.CA_SEARCH_DEFAULT_VIEW,
+            settingsFromRequest.getString(AJEntityClass.CA_SEARCH_DEFAULT_VIEW));
+      }
     }
 
     LOGGER.debug("updating setting to '{}'", setting.toString());
