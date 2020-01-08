@@ -14,7 +14,6 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.gooru.nucleus.handlers.classes.processors.utils.ValidatorUtils;
 import org.javalite.activejdbc.LazyList;
-import org.javalite.activejdbc.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
@@ -98,8 +97,6 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
         .authorize(this.entityClass);
   }
 
-  
-
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
     JsonArray classesArray = new JsonArray();
@@ -145,8 +142,8 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
   
   private Boolean isMultiClassAllowed() {
     AJEntityTenantSetting tenantSettings =
-        AJEntityTenantSetting.findFirst(AJEntityTenantSetting.SELECT_TENANT_SETTING_BY_ID,
-            context.tenant(), AJEntityTenantSetting.MULI_GRADE_KEY);
+        AJEntityTenantSetting.findFirst(AJEntityTenantSetting.FETCH_TENANT_SETTING_BY_ID_AND_KEY,
+            context.tenant(), AJEntityTenantSetting.KEY_ALLOW_MULTI_GRADE_CLASS);
     return tenantSettings != null && tenantSettings.getString(AJEntityTenantSetting.VALUE)
         .equalsIgnoreCase(AJEntityTenantSetting.VALUE_ON);
   }

@@ -89,7 +89,6 @@ public class AJEntityClass extends Model {
   private static final String CLASS_SHARING_TYPE_RESTRICTED = "restricted";
 
   public static final String FETCH_QUERY_FILTER = "id = ?::uuid and is_deleted = false";
-  public static final String FETCH_TENANT_SETTINGS = "id = ?::uuid";
   public static final String FETCH_MULTIPLE_QUERY_FILTER = "id = ANY(?::uuid[]) and is_deleted = false";
   public static final String FETCH_MULTIPLE_NON_DELETED_NON_ARCHIVED  = "id = ANY(?::uuid[]) and is_deleted = false and is_archived = false";
   public static final String FETCH_FOR_OWNER_COLLABORATOR_QUERY =
