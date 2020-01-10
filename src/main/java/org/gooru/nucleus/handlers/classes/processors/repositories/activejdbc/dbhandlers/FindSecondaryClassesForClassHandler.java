@@ -7,6 +7,7 @@ import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbauth.AuthorizerBuilder;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClass;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTaxonomySubject;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityTenantSetting;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.formatter.JsonFormatterBuilder;
 import org.gooru.nucleus.handlers.classes.processors.responses.ExecutionResult;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
@@ -98,26 +99,28 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    LazyList<AJEntityClass> secondaryClasses =
-        AJEntityClass.findBySQL(AJEntityClass.FIND_SECONDARY_CLASSES, this.context.userId(),
-            this.context.userId(), this.context.classId());
-
     JsonArray classesArray = new JsonArray();
-    if (!secondaryClasses.isEmpty()) {
-      // Today, multiple class should be supported only for premium class. So, here we return only
-      // classes from related subject which are premium
-      secondaryClasses.forEach(cls -> {
-        JsonObject preference = new JsonObject(cls.getString(AJEntityClass.PREFERENCE));
-        if (isPremiumClass(cls) && !preference.isEmpty()) {
-          String subject = preference.getString(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, null);
-          if (subject != null && !subject.isEmpty()
-              && subject.equalsIgnoreCase(this.classSubject)) {
-            classesArray.add(new JsonObject(JsonFormatterBuilder
-                .buildSimpleJsonFormatter(false, AJEntityClass.SECONDARY_CLASSES_FIELD_LIST)
-                .toJson(cls)));
+    if (isMultiClassAllowed()) {
+      LazyList<AJEntityClass> secondaryClasses =
+          AJEntityClass.findBySQL(AJEntityClass.FIND_SECONDARY_CLASSES, this.context.userId(),
+              this.context.userId(), this.context.classId());
+
+      if (!secondaryClasses.isEmpty()) {
+        // Today, multiple class should be supported only for premium class. So, here we return only
+        // classes from related subject which are premium
+        secondaryClasses.forEach(cls -> {
+          JsonObject preference = new JsonObject(cls.getString(AJEntityClass.PREFERENCE));
+          if (isPremiumClass(cls) && !preference.isEmpty()) {
+            String subject = preference.getString(AJEntityTaxonomySubject.RESP_KEY_SUBJECT, null);
+            if (subject != null && !subject.isEmpty()
+                && subject.equalsIgnoreCase(this.classSubject)) {
+              classesArray.add(new JsonObject(JsonFormatterBuilder
+                  .buildSimpleJsonFormatter(false, AJEntityClass.SECONDARY_CLASSES_FIELD_LIST)
+                  .toJson(cls)));
+            }
           }
-        }
-      });
+        });
+      }
     }
     // After the subject filter if there are no classes to return, send empty list in response
     if (classesArray.isEmpty()) {
@@ -135,6 +138,14 @@ public class FindSecondaryClassesForClassHandler implements DBHandler {
     final JsonObject classSetting = setting != null ? new JsonObject(setting) : null;
     return (classSetting != null && classSetting.containsKey(AJEntityClass.COURSE_PREMIUM)
         && classSetting.getBoolean(AJEntityClass.COURSE_PREMIUM));
+  }
+  
+  private Boolean isMultiClassAllowed() {
+    AJEntityTenantSetting tenantSettings =
+        AJEntityTenantSetting.findFirst(AJEntityTenantSetting.FETCH_TENANT_SETTING_BY_ID_AND_KEY,
+            context.tenant(), AJEntityTenantSetting.KEY_ALLOW_MULTI_GRADE_CLASS);
+    return tenantSettings != null && tenantSettings.getString(AJEntityTenantSetting.VALUE)
+        .equalsIgnoreCase(AJEntityTenantSetting.VALUE_ON);
   }
 
   @Override
