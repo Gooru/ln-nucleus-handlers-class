@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.scheduled;
 
 import java.util.List;
 import java.util.ResourceBundle;
@@ -21,19 +21,16 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class ClassContentListOfflineActiveHandler implements DBHandler {
+public class ListClassContentScheduledHandler implements DBHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(
-      ClassContentListOfflineActiveHandler.class);
+      ListClassContentScheduledHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private List<AJEntityClassContents> classContents;
-  private ListActivityOfflineActiveCommand command;
-  private ContentEnricher contentEnricher;
-  private ActivityFetcher activityFetcher;
+  private ListScheduledActivityCommand command;
 
-
-  public ClassContentListOfflineActiveHandler(ProcessorContext context) {
+  public ListClassContentScheduledHandler(ProcessorContext context) {
     this.context = context;
   }
 
@@ -67,7 +64,8 @@ public class ClassContentListOfflineActiveHandler implements DBHandler {
         }
         studentAuthorization = true;
       }
-      command = new ListActivityOfflineActiveCommand(context, studentAuthorization);
+
+      command = new ListScheduledActivityCommand(context, studentAuthorization);
       command.validate();
       
       return classAuthorization;
@@ -81,26 +79,20 @@ public class ClassContentListOfflineActiveHandler implements DBHandler {
   public ExecutionResult<MessageResponse> executeRequest() {
 
     fetchClassContents();
-    contentEnricher = ContentEnricher
-        .buildContentEnricherForOfflineActiveActivities(classContents, command.isStudent());
+    JsonArray renderedContent = ContentEnricher
+        .buildContentEnricherForOnlineScheduledActivities(classContents, command.isStudent())
+        .enrichContent();
 
     return new ExecutionResult<>(
-        MessageResponseFactory.createOkayResponse(createResponse()),
+        MessageResponseFactory
+            .createOkayResponse(
+                new JsonObject().put(MessageConstants.CLASS_CONTENTS, renderedContent)),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
   }
 
-  private JsonObject createResponse() {
-    JsonArray renderedContent = contentEnricher.enrichContent();
-
-    return new JsonObject().put(MessageConstants.CLASS_CONTENTS, renderedContent)
-        .put(MessageConstants.COUNT, activityFetcher.fetchTotalContentCount());
-  }
-
   private void fetchClassContents() {
-    activityFetcher = ActivityFetcher
-        .buildContentFetcherForOfflineActiveActivities(command);
-
-    classContents = activityFetcher.fetchContents();
+    classContents = ActivityFetcher.buildContentFetcherForScheduledActivities(command)
+        .fetchContents();
   }
 
 
@@ -108,4 +100,5 @@ public class ClassContentListOfflineActiveHandler implements DBHandler {
   public boolean handlerReadOnly() {
     return false;
   }
+
 }

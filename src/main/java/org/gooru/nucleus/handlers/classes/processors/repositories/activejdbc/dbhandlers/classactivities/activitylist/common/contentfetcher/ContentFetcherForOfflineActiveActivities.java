@@ -1,7 +1,9 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.common.contentfetcher;
 
 import java.util.List;
+import java.util.Set;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive.ListActivityOfflineActiveCommand;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhelpers.DbHelperUtil;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.AJEntityClassContents;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities.EntityClassContentsDao;
 
@@ -24,19 +26,20 @@ class ContentFetcherForOfflineActiveActivities implements ActivityFetcher {
   public List<AJEntityClassContents> fetchContents() {
     if (!contentFetchDone) {
       if (command.isStudent()) {
-        contents = EntityClassContentsDao
-            .fetchOfflineActiveActivitiesForStudent(command.getClassId(),
-                command.getOffset(),
-                command.getLimit(), command.getUserId());
+        contents = EntityClassContentsDao.fetchOfflineActiveActivitiesForStudent(
+            command.getClassId(), command.getOffset(), command.getLimit(), command.getUserId());
         count = EntityClassContentsDao
             .fetchOfflineActiveActivitiesCountForStudent(command.getClassId(), command.getUserId());
       } else {
-        contents = EntityClassContentsDao
-            .fetchOfflineActiveActivitiesForTeacher(command.getClassId(),
-                command.getOffset(),
-                command.getLimit());
-        count = EntityClassContentsDao
-            .fetchOfflineActiveActivitiesCountForTeacher(command.getClassId());
+        // Get secondary classes from command and add primary class id to filter the data for all
+        // classes including primary class. No need to check null on the set object as we are always
+        // returning non null.
+        Set<String> classes = command.getSecondaryClasses();
+        classes.add(command.getClassId());
+        contents = EntityClassContentsDao.fetchOfflineActiveActivitiesForTeacher(
+            DbHelperUtil.toPostgresArrayString(classes), command.getOffset(), command.getLimit());
+        count = EntityClassContentsDao.fetchOfflineActiveActivitiesCountForTeacher(
+            DbHelperUtil.toPostgresArrayString(classes));
       }
       contentFetchDone = true;
     }

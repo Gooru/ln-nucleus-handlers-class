@@ -49,7 +49,6 @@ public final class EntityClassContentsDao {
     return users;
   }
 
-
   public static List<AJEntityClassContents> fetchAllOnlineScheduledActivitiesForStudent(
       String classId, LocalDate startDate, LocalDate endDate, String userId) {
 
@@ -66,10 +65,10 @@ public final class EntityClassContentsDao {
             endDate.toString()).orderBy("dca_added_date desc nulls first, created_at desc");
   }
 
-  public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classId,
+  public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacher(String classIds,
       int forMonth, int forYear) {
     return AJEntityClassContents
-        .where(SELECT_UNSCHEDULED_FOR_TEACHERS, classId, forMonth, forYear);
+        .where(SELECT_UNSCHEDULED_FOR_TEACHERS, classIds, forMonth, forYear);
   }
 
   public static List<AJEntityClassContents> fetchOfflineCompletedActivitiesForStudent(
@@ -84,7 +83,7 @@ public final class EntityClassContentsDao {
       String classId, int offset, int limit) {
     return AJEntityClassContents
         .where(SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS, classId)
-        .orderBy("end_date desc").offset(offset).limit(limit);
+        .orderBy("end_date desc").orderBy("class_id").offset(offset).limit(limit);
   }
 
   public static List<AJEntityClassContents> fetchOfflineActiveActivitiesForStudent(String classId,
@@ -116,22 +115,25 @@ public final class EntityClassContentsDao {
   public static Long fetchOfflineActiveActivitiesCountForTeacher(String classId) {
     return AJEntityClassContents.count(SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS, classId);
   }
-
+  
   private static final String SELECT_ONLINE_SCHEDULED_FOR_STUDENTS =
       "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
           + " and content_type != 'offline-activity'";
 
   private static final String SELECT_ONLINE_SCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
+      "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
 
   private static final String SELECT_UNSCHEDULED_FOR_TEACHERS =
-      "class_id = ?::uuid AND for_month = ? and for_year = ? and dca_added_date is null";
+      "class_id = ANY(?::uuid[]) AND for_month = ? and for_year = ? and dca_added_date is null";
+
+  private static final String SELECT_UNSCHEDULED_FOR_TEACHERS_FOR_CONTENT_TYPE =
+      "class_id = ANY(?::uuid[]) AND for_month = ? and for_year = ? and dca_added_date is null and content_type = ANY(?::text[])";
 
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity'";
+      "class_id = ANY(?::uuid[]) AND is_completed = true and content_type = 'offline-activity'";
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_TEACHERS =
-      "class_id = ?::uuid AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'";
+      "class_id = ANY(?::uuid[]) AND is_completed = false and dca_added_date is not null and content_type = 'offline-activity'";
 
   private static final String SELECT_ALL_OFFLINE_ACTIVE_FOR_STUDENTS =
       "class_id = ?::uuid AND is_completed = false and activation_date is not null and content_type = 'offline-activity' "
@@ -140,6 +142,80 @@ public final class EntityClassContentsDao {
   private static final String SELECT_ALL_OFFLINE_COMPLETED_FOR_STUDENTS =
       "class_id = ?::uuid AND is_completed = true and content_type = 'offline-activity' "
           + " and (?::text = any(users) OR users is null) ";
+
+  // Fetch all scheduled items within given date range : asmt, coll, OA related queries.
+  private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_TEACHERS =
+      "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
+
+  private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_TEACHERS_FOR_CONTENT_TYPE =
+      "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type = ANY(?::text[])";
+
+  private static final String SELECT_ALL_OFFLINE_SCHEDULED_FOR_TEACHERS =
+      "class_id = ANY(?::uuid[]) AND (dca_added_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
+      + " and content_type = 'offline-activity'";
+
+  private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_STUDENTS =
+      "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
+          + " and content_type != 'offline-activity'";
+
+  private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_STUDENTS_FOR_CONTENT_TYPE =
+      "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
+          + " and content_type = ANY(?::text[])";
+
+  private static final String SELECT_ALL_OFFLINE_SCHEDULED_FOR_STUDENTS =
+      "class_id = ?::uuid AND activation_date is not null AND (activation_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
+      + " and content_type = 'offline-activity' and (?::text = any(users) OR users is null) ";
+
+
+  public static List<AJEntityClassContents> fetchAsmtCollScheduledActivitiesForTeacher(
+      String classId, LocalDate startDate, LocalDate endDate) {
+    return AJEntityClassContents.where(SELECT_ASMT_COLL_SCHEDULED_FOR_TEACHERS, classId,
+        startDate.toString(), endDate.toString())
+        .orderBy("dca_added_date desc nulls first, created_at desc");
+  }
+
+  public static List<AJEntityClassContents> fetchAsmtCollScheduledActivitiesForTeacherForContentType(
+      String classId, LocalDate startDate, LocalDate endDate, String contentType) {
+    return AJEntityClassContents
+        .where(SELECT_ASMT_COLL_SCHEDULED_FOR_TEACHERS_FOR_CONTENT_TYPE, classId,
+            startDate.toString(), endDate.toString(), contentType)
+        .orderBy("dca_added_date desc nulls first, created_at desc");
+  }
+
+  public static List<AJEntityClassContents> fetchOfflineScheduledActivitiesForTeacher(
+      String classId, LocalDate startDate, LocalDate endDate) {
+    return AJEntityClassContents.where(SELECT_ALL_OFFLINE_SCHEDULED_FOR_TEACHERS, classId,
+        startDate.toString(), endDate.toString(), startDate.toString(), endDate.toString())
+        .orderBy("end_date desc");
+  }
+
+  public static List<AJEntityClassContents> fetchAsmtCollScheduledActivitiesForStudent(
+      String classId, LocalDate startDate, LocalDate endDate, String userId) {
+    return AJEntityClassContents.where(SELECT_ASMT_COLL_SCHEDULED_FOR_STUDENTS, classId,
+        startDate.toString(), endDate.toString(), userId).orderBy("activation_date desc, id desc");
+  }
+
+  public static List<AJEntityClassContents> fetchAsmtCollScheduledActivitiesForStudentForContentType(
+      String classId, LocalDate startDate, LocalDate endDate, String userId, String contentType) {
+    return AJEntityClassContents
+        .where(SELECT_ASMT_COLL_SCHEDULED_FOR_STUDENTS_FOR_CONTENT_TYPE, classId,
+            startDate.toString(), endDate.toString(), userId, contentType)
+        .orderBy("activation_date desc, id desc");
+  }
+
+  public static List<AJEntityClassContents> fetchOfflineScheduledActivitiesForStudent(
+      String classId, LocalDate startDate, LocalDate endDate, String userId) {
+    return AJEntityClassContents
+        .where(SELECT_ALL_OFFLINE_SCHEDULED_FOR_STUDENTS, classId, startDate.toString(),
+            endDate.toString(), startDate.toString(), endDate.toString(), userId)
+        .orderBy("end_date desc");
+  }
+
+  public static List<AJEntityClassContents> fetchUnscheduledActivitiesForTeacherForContentType(
+      String classIds, int forMonth, int forYear, String contentType) {
+    return AJEntityClassContents.where(SELECT_UNSCHEDULED_FOR_TEACHERS_FOR_CONTENT_TYPE, classIds,
+        forMonth, forYear, contentType);
+  }
 
   public static List<Map> fetchTaskCount(String offlineActivityIdListString) {
     return Base.findAll(SELECT_TASKS_COUNT_BY_OA, offlineActivityIdListString);

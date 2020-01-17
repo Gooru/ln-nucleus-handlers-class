@@ -33,6 +33,11 @@ public final class EntityClassDao {
     }
     return entityClass;
   }
+  
+  public static LazyList<AJEntityClass> fetchMultipleClassesByIds(String classIds) {
+    return AJEntityClass
+        .where(AJEntityClass.FETCH_MULTIPLE_NON_DELETED_NON_ARCHIVED, classIds);
+  }
 
   private EntityClassDao() {
     throw new AssertionError();

@@ -1,4 +1,4 @@
-package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled;
+package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.scheduled;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -13,7 +13,7 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFa
  * @author ashish.
  */
 
-public class ListOnlineScheduledActivityCommand {
+public class ListScheduledActivityCommand {
 
   private final boolean isStudent;
   private final String userId;
@@ -25,17 +25,19 @@ public class ListOnlineScheduledActivityCommand {
   private final String classId;
   private boolean isValid = false;
   private final Set<String> secondaryClasses;
+  private final Set<String> contentType;
 
   private static final String START_DATE = "start_date";
   private static final String END_DATE = "end_date";
 
-  ListOnlineScheduledActivityCommand(ProcessorContext context, boolean isStudent) {
+  ListScheduledActivityCommand(ProcessorContext context, boolean isStudent) {
     userId = context.userId();
     classId = context.classId();
     startDateString = DbHelperUtil.readRequestParam(START_DATE, context);
     endDateString = DbHelperUtil.readRequestParam(END_DATE, context);
     this.isStudent = isStudent;
     secondaryClasses = DbHelperUtil.getSecondaryClasses(context);
+    contentType = DbHelperUtil.getContentTypes(context);
   }
 
 
@@ -86,5 +88,9 @@ public class ListOnlineScheduledActivityCommand {
 
   public Set<String> getSecondaryClasses() {
     return secondaryClasses;
+  }
+  
+  public Set<String> getContentType() {
+    return contentType;
   }
 }

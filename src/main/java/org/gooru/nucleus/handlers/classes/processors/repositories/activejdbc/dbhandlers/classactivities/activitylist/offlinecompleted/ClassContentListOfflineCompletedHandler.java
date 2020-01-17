@@ -1,7 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlinecompleted;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -20,11 +18,13 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class ClassContentListOfflineCompletedHandler implements DBHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(
-      ClassContentListOfflineCompletedHandler.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ClassContentListOfflineCompletedHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private List<AJEntityClassContents> classContents;
@@ -56,8 +56,8 @@ public class ClassContentListOfflineCompletedHandler implements DBHandler {
       ExecutionResult<MessageResponse> classAuthorization =
           AuthorizerBuilder.buildClassContentAuthorizer(this.context).authorize(entityClass);
       if (!classAuthorization.continueProcessing()) {
-        classAuthorization = AuthorizerBuilder.buildClassStudentAuthorizer(context)
-            .authorize(entityClass);
+        classAuthorization =
+            AuthorizerBuilder.buildClassStudentAuthorizer(context).authorize(entityClass);
         if (!classAuthorization.continueProcessing()) {
           return new ExecutionResult<>(
               MessageResponseFactory
@@ -68,6 +68,7 @@ public class ClassContentListOfflineCompletedHandler implements DBHandler {
       }
       command = new ListActivityOfflineCompletedCommand(context, studentAuthorization);
       command.validate();
+
       return classAuthorization;
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
@@ -82,8 +83,7 @@ public class ClassContentListOfflineCompletedHandler implements DBHandler {
     contentEnricher = ContentEnricher
         .buildContentEnricherForOfflineCompletedActivities(classContents, command.isStudent());
 
-    return new ExecutionResult<>(
-        MessageResponseFactory.createOkayResponse(createResponse()),
+    return new ExecutionResult<>(MessageResponseFactory.createOkayResponse(createResponse()),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
   }
 
@@ -95,10 +95,8 @@ public class ClassContentListOfflineCompletedHandler implements DBHandler {
   }
 
   private void fetchClassContents() {
-    activityFetcher = ActivityFetcher
-        .buildContentFetcherForOfflineCompletedActivities(command);
-    classContents = activityFetcher
-        .fetchContents();
+    activityFetcher = ActivityFetcher.buildContentFetcherForOfflineCompletedActivities(command);
+    classContents = activityFetcher.fetchContents();
   }
 
 

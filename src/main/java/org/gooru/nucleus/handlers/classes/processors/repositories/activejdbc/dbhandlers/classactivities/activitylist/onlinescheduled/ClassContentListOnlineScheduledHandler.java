@@ -1,7 +1,5 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.onlinescheduled;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
@@ -20,6 +18,8 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class ClassContentListOnlineScheduledHandler implements DBHandler {
 
@@ -66,6 +66,7 @@ public class ClassContentListOnlineScheduledHandler implements DBHandler {
       }
       command = new ListOnlineScheduledActivityCommand(context, studentAuthorization);
       command.validate();
+      
       return classAuthorization;
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
