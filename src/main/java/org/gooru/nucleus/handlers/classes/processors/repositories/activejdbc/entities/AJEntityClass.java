@@ -168,6 +168,7 @@ public class AJEntityClass extends Model {
         (fieldValue -> FieldConverter
             .convertFieldToNamedType(fieldValue, CLASS_SHARING_TYPE_NAME)));
     converterMap.put(COLLABORATOR, (FieldConverter::convertFieldToJson));
+    converterMap.put(SETTING, (FieldConverter::convertFieldToJson));
     converterMap
         .put(TENANT, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
     converterMap
