@@ -148,7 +148,7 @@ public final class EntityClassContentsDao {
       "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type != 'offline-activity'";
 
   private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_TEACHERS_FOR_CONTENT_TYPE =
-      "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type = ANY(?::text[])";
+      "class_id = ANY(?::uuid[]) AND dca_added_date BETWEEN ?::date AND ?::date and content_type = ANY(?::text[]) and content_type != 'offline-activity'";
 
   private static final String SELECT_ALL_OFFLINE_SCHEDULED_FOR_TEACHERS =
       "class_id = ANY(?::uuid[]) AND (dca_added_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
