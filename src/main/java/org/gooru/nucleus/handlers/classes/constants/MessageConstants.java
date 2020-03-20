@@ -69,7 +69,7 @@ public final class MessageConstants {
   public static final String RESP_CONTAINER_POSTPROCESSOR = "mb.postprocessor.event";
   public static final String RESP_CONTAINER_EVENT = "mb.event";
 
-  public static final String CLASS = "class";
+  public static final String CLASS_IDS = "classIds";
   public static final String CLASS_ID = "classId";
   public static final String CLASS_CONTENT_ID = "classContentId";
   public static final String COURSE_ID = "courseId";

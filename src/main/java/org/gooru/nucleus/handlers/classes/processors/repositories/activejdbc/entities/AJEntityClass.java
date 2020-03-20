@@ -87,6 +87,7 @@ public class AJEntityClass extends Model {
   public static final String CLASS_SHARING_TYPE_OPEN = "open";
   private static final String CLASS_SHARING_TYPE_RESTRICTED = "restricted";
 
+  public static final String FETCH_CLASS_DETAILS_BY_IDS = "id = ANY(?::uuid[]) and is_deleted = false";
   public static final String FETCH_QUERY_FILTER = "id = ?::uuid and is_deleted = false";
   public static final String FETCH_MULTIPLE_QUERY_FILTER = "id = ANY(?::uuid[]) and is_deleted = false";
   public static final String FETCH_MULTIPLE_NON_DELETED_NON_ARCHIVED  = "id = ANY(?::uuid[]) and is_deleted = false and is_archived = false";

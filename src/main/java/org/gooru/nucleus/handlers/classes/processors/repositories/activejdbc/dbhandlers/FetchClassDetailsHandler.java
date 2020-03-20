@@ -39,24 +39,24 @@ public class FetchClassDetailsHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> checkSanity() {
- // The user should not be anonymous
+    // The user should not be anonymous
     if (context.userId() == null || context.userId().isEmpty() || context.userId()
         .equalsIgnoreCase(MessageConstants.MSG_USER_ANONYMOUS)) {
-      LOGGER.warn("Anonymous or invalid user attempting to create class");
+      LOGGER.warn("Anonymous or invalid user attempting to fetch class details");
       return new ExecutionResult<>(
           MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
     // Payload should not be empty
     if (context.request() == null || context.request().isEmpty()) {
-      LOGGER.warn("Empty payload supplied to create class");
+      LOGGER.warn("Empty payload supplied to fetch class details");
       return new ExecutionResult<>(
           MessageResponseFactory
               .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("empty.payload")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
     
-    if(!context.request().containsKey(MessageConstants.CLASS)) {
+    if(!context.request().containsKey(MessageConstants.CLASS_IDS)) {
       LOGGER.warn("Invalid params to fetch class details");
       return new ExecutionResult<>(
           MessageResponseFactory
@@ -64,7 +64,7 @@ public class FetchClassDetailsHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
-    this.classIds = (JsonArray) context.request().getValue(MessageConstants.CLASS);
+    this.classIds = context.request().getJsonArray(MessageConstants.CLASS_IDS);
     if(classIds == null || classIds.isEmpty()) {
       LOGGER.warn("Empty classIds supplied to fetch class details");
       return new ExecutionResult<>(
@@ -84,12 +84,9 @@ public class FetchClassDetailsHandler implements DBHandler {
 
   @Override
   public ExecutionResult<MessageResponse> executeRequest() {
-    JsonObject result = new JsonObject();
-    for (Object id : classIds){ 
-      classIdList.add(id.toString());
-     } 
-    LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_MULTIPLE_QUERY_FILTER,
-        Utils.convertListToPostgresArrayStringRepresentation(classIdList));
+    JsonObject result = new JsonObject(); 
+    LazyList<AJEntityClass> classes = AJEntityClass.where(AJEntityClass.FETCH_CLASS_DETAILS_BY_IDS,
+        Utils.convertListToPostgresArrayStringRepresentation(classIds.getList()));
     JsonArray classDetails = new JsonArray(JsonFormatterBuilder
         .buildSimpleJsonFormatter(false, AJEntityClass.FETCH_QUERY_FIELD_LIST)
         .toJson(classes));
@@ -100,7 +97,6 @@ public class FetchClassDetailsHandler implements DBHandler {
 
   @Override
   public boolean handlerReadOnly() {
-    // TODO Auto-generated method stub
     return false;
   }
 
