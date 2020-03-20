@@ -55,13 +55,21 @@ public class FetchClassDetailsHandler implements DBHandler {
               .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("empty.payload")),
           ExecutionResult.ExecutionStatus.FAILED);
     }
-     
-    this.classIds = (JsonArray) context.request().getValue(MessageConstants.CLASS);
-    if(classIds == null || classIds.isEmpty()) {
+    
+    if(!context.request().containsKey(MessageConstants.CLASS)) {
       LOGGER.warn("Invalid params to fetch class details");
       return new ExecutionResult<>(
           MessageResponseFactory
               .createInvalidRequestResponse("Invalid params to fetch class details"),
+          ExecutionResult.ExecutionStatus.FAILED);
+    }
+
+    this.classIds = (JsonArray) context.request().getValue(MessageConstants.CLASS);
+    if(classIds == null || classIds.isEmpty()) {
+      LOGGER.warn("Empty classIds supplied to fetch class details");
+      return new ExecutionResult<>(
+          MessageResponseFactory
+              .createInvalidRequestResponse("Empty classIds supplied to fetch class details"),
           ExecutionResult.ExecutionStatus.FAILED);
     }
     
