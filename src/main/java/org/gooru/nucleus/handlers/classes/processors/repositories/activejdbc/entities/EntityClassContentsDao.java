@@ -1,6 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.entities;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -160,7 +161,8 @@ public final class EntityClassContentsDao {
 
   private static final String SELECT_ASMT_COLL_SCHEDULED_FOR_STUDENTS_FOR_CONTENT_TYPE =
       "class_id = ?::uuid AND activation_date BETWEEN ?::date AND ?::date and (?::text = any(users) OR users is null) "
-          + " and content_type = ANY(?::text[])";
+          + " and content_type = ANY(?::text[]) and content_type != 'offline-activity' ";
+  
 
   private static final String SELECT_ALL_OFFLINE_SCHEDULED_FOR_STUDENTS =
       "class_id = ?::uuid AND activation_date is not null AND (activation_date BETWEEN ?::date AND ?::date OR end_date BETWEEN ?::date AND ?::date) "
@@ -181,7 +183,6 @@ public final class EntityClassContentsDao {
             startDate.toString(), endDate.toString(), contentType)
         .orderBy("dca_added_date desc nulls first, created_at desc");
   }
-
   public static List<AJEntityClassContents> fetchOfflineScheduledActivitiesForTeacher(
       String classId, LocalDate startDate, LocalDate endDate) {
     return AJEntityClassContents.where(SELECT_ALL_OFFLINE_SCHEDULED_FOR_TEACHERS, classId,
@@ -202,6 +203,7 @@ public final class EntityClassContentsDao {
             startDate.toString(), endDate.toString(), userId, contentType)
         .orderBy("activation_date desc, id desc");
   }
+  
 
   public static List<AJEntityClassContents> fetchOfflineScheduledActivitiesForStudent(
       String classId, LocalDate startDate, LocalDate endDate, String userId) {
