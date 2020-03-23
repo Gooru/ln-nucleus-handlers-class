@@ -34,6 +34,12 @@ public enum CommandProcessorBuilder {
       return new ClassCreateProcessor(context);
     }
   },
+  CLASS_DETAILS(MessageConstants.MSG_OP_CLASS_DETAILS) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ClassDetailsProcessor(context);
+    }
+  },
   CLASS_GET(MessageConstants.MSG_OP_CLASS_GET) {
     @Override
     public Processor build(ProcessorContext context) {
