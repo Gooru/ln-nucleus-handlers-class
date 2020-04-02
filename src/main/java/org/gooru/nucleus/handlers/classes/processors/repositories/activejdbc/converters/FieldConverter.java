@@ -15,6 +15,7 @@ public interface FieldConverter {
   String JSONB_TYPE = "jsonb";
   String UUID_TYPE = "uuid";
   String DATE_TYPE = "date";
+  String TIMESTAMP_TYPE = "timestamp";
 
   static PGobject convertFieldToJson(Object value) {
     String JSONB_TYPE = FieldConverter.JSONB_TYPE;
@@ -60,6 +61,20 @@ public interface FieldConverter {
       PGobject date = new PGobject();
       date.setType(DATE_TYPE);
       date.setValue(Date.valueOf(localDate).toString());
+      return date;
+    } catch (DateTimeParseException | SQLException e) {
+      return null;
+    }
+  }
+  
+  static PGobject convertFieldToTimestampWithFormat(Object o) {
+    if (o == null) {
+      return null;
+    }
+    try {
+      PGobject date = new PGobject();
+      date.setType(TIMESTAMP_TYPE);
+      date.setValue(o.toString());
       return date;
     } catch (DateTimeParseException | SQLException e) {
       return null;
