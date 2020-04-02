@@ -58,27 +58,35 @@ public class AJEntityClassContents extends Model {
   public static final String ID = "id";
   public static final Pattern ASSESSMENT_TYPES = Pattern.compile("assessment|assessment-external");
   public static final Pattern COLLECTION_TYPES = Pattern.compile("collection|collection-external");
+  public static final String MEETING_ID = "meeting_id";
+  public static final String MEETING_URL = "meeting_url";
+  public static final String MEETING_START_TIME = "meeting_starttime";
+  public static final String MEETING_END_TIME = "meeting_endtime";
+  public static final String MEETING_TIME_ZONE = "meeting_timezone";
 
-  private static final Set<String> CREATABLE_FIELDS = new HashSet<>(Arrays
-      .asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE, CREATED_AT, UPDATED_AT,
-          DCA_ADDED_DATE, END_DATE));
-  private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays
-      .asList(USERS));
-  private static final Set<String> UPDATEABLE_FIELDS = new HashSet<>(
-      Arrays.asList(ACTIVATION_DATE, DCA_ADDED_DATE, UPDATED_AT));
-  private static final Set<String> UPDATE_MASTERY_ACCRUAL_FIELDS = new HashSet<>(
-      Arrays.asList(ALLOW_MASTERY_ACCRUAL));
+
+  private static final Set<String> CREATABLE_FIELDS =
+      new HashSet<>(Arrays.asList(ID, CLASS_ID, FOR_MONTH, FOR_YEAR, CONTENT_ID, CONTENT_TYPE,
+          CREATED_AT, UPDATED_AT, DCA_ADDED_DATE, END_DATE));
+  private static final Set<String> UPDATE_USERS_FIELDS = new HashSet<>(Arrays.asList(USERS));
+  private static final Set<String> UPDATEABLE_FIELDS =
+      new HashSet<>(Arrays.asList(ACTIVATION_DATE, DCA_ADDED_DATE, UPDATED_AT));
+  private static final Set<String> UPDATE_MASTERY_ACCRUAL_FIELDS =
+      new HashSet<>(Arrays.asList(ALLOW_MASTERY_ACCRUAL));
   private static final Set<String> MANDATORY_FIELDS =
       new HashSet<>(Arrays.asList(CONTENT_ID, CONTENT_TYPE, FOR_MONTH, FOR_YEAR));
-  public static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays
-      .asList(ASSESSMENT, COLLECTION, ASSESSMENT_EXTERNAL, COLLECTION_EXTERNAL, RESOURCE,
-          QUESTION, OFFLINE_ACTIVITY));
-  public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays
-      .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, USERS_COUNT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE, CLASS_ID);
-  public static final List<String> RESPONSE_FIELDS_FOR_STUDENT = Arrays
-      .asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE,
-          CREATED_AT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE);
+  public static final Set<String> ACCEPT_CONTENT_TYPES = new HashSet<>(Arrays.asList(ASSESSMENT,
+      COLLECTION, ASSESSMENT_EXTERNAL, COLLECTION_EXTERNAL, RESOURCE, QUESTION, OFFLINE_ACTIVITY));
+  public static final List<String> RESPONSE_FIELDS_FOR_TEACHER = Arrays.asList(ID, CONTENT_ID,
+      CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE, ACTIVATION_DATE, CREATED_AT, USERS_COUNT,
+      ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE, CLASS_ID, MEETING_ID, MEETING_URL,
+      MEETING_START_TIME, MEETING_END_TIME, MEETING_TIME_ZONE);
+  public static final List<String> RESPONSE_FIELDS_FOR_STUDENT =
+      Arrays.asList(ID, CONTENT_ID, CONTENT_TYPE, FOR_YEAR, FOR_MONTH, DCA_ADDED_DATE,
+          ACTIVATION_DATE, CREATED_AT, ALLOW_MASTERY_ACCRUAL, IS_COMPLETED, END_DATE, MEETING_URL,
+          MEETING_START_TIME, MEETING_END_TIME, MEETING_TIME_ZONE);
+  private static final Set<String> MEETING_SETUP_FIELDS =
+      new HashSet<>(Arrays.asList(MEETING_ID, MEETING_URL, MEETING_START_TIME, MEETING_END_TIME, MEETING_TIME_ZONE));
   private static final Map<String, FieldValidator> validatorRegistry;
   private static final Map<String, FieldConverter> converterRegistry;
 
@@ -97,7 +105,8 @@ public class AJEntityClassContents extends Model {
       "class_id = ?::uuid and content_id = ?::uuid and content_type = ? and dca_added_date::DATE is null "
           + " and for_month = ? and for_year = ?";
 
-  private static final String UPDATE_CLASS_CONTENTS_USERS = "update class_contents set users = ?::text[], users_count = ? where id = ?";
+  private static final String UPDATE_CLASS_CONTENTS_USERS =
+      "update class_contents set users = ?::text[], users_count = ? where id = ?";
 
   public static final String FETCH_CLASS_CONTENT = "id = ?::bigint AND class_id = ?::uuid";
 
@@ -108,37 +117,32 @@ public class AJEntityClassContents extends Model {
 
   private static Map<String, FieldConverter> initializeConverters() {
     Map<String, FieldConverter> converterMap = new HashMap<>();
-    converterMap
-        .put(CLASS_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
-    converterMap
-        .put(CONTENT_ID, (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
-    converterMap.put(ACTIVATION_DATE,
-        (fieldValue -> FieldConverter
-            .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
-    converterMap.put(DCA_ADDED_DATE,
-        (fieldValue -> FieldConverter
-            .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
-    converterMap.put(END_DATE,
-        (fieldValue -> FieldConverter
-            .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+    converterMap.put(CLASS_ID,
+        (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+    converterMap.put(CONTENT_ID,
+        (fieldValue -> FieldConverter.convertFieldToUuid((String) fieldValue)));
+    converterMap.put(ACTIVATION_DATE, (fieldValue -> FieldConverter
+        .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+    converterMap.put(DCA_ADDED_DATE, (fieldValue -> FieldConverter
+        .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
+    converterMap.put(END_DATE, (fieldValue -> FieldConverter
+        .convertFieldToDateWithFormat(fieldValue, DateTimeFormatter.ISO_LOCAL_DATE)));
     return Collections.unmodifiableMap(converterMap);
   }
+  
 
   private static Map<String, FieldValidator> initializeValidators() {
     Map<String, FieldValidator> validatorMap = new HashMap<>();
     validatorMap.put(CLASS_ID, (FieldValidator::validateUuid));
     validatorMap.put(CONTENT_ID, (FieldValidator::validateUuid));
-    validatorMap
-        .put(FOR_MONTH, FieldValidator::validateMonth);
+    validatorMap.put(FOR_MONTH, FieldValidator::validateMonth);
     validatorMap.put(FOR_YEAR, FieldValidator::validateYear);
-    validatorMap
-        .put(CONTENT_TYPE,
-            (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
+    validatorMap.put(CONTENT_TYPE,
+        (value -> FieldValidator.validateValueExists((String) value, ACCEPT_CONTENT_TYPES)));
     validatorMap.put(DCA_ADDED_DATE, (value -> FieldValidator
         .validateDateWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_LOCAL_DATE, 1)));
-    validatorMap.put(USERS,
-        (value) -> FieldValidator
-            .validateDeepJsonArrayIfPresentAllowEmpty(value, FieldValidator::validateUuid));
+    validatorMap.put(USERS, (value) -> FieldValidator
+        .validateDeepJsonArrayIfPresentAllowEmpty(value, FieldValidator::validateUuid));
     validatorMap.put(ALLOW_MASTERY_ACCRUAL, FieldValidator::validateBooleanIfPresent);
     return Collections.unmodifiableMap(validatorMap);
   }
@@ -190,6 +194,20 @@ public class AJEntityClassContents extends Model {
     };
   }
 
+  public static FieldSelector meetingSetupFieldSelector() {
+    return new FieldSelector() {
+      @Override
+      public Set<String> allowedFields() {
+        return Collections.unmodifiableSet(MEETING_SETUP_FIELDS);
+      }
+
+      @Override
+      public Set<String> mandatoryFields() {
+        return Collections.unmodifiableSet(MEETING_SETUP_FIELDS);
+      }
+    };
+  }
+
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
       PGobject value = FieldConverter.convertFieldToUuid(classId);
@@ -209,25 +227,22 @@ public class AJEntityClassContents extends Model {
 
   public void setActivationDateIfNotPresent(LocalDate activationDate) {
     if (this.getDate(ACTIVATION_DATE) == null) {
-      this.set(ACTIVATION_DATE,
-          FieldConverter
-              .convertFieldToDateWithFormat(activationDate, DateTimeFormatter.ISO_LOCAL_DATE));
+      this.set(ACTIVATION_DATE, FieldConverter.convertFieldToDateWithFormat(activationDate,
+          DateTimeFormatter.ISO_LOCAL_DATE));
     }
   }
 
   public void setDcaAddedDateIfNotPresent(LocalDate dcaAddedDate) {
     if (this.getDate(DCA_ADDED_DATE) == null) {
-      this.set(DCA_ADDED_DATE,
-          FieldConverter
-              .convertFieldToDateWithFormat(dcaAddedDate, DateTimeFormatter.ISO_LOCAL_DATE));
+      this.set(DCA_ADDED_DATE, FieldConverter.convertFieldToDateWithFormat(dcaAddedDate,
+          DateTimeFormatter.ISO_LOCAL_DATE));
     }
   }
 
   public void setEndDateIfNotPresent(LocalDate endDate) {
     if (this.getDate(END_DATE) == null) {
       this.set(END_DATE,
-          FieldConverter
-              .convertFieldToDateWithFormat(endDate, DateTimeFormatter.ISO_LOCAL_DATE));
+          FieldConverter.convertFieldToDateWithFormat(endDate, DateTimeFormatter.ISO_LOCAL_DATE));
     }
   }
 
