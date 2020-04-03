@@ -8,6 +8,8 @@ import org.gooru.nucleus.handlers.classes.processors.responses.MessageResponse;
 public interface ClassRepo {
 
   MessageResponse createClass();
+  
+  MessageResponse fetchClassDetails();
 
   MessageResponse updateClass();
 

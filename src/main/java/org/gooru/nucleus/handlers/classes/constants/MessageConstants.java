@@ -21,6 +21,7 @@ public final class MessageConstants {
 
   // Class operations
   public static final String MSG_OP_CLASS_CREATE = "class.create";
+  public static final String MSG_OP_CLASS_DETAILS = "class.details";
   public static final String MSG_OP_CLASS_UPDATE = "class.update";
   public static final String MSG_OP_CLASS_DELETE = "class.delete";
   public static final String MSG_OP_CLASS_GET = "class.get";
@@ -68,6 +69,7 @@ public final class MessageConstants {
   public static final String RESP_CONTAINER_POSTPROCESSOR = "mb.postprocessor.event";
   public static final String RESP_CONTAINER_EVENT = "mb.event";
 
+  public static final String CLASS_IDS = "classIds";
   public static final String CLASS_ID = "classId";
   public static final String CLASS_CONTENT_ID = "classContentId";
   public static final String COURSE_ID = "courseId";

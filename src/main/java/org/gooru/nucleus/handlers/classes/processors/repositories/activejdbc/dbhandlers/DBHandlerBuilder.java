@@ -35,7 +35,11 @@ public final class DBHandlerBuilder {
   public static DBHandler buildCreateClassHandler(ProcessorContext context) {
     return new CreateClassHandler(context);
   }
-
+  
+  public static DBHandler buildFetchClassDetailsHandler(ProcessorContext context) {
+    return new FetchClassDetailsHandler(context);
+  }
+  
   public static DBHandler buildUpdateClassHandler(ProcessorContext context) {
     return new UpdateClassHandler(context);
   }
