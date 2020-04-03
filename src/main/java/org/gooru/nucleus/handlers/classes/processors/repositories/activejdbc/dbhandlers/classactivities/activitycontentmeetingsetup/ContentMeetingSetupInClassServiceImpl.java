@@ -1,5 +1,7 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentmeetingsetup;
 
+import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
@@ -53,9 +55,9 @@ class ContentMeetingSetupInClassServiceImpl implements ContentMeetingSetupInClas
     this.classContents.set(AJEntityClassContents.MEETING_URL, meetingUrl);
     this.classContents.set(
         AJEntityClassContents.MEETING_START_TIME,
-        FieldConverter.convertFieldToTimestampWithFormat(meetingStartDatetime));
+        FieldConverter.convertFieldToTimestampWithFormat(meetingStartDatetime, DateTimeFormatter.ISO_DATE_TIME));
     this.classContents.set(AJEntityClassContents.MEETING_END_TIME,
-        FieldConverter.convertFieldToTimestampWithFormat(meetingEndDatetime));
+        FieldConverter.convertFieldToTimestampWithFormat(meetingEndDatetime, DateTimeFormatter.ISO_DATE_TIME));
     this.classContents.set(AJEntityClassContents.MEETING_TIME_ZONE, meetingTimeZone);
   }
 

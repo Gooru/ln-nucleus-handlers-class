@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.va
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Set;
@@ -80,7 +81,26 @@ public interface FieldValidator {
     }
     return true;
   }
+  
+  static boolean validateDateTimeWithFormatWithInDaysBoundary(Object o, DateTimeFormatter formatter,
+      long daysInPast) {
+    if (o == null) {
+      return true;
+    }
+    try {
+      LocalDateTime dateTime = LocalDateTime.parse(o.toString(), formatter);
+      LocalDateTime today = LocalDateTime.now();
 
+      if (today.minusDays(daysInPast).isAfter(dateTime)) {
+        return false;
+      }
+    } catch (DateTimeParseException e) {
+      return false;
+    }
+    return true;
+  }
+  
+  
   static boolean validateDateWithFormatIfPresent(Object o, DateTimeFormatter formatter,
       boolean allowedInPast,
       boolean allowCurrentDate) {

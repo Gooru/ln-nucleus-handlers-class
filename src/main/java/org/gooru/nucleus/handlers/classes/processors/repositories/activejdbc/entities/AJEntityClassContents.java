@@ -144,6 +144,10 @@ public class AJEntityClassContents extends Model {
     validatorMap.put(USERS, (value) -> FieldValidator
         .validateDeepJsonArrayIfPresentAllowEmpty(value, FieldValidator::validateUuid));
     validatorMap.put(ALLOW_MASTERY_ACCRUAL, FieldValidator::validateBooleanIfPresent);
+    validatorMap.put(MEETING_START_TIME, (value -> FieldValidator
+        .validateDateTimeWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_DATE_TIME, 1)));
+    validatorMap.put(MEETING_END_TIME, (value -> FieldValidator
+        .validateDateTimeWithFormatWithInDaysBoundary(value, DateTimeFormatter.ISO_DATE_TIME, 1)));
     return Collections.unmodifiableMap(validatorMap);
   }
 

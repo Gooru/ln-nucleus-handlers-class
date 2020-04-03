@@ -1,5 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentmeetingsetup;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.events.EventBuilderFactory;
@@ -21,7 +22,8 @@ import io.vertx.core.json.JsonObject;
 
 public class ContentMeetingSetupInClassHandler implements DBHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ContentMeetingSetupInClassHandler.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ContentMeetingSetupInClassHandler.class);
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
   private final ProcessorContext context;
   private AJEntityClassContents classContents;
@@ -38,6 +40,7 @@ public class ContentMeetingSetupInClassHandler implements DBHandler {
       SanityValidators.validateUser(context);
       SanityValidators.validateClassId(context);
       validateContextRequestFields();
+      validateStartAndEndDateTimeWithInBoundarys();
       contentId = SanityValidators.validateAndFetchContentId(context);
     } catch (MessageResponseWrapperException mrwe) {
       return new ExecutionResult<>(mrwe.getMessageResponse(),
@@ -51,8 +54,8 @@ public class ContentMeetingSetupInClassHandler implements DBHandler {
   public ExecutionResult<MessageResponse> validateRequest() {
     try {
       entityClass = EntityClassDao.fetchClassById(context.classId());
-      classContents = EntityClassContentsDao
-          .fetchActivityByIdAndClass(contentId, context.classId());
+      classContents =
+          EntityClassContentsDao.fetchActivityByIdAndClass(contentId, context.classId());
 
       return AuthorizerBuilder.buildClassContentMeetingSetupAuthorizer(context)
           .authorize(this.entityClass);
@@ -71,13 +74,13 @@ public class ContentMeetingSetupInClassHandler implements DBHandler {
           ExecutionResult.ExecutionStatus.FAILED);
     }
 
-    return new ExecutionResult<>(MessageResponseFactory
-        .createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
-            EventBuilderFactory
-                .getClassContentMeetingSetupEventBuilder(classContents.getId(), this.context.classId())),
+    return new ExecutionResult<>(
+        MessageResponseFactory.createNoContentResponse(RESOURCE_BUNDLE.getString("updated"),
+            EventBuilderFactory.getClassContentMeetingSetupEventBuilder(classContents.getId(),
+                this.context.classId())),
         ExecutionResult.ExecutionStatus.SUCCESSFUL);
   }
-  
+
   private void validateContextRequestFields() {
     JsonObject errors = new DefaultPayloadValidator().validatePayload(context.request(),
         AJEntityClassContents.meetingSetupFieldSelector(),
@@ -86,6 +89,16 @@ public class ContentMeetingSetupInClassHandler implements DBHandler {
       LOGGER.warn("Validation errors for request");
       throw new MessageResponseWrapperException(
           MessageResponseFactory.createValidationErrorResponse(errors));
+    }
+  }
+
+  private void validateStartAndEndDateTimeWithInBoundarys() {
+    String startDateTime = context.request().getString(AJEntityClassContents.MEETING_START_TIME);
+    String endDateTime = context.request().getString(AJEntityClassContents.MEETING_END_TIME);
+    if (SanityValidators.validateStartAndEndDateTimeWithInBoundarys(startDateTime, endDateTime,
+        DateTimeFormatter.ISO_DATE_TIME)) {
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createInvalidRequestResponse(RESOURCE_BUNDLE.getString("invalid.meeting.enddatetime")));
     }
   }
 

@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.co
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import org.postgresql.util.PGobject;
@@ -66,15 +67,16 @@ public interface FieldConverter {
       return null;
     }
   }
-  
-  static PGobject convertFieldToTimestampWithFormat(Object o) {
+
+  static PGobject convertFieldToTimestampWithFormat(Object o, DateTimeFormatter formatter) {
     if (o == null) {
       return null;
     }
     try {
+      LocalDateTime localDateTime = LocalDateTime.parse(o.toString(), formatter);
       PGobject date = new PGobject();
       date.setType(TIMESTAMP_TYPE);
-      date.setValue(o.toString());
+      date.setValue(localDateTime.toString());
       return date;
     } catch (DateTimeParseException | SQLException e) {
       return null;
@@ -82,4 +84,7 @@ public interface FieldConverter {
   }
 
   PGobject convertField(Object fieldValue);
+
 }
+
+
