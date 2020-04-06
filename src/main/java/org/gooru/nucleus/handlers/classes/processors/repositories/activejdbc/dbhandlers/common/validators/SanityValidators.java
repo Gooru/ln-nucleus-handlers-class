@@ -1,6 +1,9 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.common.validators;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.constants.MessageConstants;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
@@ -27,8 +30,7 @@ public final class SanityValidators {
 
   public static void validateUser(ProcessorContext context) {
     if ((context.userId() == null) || context.userId().isEmpty()
-        || MessageConstants.MSG_USER_ANONYMOUS
-        .equalsIgnoreCase(context.userId())) {
+        || MessageConstants.MSG_USER_ANONYMOUS.equalsIgnoreCase(context.userId())) {
       LOGGER.warn("Invalid user");
       throw new MessageResponseWrapperException(
           MessageResponseFactory.createForbiddenResponse(RESOURCE_BUNDLE.getString("not.allowed")));
@@ -37,9 +39,8 @@ public final class SanityValidators {
 
   public static void validateClassId(ProcessorContext context) {
     if (context.classId() == null || context.classId().isEmpty()) {
-      throw new MessageResponseWrapperException(
-          MessageResponseFactory
-              .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.class.id")));
+      throw new MessageResponseWrapperException(MessageResponseFactory
+          .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.class.id")));
     }
   }
 
@@ -48,9 +49,8 @@ public final class SanityValidators {
       String contentId = context.requestHeaders().get(AJEntityClassContents.ID_CONTENT);
       new BigInteger(contentId);
       if (contentId == null) {
-        throw new MessageResponseWrapperException(
-            MessageResponseFactory
-                .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.content.id")));
+        throw new MessageResponseWrapperException(MessageResponseFactory
+            .createNotFoundResponse(RESOURCE_BUNDLE.getString("missing.content.id")));
       }
       return contentId;
     } catch (Exception e) {
@@ -59,5 +59,18 @@ public final class SanityValidators {
     }
   }
 
+  public static boolean validateStartAndEndDateTimeWithInBoundarys(String startDateTime,
+      String endDateTime, DateTimeFormatter formatter) {
+    try {
+      LocalDateTime startTime = LocalDateTime.parse(startDateTime, formatter);
+      LocalDateTime endTime = LocalDateTime.parse(endDateTime, formatter);
+      if (startTime.isBefore(endTime)) {
+        return false;
+      }
+    } catch (DateTimeParseException e) {
+      return false;
+    }
+    return true;
+  }
 
 }

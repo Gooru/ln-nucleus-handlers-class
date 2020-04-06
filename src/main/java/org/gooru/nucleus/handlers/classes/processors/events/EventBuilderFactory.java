@@ -24,6 +24,7 @@ public final class EventBuilderFactory {
   private static final String EVT_CLASS_CONTENT_DELETE = "event.class.content.delete";
   private static final String EVT_CLASS_CONTENT_COMPLETE = "event.class.content.complete";
   private static final String EVT_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE = "event.class.content.mastery.accrual.update";
+  private static final String EVT_CLASS_CONTENT_MEETING_SETUP = "event.class.content.meetingsetup";
   private static final String EVENT_NAME = "event.name";
   private static final String EVENT_BODY = "event.body";
   private static final String CLASS_ID = "id";
@@ -136,6 +137,11 @@ public final class EventBuilderFactory {
     return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_CONTENT_MASTERY_ACCRUAL_UPDATE)
         .put(EVENT_BODY,
             new JsonObject().put(CLASS_CONTENT_ID, id).put(ID_CLASS, classId));
+  }
+  
+  public static EventBuilder getClassContentMeetingSetupEventBuilder(Object id, String classId) {
+    return () -> new JsonObject().put(EVENT_NAME, EVT_CLASS_CONTENT_MEETING_SETUP).put(EVENT_BODY,
+        new JsonObject().put(CLASS_CONTENT_ID, id).put(ID_CLASS, classId));
   }
 
 }

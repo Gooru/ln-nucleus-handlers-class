@@ -259,8 +259,15 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ClassSecondaryClassesFindProcessor(context);
     }
+  },
+  MSG_OP_CLASS_CONTENT_SETUP_MEETING(MessageConstants.MSG_OP_CLASS_CONTENT_SETUP_MEETING) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ContentMeetingSetupInClassProcessor(context);
+    }
   };
-  
+
+
   private String name;
 
   CommandProcessorBuilder(String name) {

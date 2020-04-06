@@ -1,0 +1,31 @@
+{
+	"variables": [],
+	"info": {
+		"name": "class",
+		"_postman_id": "c8522085-3264-b870-6560-1ab7519b4ad5",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ContentMeetingSetupInClass",
+			"request": {
+				"url": "http://localhost:8080/api/nucleus/v2/classes/22349b1a-7c37-4b3a-a155-a1a986c1e3fb/contents/106/meeting",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Token MjoxNTgwMjA4ODc5MDM1OjViOWU3OWY4LTYzZTQtNGM0Zi05NzY4LWI3ZGYzMzM0YjczNzo6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"meeting_id\":\"1223445\",\n \"meeting_timezone\": \"Aisa/Zone\",\n \"meeting_url\": \"https://meet.google.com/rud-hzxz-hbf\",\n \"meeting_starttime\": \"2020-04-20T10:00:00\",\n \"meeting_endtime\": \"2020-04-20T14:00:00\"\n \n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
