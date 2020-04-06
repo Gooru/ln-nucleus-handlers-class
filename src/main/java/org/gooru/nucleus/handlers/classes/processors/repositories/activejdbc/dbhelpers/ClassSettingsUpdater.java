@@ -76,9 +76,9 @@ public final class ClassSettingsUpdater {
     
     // If class setting complete key is present in the request payload then add/update in the
     // existing setting
-    if (settingsFromRequest.containsKey(AJEntityClass.CLASS_SETTING_COMPLETE)) {
-      setting.put(AJEntityClass.CLASS_SETTING_COMPLETE,
-          settingsFromRequest.getBoolean(AJEntityClass.CLASS_SETTING_COMPLETE));
+    if (settingsFromRequest.containsKey(AJEntityClass.CLASS_SETUP_COMPLETE)) {
+      setting.put(AJEntityClass.CLASS_SETUP_COMPLETE,
+          settingsFromRequest.getBoolean(AJEntityClass.CLASS_SETUP_COMPLETE));
     }
     
     LOGGER.debug("updating setting to '{}'", setting.toString());

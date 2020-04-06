@@ -72,7 +72,7 @@ public class AJEntityClass extends Model {
   public static final String CONTENT_ADD_DEFAULT_VIEW = "content.add.default.view";
   public static final String MASTERY_APPLICABLE = "mastery.applicable";
   public static final String CA_SEARCH_DEFAULT_VIEW = "ca.search.default.view";
-  public static final String CLASS_SETTING_COMPLETE = "class.setting.complete";
+  public static final String CLASS_SETUP_COMPLETE = "class.setup.complete";
   
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
