@@ -29,7 +29,7 @@ public class AJClassMember extends Model {
   public static final String INITIAL_LP_DONE = "initial_lp_done";
   public static final String DIAGNOSTIC_ASSESSMENT_STATE = "diag_asmt_state";
 
-  private static final String CLASS_ID = "class_id";
+  public static final String CLASS_ID = "class_id";
   public static final String USER_ID = "user_id";
   public static final String EMAIL = "email";
   public static final String CREATOR_ID = "creator_id";
@@ -42,7 +42,7 @@ public class AJClassMember extends Model {
   public static final String CLASS_MEMBER_STATUS_TYPE_INVITED = "invited";
   public static final String CLASS_MEMBER_STATUS_TYPE_JOINED = "joined";
   public static final String TABLE_CLASS_MEMBER = "class_member";
-
+  public static final String CLASS_MEMBER_COUNT = "class_member_count";
   public static final String INVITE_STUDENT_QUERY =
       "insert into class_member (class_id, email, class_member_status, creator_system) "
           + "values (?::uuid, ?, ?::class_member_status_type, ?)";
@@ -93,6 +93,9 @@ public class AJClassMember extends Model {
       "update class_member set grade_lower_bound = ? where class_id = ?::uuid and grade_lower_bound is null";
   private static final String UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT =
       "update class_member set grade_upper_bound = ? where class_id = ?::uuid and grade_upper_bound is null";
+  public static final String FETCH_MEMBERSHIP_COUNT_FOR_CLASSES_QUERY =
+      "SELECT class_id, count(1) as class_member_count FROM class_member WHERE class_member_status = 'joined'::class_member_status_type AND "
+      + "class_id = ANY(?::uuid[]) GROUP BY class_id";
 
   public void setClassId(String classId) {
     if (classId != null && !classId.isEmpty()) {
