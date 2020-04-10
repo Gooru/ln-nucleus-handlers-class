@@ -64,7 +64,7 @@ public final class MessageConstants {
 
   public static final String MSG_OP_CLASS_SECONDARY_CLASSES_FIND = "class.secondary.classes.find";
   public static final String MSG_OP_CLASS_CONTENT_SETUP_MEETING = "class.content.setup.meeting";
-  
+  public static final String MSG_OP_CLASS_CONTENT_CANCEL_MEETING = "class.content.cancel.meeting";
   
   // Containers for different responses
   public static final String RESP_CONTAINER_MBUS = "mb.container";

@@ -249,6 +249,12 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassContentMeetingSetupInClassHandler(context));
   }
+  
+  @Override
+  public MessageResponse contentMeetingCancelInClassProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentMeetingCancelInClassHandler(context));
+  }
 
 
 }

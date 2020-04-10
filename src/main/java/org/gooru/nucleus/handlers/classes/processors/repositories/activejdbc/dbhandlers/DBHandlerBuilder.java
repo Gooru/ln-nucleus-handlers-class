@@ -5,6 +5,7 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbh
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activityaddusers.AddClassContentUsersHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentactivation.EnableContentInClassHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentcompletion.ClassContentCompletionMarkerHandler;
+import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentmeetingcancel.ContentMeetingCancelInClassHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentmeetingsetup.ContentMeetingSetupInClassHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitydelete.DeleteClassContentHandler;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitylist.offlineactive.ClassContentListOfflineActiveHandler;
@@ -188,6 +189,10 @@ public final class DBHandlerBuilder {
   
   public static DBHandler buildClassContentMeetingSetupInClassHandler(ProcessorContext context) {
     return new ContentMeetingSetupInClassHandler(context);
+  }
+  
+  public static DBHandler buildClassContentMeetingCancelInClassHandler(ProcessorContext context) {
+    return new ContentMeetingCancelInClassHandler(context);
   }
   
 }

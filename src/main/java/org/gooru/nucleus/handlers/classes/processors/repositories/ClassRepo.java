@@ -84,4 +84,6 @@ public interface ClassRepo {
   MessageResponse listClassContentScheduledProcessor();
   
   MessageResponse contentMeetingSetupInClassProcessor();
+  
+  MessageResponse contentMeetingCancelInClassProcessor();
 }

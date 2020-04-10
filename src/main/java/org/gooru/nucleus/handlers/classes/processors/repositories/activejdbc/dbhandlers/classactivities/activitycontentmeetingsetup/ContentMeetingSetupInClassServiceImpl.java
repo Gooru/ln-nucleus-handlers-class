@@ -1,8 +1,6 @@
 package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.dbhandlers.classactivities.activitycontentmeetingsetup;
 
-import java.text.DateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ResourceBundle;
 import org.gooru.nucleus.handlers.classes.processors.ProcessorContext;
 import org.gooru.nucleus.handlers.classes.processors.exceptions.MessageResponseWrapperException;
 import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.converters.FieldConverter;
@@ -20,14 +18,11 @@ class ContentMeetingSetupInClassServiceImpl implements ContentMeetingSetupInClas
   private final ProcessorContext context;
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ContentMeetingSetupInClassServiceImpl.class);
-  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("messages");
-  private final AJEntityClass entityClass;
 
   ContentMeetingSetupInClassServiceImpl(AJEntityClass entityClass,
       AJEntityClassContents classContents, ProcessorContext context) {
     this.classContents = classContents;
     this.context = context;
-    this.entityClass = entityClass;
   }
 
 
@@ -53,11 +48,10 @@ class ContentMeetingSetupInClassServiceImpl implements ContentMeetingSetupInClas
     String meetingTimeZone = request.getString(AJEntityClassContents.MEETING_TIME_ZONE);
     this.classContents.set(AJEntityClassContents.MEETING_ID, meetingId);
     this.classContents.set(AJEntityClassContents.MEETING_URL, meetingUrl);
-    this.classContents.set(
-        AJEntityClassContents.MEETING_START_TIME,
-        FieldConverter.convertFieldToTimestampWithFormat(meetingStartDatetime, DateTimeFormatter.ISO_DATE_TIME));
-    this.classContents.set(AJEntityClassContents.MEETING_END_TIME,
-        FieldConverter.convertFieldToTimestampWithFormat(meetingEndDatetime, DateTimeFormatter.ISO_DATE_TIME));
+    this.classContents.set(AJEntityClassContents.MEETING_START_TIME, FieldConverter
+        .convertFieldToTimestampWithFormat(meetingStartDatetime, DateTimeFormatter.ISO_DATE_TIME));
+    this.classContents.set(AJEntityClassContents.MEETING_END_TIME, FieldConverter
+        .convertFieldToTimestampWithFormat(meetingEndDatetime, DateTimeFormatter.ISO_DATE_TIME));
     this.classContents.set(AJEntityClassContents.MEETING_TIME_ZONE, meetingTimeZone);
   }
 
