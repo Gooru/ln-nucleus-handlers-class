@@ -265,6 +265,12 @@ public enum CommandProcessorBuilder {
     public Processor build(ProcessorContext context) {
       return new ContentMeetingSetupInClassProcessor(context);
     }
+  },
+  MSG_OP_CLASS_CONTENT_CANCEL_MEETING(MessageConstants.MSG_OP_CLASS_CONTENT_CANCEL_MEETING) {
+    @Override
+    public Processor build(ProcessorContext context) {
+      return new ContentMeetingCancelInClassProcessor(context);
+    }
   };
 
 

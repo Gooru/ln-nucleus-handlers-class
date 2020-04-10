@@ -208,5 +208,10 @@ public final class AuthorizerBuilder {
       ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
+  
+  public static Authorizer<AJEntityClass> buildClassContentMeetingCancelAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
 
 }
