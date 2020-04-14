@@ -9,11 +9,13 @@ import org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.ent
 class ClassMemberUpdater {
 
   private final boolean gradeWasSet;
+  private final boolean isClassSetupComplete;
   private RerouteSettingCommand command;
 
-  ClassMemberUpdater(RerouteSettingCommand command, boolean gradeWasSet) {
+  ClassMemberUpdater(RerouteSettingCommand command, boolean gradeWasSet, boolean isClassSetupComplete) {
     this.command = command;
     this.gradeWasSet = gradeWasSet;
+    this.isClassSetupComplete = isClassSetupComplete;
   }
 
   void update() {
@@ -28,8 +30,13 @@ class ClassMemberUpdater {
   }
 
   private void updateClassMemberUpperBound() {
-    AJClassMember.updateClassMemberUpperBoundAsDefault(command.getClassId().toString(),
+    if (!isClassSetupComplete) {
+      AJClassMember.overwriteClassMemberUpperBound(command.getClassId().toString(),
         command.getGradeCurrent());
+    } else {
+      AJClassMember.updateClassMemberUpperBoundAsDefault(command.getClassId().toString(),
+          command.getGradeCurrent());
+    }
   }
 
 }

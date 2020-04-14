@@ -93,6 +93,8 @@ public class AJClassMember extends Model {
       "update class_member set grade_lower_bound = ? where class_id = ?::uuid and grade_lower_bound is null";
   private static final String UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT =
       "update class_member set grade_upper_bound = ? where class_id = ?::uuid and grade_upper_bound is null";
+  private static final String OVERWRITE_CLASS_MEMBER_UPPER_BOUND =
+      "update class_member set grade_upper_bound = ? where class_id = ?::uuid";
   public static final String FETCH_MEMBERSHIP_COUNT_FOR_CLASSES_QUERY =
       "SELECT class_id, count(1) as class_member_count FROM class_member WHERE class_member_status = 'joined'::class_member_status_type AND "
       + "class_id = ANY(?::uuid[]) GROUP BY class_id";
@@ -205,6 +207,10 @@ public class AJClassMember extends Model {
 
   public static void updateClassMemberUpperBoundAsDefault(String classId, Long upperBound) {
     Base.exec(UPDATE_CLASS_MEMBER_UPPER_BOUND_AS_DEFAULT, upperBound, classId);
+  }
+  
+  public static void overwriteClassMemberUpperBound(String classId, Long upperBound) {
+    Base.exec(OVERWRITE_CLASS_MEMBER_UPPER_BOUND, upperBound, classId);
   }
 
   public static void updateClassMemberUpperBoundForSpecifiedUsers(UUID classId,
