@@ -103,7 +103,7 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
   }
 
   private ExecutionResult<MessageResponse> handlePostProcessing() {
-    new ClassMemberUpdater(command, gradeWasSet).update();
+    new ClassMemberUpdater(command, gradeWasSet, entityClass.isClassSetupComplete()).update();
     if (gradeWasSet && this.entityClass.getCourseId() != null) {
       MilestoneQueuer.build()
           .enqueue(UUID.fromString(this.entityClass.getCourseId()), command.getGradeCurrent());
