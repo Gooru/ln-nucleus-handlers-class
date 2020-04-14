@@ -56,11 +56,17 @@ class RequestDbValidator {
   }
 
   private void validateGradeCurrentNotGettingOverwritten() {
-    if (entityClass.getGradeCurrent() != null && command.getGradeCurrent() != null
-        && entityClass.getGradeCurrent().longValue() != command.getGradeCurrent().longValue()) {
-      throw new MessageResponseWrapperException(MessageResponseFactory
-          .createInvalidRequestResponse(
-              RESOURCE_BUNDLE.getString("reroute.settings.grade.set.not.allowed")));
+    if (!entityClass.isClassSetupComplete()) {
+      LOGGER.debug(
+          "It seems the class setup is not yet complete, hence we are allowing to set class grade and uppper bound");
+      return;
+    } else {
+      if (entityClass.getGradeCurrent() != null && command.getGradeCurrent() != null
+          && entityClass.getGradeCurrent().longValue() != command.getGradeCurrent().longValue()) {
+        throw new MessageResponseWrapperException(
+            MessageResponseFactory.createInvalidRequestResponse(
+                RESOURCE_BUNDLE.getString("reroute.settings.grade.set.not.allowed")));
+      }
     }
   }
 

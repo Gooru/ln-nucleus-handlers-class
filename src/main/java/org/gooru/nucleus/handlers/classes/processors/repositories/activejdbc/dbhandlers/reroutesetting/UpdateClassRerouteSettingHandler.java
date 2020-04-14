@@ -119,7 +119,8 @@ public class UpdateClassRerouteSettingHandler implements DBHandler {
     if (command.getGradeLowerBound() != null) {
       entityClass.setGradeLowerBound(command.getGradeLowerBound());
     }
-    if (command.getGradeCurrent() != null && entityClass.getGradeCurrent() == null) {
+    if (command.getGradeCurrent() != null
+        && (entityClass.getGradeCurrent() == null || !entityClass.isClassSetupComplete())) {
       entityClass.setGradeCurrent(command.getGradeCurrent());
       entityClass.setGradeUpperBound(command.getGradeCurrent());
       gradeWasSet = true;
