@@ -72,6 +72,7 @@ public class AJEntityClass extends Model {
   public static final String CONTENT_ADD_DEFAULT_VIEW = "content.add.default.view";
   public static final String MASTERY_APPLICABLE = "mastery.applicable";
   public static final String CA_SEARCH_DEFAULT_VIEW = "ca.search.default.view";
+  public static final String CLASS_SETUP_COMPLETE = "class.setup.complete";
   
   // Dummy field names for Content Visibility
   // TODO this needs to change when going through the setting of content visibility in new model
@@ -367,6 +368,21 @@ public class AJEntityClass extends Model {
 
   public boolean isForceCalculateILP() {
     return getBoolean(FORCE_CALCULATE_ILP);
+  }
+  
+  public boolean isClassSetupComplete() {
+    String strSetting = getString(AJEntityClass.SETTING);
+    JsonObject classSetting =
+        (strSetting != null && !strSetting.isEmpty()) ? new JsonObject(strSetting) : null;
+
+    if (classSetting != null && !classSetting.isEmpty()
+        && classSetting.containsKey(AJEntityClass.CLASS_SETUP_COMPLETE)) {
+        return classSetting.getBoolean(AJEntityClass.CLASS_SETUP_COMPLETE);
+    }
+    
+    // If class setting not present or does not contain class setup complete key, we are assuming
+    // that the class is not eligible for auto class setup. Hence want to return true.
+    return true;
   }
 
   public void setForceCalculateIlp(boolean forceCalculateIlp) {

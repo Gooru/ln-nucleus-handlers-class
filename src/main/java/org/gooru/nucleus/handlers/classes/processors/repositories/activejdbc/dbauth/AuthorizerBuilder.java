@@ -203,5 +203,15 @@ public final class AuthorizerBuilder {
   public static Authorizer<AJEntityClass> buildFindSecondaryClassesAuthorizer(ProcessorContext context) {
     return new ClassOwnerOrCollaboratorAuthorizer(context);
   }
+  
+  public static Authorizer<AJEntityClass> buildClassContentMeetingSetupAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
+  
+  public static Authorizer<AJEntityClass> buildClassContentMeetingCancelAuthorizer(
+      ProcessorContext context) {
+    return new ClassOwnerOrCollaboratorAuthorizer(context);
+  }
 
 }

@@ -82,4 +82,8 @@ public interface ClassRepo {
   MessageResponse findSecondaryClasses();
 
   MessageResponse listClassContentScheduledProcessor();
+  
+  MessageResponse contentMeetingSetupInClassProcessor();
+  
+  MessageResponse contentMeetingCancelInClassProcessor();
 }

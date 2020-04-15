@@ -3,6 +3,7 @@ package org.gooru.nucleus.handlers.classes.processors.repositories.activejdbc.co
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import org.postgresql.util.PGobject;
@@ -15,6 +16,7 @@ public interface FieldConverter {
   String JSONB_TYPE = "jsonb";
   String UUID_TYPE = "uuid";
   String DATE_TYPE = "date";
+  String TIMESTAMP_TYPE = "timestamp";
 
   static PGobject convertFieldToJson(Object value) {
     String JSONB_TYPE = FieldConverter.JSONB_TYPE;
@@ -66,5 +68,23 @@ public interface FieldConverter {
     }
   }
 
+  static PGobject convertFieldToTimestampWithFormat(Object o, DateTimeFormatter formatter) {
+    if (o == null) {
+      return null;
+    }
+    try {
+      LocalDateTime localDateTime = LocalDateTime.parse(o.toString(), formatter);
+      PGobject date = new PGobject();
+      date.setType(TIMESTAMP_TYPE);
+      date.setValue(localDateTime.toString());
+      return date;
+    } catch (DateTimeParseException | SQLException e) {
+      return null;
+    }
+  }
+
   PGobject convertField(Object fieldValue);
+
 }
+
+

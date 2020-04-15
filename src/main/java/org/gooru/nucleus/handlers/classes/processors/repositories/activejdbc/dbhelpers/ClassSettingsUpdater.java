@@ -73,7 +73,14 @@ public final class ClassSettingsUpdater {
             settingsFromRequest.getString(AJEntityClass.CA_SEARCH_DEFAULT_VIEW));
       }
     }
-
+    
+    // If class setting complete key is present in the request payload then add/update in the
+    // existing setting
+    if (settingsFromRequest.containsKey(AJEntityClass.CLASS_SETUP_COMPLETE)) {
+      setting.put(AJEntityClass.CLASS_SETUP_COMPLETE,
+          settingsFromRequest.getBoolean(AJEntityClass.CLASS_SETUP_COMPLETE));
+    }
+    
     LOGGER.debug("updating setting to '{}'", setting.toString());
     model.setClassSettings(setting);
   }

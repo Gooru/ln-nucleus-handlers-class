@@ -22,7 +22,7 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildCreateClassHandler(context));
   }
-  
+
   @Override
   public MessageResponse fetchClassDetails() {
     return TransactionExecutor
@@ -144,9 +144,8 @@ class AJClassRepo implements ClassRepo {
 
   @Override
   public MessageResponse updateProfileBaselineForSpecifiedStudents() {
-    return TransactionExecutor
-        .executeTransaction(
-            DBHandlerBuilder.buildUpdateProfileBaselineForSpecifiedStudentsHandler(context));
+    return TransactionExecutor.executeTransaction(
+        DBHandlerBuilder.buildUpdateProfileBaselineForSpecifiedStudentsHandler(context));
   }
 
   @Override
@@ -238,10 +237,24 @@ class AJClassRepo implements ClassRepo {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassSecondaryClassesFindHandler(context));
   }
-  
+
   @Override
   public MessageResponse listClassContentScheduledProcessor() {
     return TransactionExecutor
         .executeTransaction(DBHandlerBuilder.buildClassContentListScheduledHandler(context));
   }
+
+  @Override
+  public MessageResponse contentMeetingSetupInClassProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentMeetingSetupInClassHandler(context));
+  }
+  
+  @Override
+  public MessageResponse contentMeetingCancelInClassProcessor() {
+    return TransactionExecutor
+        .executeTransaction(DBHandlerBuilder.buildClassContentMeetingCancelInClassHandler(context));
+  }
+
+
 }
